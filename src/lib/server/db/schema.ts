@@ -16,7 +16,7 @@ export const session = pgTable('session', {
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 });
 
-export const launch = pgTable('launch', {
+export const product = pgTable('product', {
 	id: serial('id').primaryKey(),
 	name: varchar('name', { length: 128 }).notNull().unique(),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
@@ -25,39 +25,57 @@ export const launch = pgTable('launch', {
 		.references(() => user.id)
 });
 
+export const platformLaunch = pgTable('platform_launch', {
+	id: serial('id').primaryKey(),
+	launched: boolean('launched').default(false),
+	productId: integer('product_id')
+		.notNull()
+		.references(() => product.id),
+	platformId: integer('platform_id')
+		.notNull()
+		.references(() => platform.id)
+});
+
 export const platform = pgTable('platform', {
 	id: serial('id').primaryKey(),
 	name: varchar('name', { length: 128 }).notNull().unique(),
 	description: text('description').default(''),
 	url: text('url').notNull().unique(),
-	launched: boolean('launched').default(false),
-	launchId: integer('launch_id')
-		.notNull()
-		.references(() => launch.id)
+	custom: boolean('custom').default(false)
 });
 
 // TODO: platforms should be fixed, we just need a int to represent each platform
 // each bit will represent a platform
 // platforms_activation = 0b00000001
-// platforms_launch = 0b00000010
+// platforms_product = 0b00000010
 // this will save us a lot of space in the database
-// we can use a bit mask to check if a platform is activated or launched
+// we can use a bit mask to check if a platform is activated
 
 // TODO: use custom_platform table to store custom platforms that a user can add
 // e.g. reddit/r/indoor_boulder
 
 export const userSelectSchema = createSelectSchema(user);
 export const sessionSelectSchema = createSelectSchema(session);
-export const launchSelectSchema = createSelectSchema(launch);
+export const productSelectSchema = createSelectSchema(product);
 export const platformSelectSchema = createSelectSchema(platform);
 
 export const userInsertSchema = createInsertSchema(user);
 export const sessionInsertSchema = createInsertSchema(session);
-export const launchInsertSchema = createInsertSchema(launch).pick({ name: true, userId: true });
+export const productInsertSchema = createInsertSchema(product).pick({ name: true, userId: true });
 export const platformInsertSchema = createInsertSchema(platform);
 
 export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
-export type Launch = typeof launch.$inferSelect;
-export type ProductWithPlatforms = { product: Launch } & { platforms: Platform[] };
+export type Product = typeof product.$inferSelect;
 export type Platform = typeof platform.$inferSelect;
+export type PlatformLaunch = typeof platformLaunch.$inferSelect;
+export type ProductWithPlatforms = { product: Product } & {
+	platforms: Array<{
+		id: Platform['id'];
+		name: Platform['name'];
+		description: Platform['description'];
+		url: Platform['url'];
+		launched: PlatformLaunch['launched'];
+		custom: Platform['custom'];
+	}>;
+};

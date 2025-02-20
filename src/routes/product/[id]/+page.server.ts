@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getLaunchById } from '$lib/server/db/launch.model';
-import { updatePlatformLaunched } from '$lib/server/db/platform.model';
+import { getProductById } from '$lib/server/db/product.model';
+import { updatePlatformLaunch } from '$lib/server/db/platform.model';
 
 export const load: PageServerLoad = async (event) => {
 	if (!event.locals.user) {
@@ -12,7 +12,7 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		user: event.locals.user,
-		launch: await getLaunchById(event.locals.user.id, product_id)
+		launch: await getProductById(event.locals.user.id, product_id)
 	};
 	// form: await superValidate(zod(launchInsertSchema))
 };
@@ -34,6 +34,6 @@ export const actions: Actions = {
 			return redirect(302, '/demo/lucia/login');
 		}
 
-		await updatePlatformLaunched(userId, launchId, platformId, launched);
+		await updatePlatformLaunch(userId, launchId, platformId, launched);
 	}
 };

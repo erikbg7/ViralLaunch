@@ -1,47 +1,38 @@
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '$lib/server/db';
-import { launch, platform, type Launch, type Platform } from '$lib/server/db/schema';
+import {
+	platform,
+	platformLaunch,
+	product,
+	type PlatformLaunch,
+	type Product
+} from '$lib/server/db/schema';
 import type { User } from 'lucide-svelte';
 
-export async function getPlatformsByLaunchId(launchId: Launch['id']): Promise<Platform[]> {
-	const platforms = await db
-		.select()
-		.from(platform)
-		.where(eq(platform.launchId, launchId))
-		.orderBy(desc(launch.createdAt));
-	return platforms;
-}
-
-export async function updatePlatformLaunched(
+export async function updatePlatformLaunch(
 	userId: User['id'],
-	launchId: Launch['id'],
-	platformId: Platform['id'],
-	launched: Platform['launched']
+	productId: Product['id'],
+	platformId: PlatformLaunch['id'],
+	launched: PlatformLaunch['launched']
 ): Promise<void> {
 	try {
 		// Step 1: Verify that the launch belongs to the user
 		const launchExists = await db
-			.select({ id: launch.id })
-			.from(launch)
-			.where(and(eq(launch.id, launchId), eq(launch.userId, userId)));
+			.select({ id: product.id })
+			.from(product)
+			.where(and(eq(product.id, productId), eq(product.userId, userId)));
 
 		if (launchExists.length === 0) {
-			throw new Error('Launch not found or does not belong to this user.');
+			throw new Error('Product not found or does not belong to this user.');
 		}
 		// // Step 2: Update the `launched` field for all related platforms
 		await db
-			.update(platform)
+			.update(platformLaunch)
 			.set({ launched })
-			.where(and(eq(platform.launchId, launchId), eq(platform.id, platformId)));
+			.where(
+				and(eq(platformLaunch.productId, productId), eq(platformLaunch.platformId, platformId))
+			);
 	} catch (error) {
 		console.error(error);
 	}
-}
-
-export async function createPlatform(userId: string, name: string): Promise<Launch> {
-	const [createdLaunch] = await db.insert(launch).values({
-		userId,
-		name
-	});
-	return createdLaunch;
 }
