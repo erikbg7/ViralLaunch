@@ -1,7 +1,10 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getProductById } from '$lib/server/db/product.model';
-import { updatePlatformLaunch } from '$lib/server/db/platform.model';
+import { createCustomPlatform, updatePlatformLaunch } from '$lib/server/db/platform.model';
+import { fail, superValidate, type Infer } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { platformInsertSchema } from '$lib/server/db/schema';
 
 export const load: PageServerLoad = async (event) => {
 	if (!event.locals.user) {
@@ -12,9 +15,9 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		user: event.locals.user,
-		launch: await getProductById(event.locals.user.id, product_id)
+		launch: await getProductById(event.locals.user.id, product_id),
+		form_create_platform: await superValidate(zod(platformInsertSchema))
 	};
-	// form: await superValidate(zod(launchInsertSchema))
 };
 
 export const actions: Actions = {
@@ -35,5 +38,24 @@ export const actions: Actions = {
 		}
 
 		await updatePlatformLaunch(userId, launchId, platformId, launched);
+	},
+	createPlatform: async (event) => {
+		const userId = event.locals.user!.id;
+		const productId = parseInt(event.params.id);
+		const form = await superValidate(event, zod(platformInsertSchema));
+
+		if (!userId) {
+			return redirect(302, '/demo/lucia/login');
+		}
+
+		if (!productId) {
+			return redirect(302, '/demo/lucia/login');
+		}
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		await createCustomPlatform(productId, form.data);
 	}
 };

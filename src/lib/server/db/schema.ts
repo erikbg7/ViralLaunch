@@ -1,3 +1,4 @@
+import z from 'zod';
 import { pgTable, serial, text, integer, timestamp, boolean, varchar } from 'drizzle-orm/pg-core';
 import { createSelectSchema, createInsertSchema } from 'drizzle-zod';
 
@@ -62,12 +63,19 @@ export const platformSelectSchema = createSelectSchema(platform);
 export const userInsertSchema = createInsertSchema(user);
 export const sessionInsertSchema = createInsertSchema(session);
 export const productInsertSchema = createInsertSchema(product).pick({ name: true, userId: true });
-export const platformInsertSchema = createInsertSchema(platform);
+export const platformInsertSchema = z.object({
+	name: z.string(),
+	description: z.string(),
+	url: z.string(),
+	custom: z.boolean()
+});
 
 export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 export type Product = typeof product.$inferSelect;
 export type Platform = typeof platform.$inferSelect;
+export type PlatformInsert = typeof platform.$inferInsert;
+
 export type PlatformLaunch = typeof platformLaunch.$inferSelect;
 export type ProductWithPlatforms = { product: Product } & {
 	platforms: Array<{

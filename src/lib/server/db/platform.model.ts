@@ -4,6 +4,8 @@ import {
 	platform,
 	platformLaunch,
 	product,
+	type Platform,
+	type PlatformInsert,
 	type PlatformLaunch,
 	type Product
 } from '$lib/server/db/schema';
@@ -32,6 +34,25 @@ export async function updatePlatformLaunch(
 			.where(
 				and(eq(platformLaunch.productId, productId), eq(platformLaunch.platformId, platformId))
 			);
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function createCustomPlatform(
+	productId: number,
+	platformData: PlatformInsert
+): Promise<void> {
+	try {
+		const [createdPlatform] = await db
+			.insert(platform)
+			.values({ ...platformData, custom: true })
+			.returning({ id: platform.id });
+
+		await db
+			.insert(platformLaunch)
+			.values({ productId: productId, platformId: createdPlatform.id })
+			.returning({ id: platformLaunch.id });
 	} catch (error) {
 		console.error(error);
 	}

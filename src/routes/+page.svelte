@@ -20,7 +20,7 @@
 		}
 	});
 
-	const { form: formData, enhance, message } = form;
+	const { form: formData, enhance } = form;
 </script>
 
 <section class="flex flex-col items-center space-y-4">
