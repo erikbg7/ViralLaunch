@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
+	import { subredditState } from '../store.svelte';
 
 	Chart.register(...registerables);
 
@@ -13,9 +14,11 @@
 
 	async function fetchData() {
 		const response = await fetch(`/api/daily-stats?subredditId=${subredditId}`);
-		chartData = await response.json();
+		const data = await response.json();
+		chartData = data.results || [];
 
-		console.log({ chartData });
+		subredditState.onlineUsers = data.lastRecord;
+		subredditState.lastUpdate = data.updatedAt;
 
 		renderChart();
 	}

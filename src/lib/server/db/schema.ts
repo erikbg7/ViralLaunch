@@ -1,16 +1,16 @@
 import z from 'zod';
 import {
+	boolean,
+	date,
+	integer,
 	pgTable,
+	real,
 	serial,
 	text,
-	integer,
 	timestamp,
-	boolean,
-	varchar,
-	real,
-	date
+	varchar
 } from 'drizzle-orm/pg-core';
-import { createSelectSchema, createInsertSchema } from 'drizzle-zod';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -83,6 +83,8 @@ export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
 	hourOfDay: integer('hour_of_day').notNull(), // 0 = 00:00, 23 = 23:00
 
 	avgOnlineUsers: real('avg_online_users').notNull(), // Floating point for accuracy
+	lastRecord: integer('last_record').notNull().default(0),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 
 	weekStartDate: date('week_start_date').notNull() // Which week this belongs to
 });
@@ -104,7 +106,10 @@ export const platformSelectSchema = createSelectSchema(platform);
 
 export const userInsertSchema = createInsertSchema(user);
 export const sessionInsertSchema = createInsertSchema(session);
-export const productInsertSchema = createInsertSchema(product).pick({ name: true, userId: true });
+export const productInsertSchema = createInsertSchema(product).pick({
+	name: true,
+	userId: true
+});
 export const platformInsertSchema = z.object({
 	name: z.string(),
 	description: z.string(),

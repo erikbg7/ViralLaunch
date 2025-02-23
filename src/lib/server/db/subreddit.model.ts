@@ -2,6 +2,10 @@ import { db } from '$lib/server/db';
 import { product, productSubreddit, subreddit, subredditHourlyAvg } from '$lib/server/db/schema';
 import { and, eq } from 'drizzle-orm';
 
+export async function getAllSubreddits() {
+	return await db.select().from(subreddit);
+}
+
 export async function getProjectSubreddits(userId: string, productId: number) {
 	const result = await db
 		.select({
@@ -91,16 +95,61 @@ export async function insertHourlyAverages(
 			dayOfWeek,
 			hourOfDay,
 			avgOnlineUsers: avgUsers,
+			lastRecord: avgUsers,
 			weekStartDate
 		}))
 	);
 }
+
+export async function insertHourlyAverage(
+	subredditId: number,
+	dayOfWeek: number,
+	hourOfDay: number,
+	newOnlineUsers: number
+) {
+	// Fetch the previous record for this subreddit, day, hour, and week
+	const previousRecord = await db
+		.select()
+		.from(subredditHourlyAvg)
+		.where(
+			and(
+				eq(subredditHourlyAvg.subredditId, subredditId),
+				eq(subredditHourlyAvg.dayOfWeek, dayOfWeek),
+				eq(subredditHourlyAvg.hourOfDay, hourOfDay)
+			)
+		)
+		.limit(1);
+
+	if (previousRecord.length > 0) {
+		// If a previous record exists, calculate new average
+		const prevAvg = previousRecord[0].avgOnlineUsers || newOnlineUsers;
+		const newAvg = (prevAvg * 5 + newOnlineUsers) / 6;
+
+		// Update existing record
+		await db
+			.update(subredditHourlyAvg)
+			.set({ avgOnlineUsers: newAvg, lastRecord: newOnlineUsers })
+			.where(eq(subredditHourlyAvg.id, previousRecord[0].id));
+	} else {
+		// Insert new record
+		await db.insert(subredditHourlyAvg).values({
+			subredditId,
+			dayOfWeek,
+			hourOfDay,
+			avgOnlineUsers: newOnlineUsers,
+			weekStartDate: '1997-03-01'
+		});
+	}
+}
+
 export async function getHourlyGraphData(subredditId: number) {
 	return await db
 		.select({
 			dayOfWeek: subredditHourlyAvg.dayOfWeek,
 			hourOfDay: subredditHourlyAvg.hourOfDay,
-			avgUsers: subredditHourlyAvg.avgOnlineUsers
+			avgUsers: subredditHourlyAvg.avgOnlineUsers,
+			lastRecord: subredditHourlyAvg.lastRecord,
+			updatedAt: subredditHourlyAvg.updatedAt
 		})
 		.from(subredditHourlyAvg)
 		.where(

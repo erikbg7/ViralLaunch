@@ -1,6 +1,8 @@
 type HourlyData = {
 	dayOfWeek: number;
 	hourOfDay: number;
+	lastRecord: number;
+	updatedAt: Date;
 	avgUsers: number;
 };
 
@@ -25,6 +27,17 @@ export function aggregateToDailyAverages(hourlyData: HourlyData[]): DailyAverage
 		dayOfWeek: Number(day),
 		avgUsers: Math.ceil(stats.totalUsers / stats.count)
 	}));
+}
+
+export function getCurrentLastRecord(hourlyData: HourlyData[]): HourlyData | undefined {
+	const hourOfDay = new Date().getUTCHours();
+	const dayOfWeek = ((new Date().getUTCDay() + 6) % 7) + 1;
+
+	const hourlyRecord = hourlyData.find(
+		(d) => d.dayOfWeek === dayOfWeek && d.hourOfDay === hourOfDay
+	);
+
+	return hourlyRecord;
 }
 
 // async function getDailyGraphData(subredditId: number, weekStartDate: string) {

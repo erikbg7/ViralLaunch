@@ -10,11 +10,12 @@
 	import { toast } from 'svelte-sonner';
 	import { Input } from '$lib/components/ui/input';
 	import DailyChart from './_components/daily-chart.svelte';
+	import { subredditState } from './store.svelte';
+	import { timeAgo } from '$lib/date';
 
 	const { data }: { data: PageServerData } = $props();
 
 	const subreddits = data.subreddits;
-	console.log({ subreddits });
 	let sheet_open = $state(false);
 
 	const createSubredditform = superForm(data.forms.create_subreddit, {
@@ -137,6 +138,11 @@
 
 					<CardHeader>
 						<CardTitle class="text-lg text-orange-500">r/{subreddit.name}</CardTitle>
+						<span
+							>{subredditState.onlineUsers} online users - {timeAgo(
+								subredditState.lastUpdate
+							)}</span
+						>
 					</CardHeader>
 					<CardContent>
 						{@render activity_graph(String(subreddit.id))}
