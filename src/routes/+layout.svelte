@@ -6,6 +6,6 @@
 
 <Toaster />
 
-<main class="mx-auto max-w-5xl">
+<main class="mx-auto max-w-7xl">
 	{@render children()}
 </main>

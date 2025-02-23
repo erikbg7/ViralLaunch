@@ -1,5 +1,15 @@
 import z from 'zod';
-import { pgTable, serial, text, integer, timestamp, boolean, varchar } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	serial,
+	text,
+	integer,
+	timestamp,
+	boolean,
+	varchar,
+	real,
+	date
+} from 'drizzle-orm/pg-core';
 import { createSelectSchema, createInsertSchema } from 'drizzle-zod';
 
 export const user = pgTable('user', {
@@ -45,6 +55,38 @@ export const platform = pgTable('platform', {
 	custom: boolean('custom').default(false)
 });
 
+export const productSubreddit = pgTable('product_subreddit', {
+	id: serial('id').primaryKey(),
+	productId: integer('product_id')
+		.notNull()
+		.references(() => product.id, { onDelete: 'cascade' }),
+	subredditId: integer('subreddit_id')
+		.notNull()
+		.references(() => subreddit.id, { onDelete: 'cascade' })
+});
+
+export const subreddit = pgTable('subreddit', {
+	id: serial('id').primaryKey(),
+	name: varchar('name', { length: 128 }).notNull().unique(),
+	url: text('url').notNull().unique(),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
+});
+
+export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
+	id: serial('id').primaryKey(),
+	subredditId: integer('subreddit_id')
+		.notNull()
+		.references(() => subreddit.id, { onDelete: 'cascade' }),
+
+	dayOfWeek: integer('day_of_week').notNull(), // 1 = Monday, ..., 7 = Sunday
+	hourOfDay: integer('hour_of_day').notNull(), // 0 = 00:00, 23 = 23:00
+
+	avgOnlineUsers: real('avg_online_users').notNull(), // Floating point for accuracy
+
+	weekStartDate: date('week_start_date').notNull() // Which week this belongs to
+});
+
 // TODO: platforms should be fixed, we just need a int to represent each platform
 // each bit will represent a platform
 // platforms_activation = 0b00000001
@@ -68,6 +110,17 @@ export const platformInsertSchema = z.object({
 	description: z.string(),
 	url: z.string(),
 	custom: z.boolean()
+});
+
+export const redditRemoveSchema = z.object({
+	id: z.number()
+});
+
+export const redditInsertSchema = z.object({
+	url: z
+		.string()
+		.url()
+		.regex(/reddit.com\/r\/\w+/)
 });
 
 export type Session = typeof session.$inferSelect;
