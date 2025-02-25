@@ -27,24 +27,25 @@ export const session = pgTable('session', {
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 });
 
-export const product = pgTable('product', {
-	id: serial('id').primaryKey(),
-	name: varchar('name', { length: 128 }).notNull().unique(),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	userId: text('user_id')
+export const product = pgTable('product', (t) => ({
+	id: t.serial('id').primaryKey(),
+	name: t.varchar('name', { length: 128 }).notNull().unique(),
+	createdAt: t.timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	userId: t
+		.text('user_id')
 		.notNull()
 		.references(() => user.id)
-});
+}));
 
 export const platformLaunch = pgTable('platform_launch', {
 	id: serial('id').primaryKey(),
 	launched: boolean('launched').default(false),
 	productId: integer('product_id')
 		.notNull()
-		.references(() => product.id),
+		.references(() => product.id, { onDelete: 'cascade' }),
 	platformId: integer('platform_id')
 		.notNull()
-		.references(() => platform.id)
+		.references(() => platform.id, { onDelete: 'cascade' })
 });
 
 export const platform = pgTable('platform', {

@@ -5,16 +5,39 @@ import {
 	platform,
 	platformLaunch,
 	type Product,
-	type ProductWithPlatforms
+	type ProductWithPlatforms,
+	productSubreddit
 } from '$lib/server/db/schema';
 
 export async function getProductsByUserId(userId: string): Promise<Product[]> {
-	const productes = await db
+	const products = await db
 		.select()
 		.from(product)
 		.where(eq(product.userId, userId))
 		.orderBy(desc(product.createdAt));
-	return productes;
+	return products;
+}
+
+type ProductWithSubreddits = Product & { subreddits_tracked: number };
+export async function getUserProductsWithReddits(
+	userId: string
+): Promise<Array<ProductWithSubreddits>> {
+	return await db.transaction(async (tx) => {
+		const products = await getProductsByUserId(userId);
+
+		return await Promise.all(
+			products.map(async (product) => {
+				const subreddits = await tx
+					.select()
+					.from(productSubreddit)
+					.where(eq(productSubreddit.productId, product.id));
+				return {
+					...product,
+					subreddits_tracked: subreddits?.length || 0
+				};
+			})
+		);
+	});
 }
 
 export async function getProductById(
@@ -73,6 +96,14 @@ export async function createProduct(userId: string, name: string): Promise<Produ
 		name
 	});
 	return createdProduct;
+}
+
+export async function deleteProduct(userId: string, id: number): Promise<Product> {
+	const [deletedProduct] = await db
+		.delete(product)
+		.where(and(eq(product.userId, userId), eq(product.id, id)));
+
+	return deletedProduct;
 }
 
 export async function createProductWithDefaultPlatforms(

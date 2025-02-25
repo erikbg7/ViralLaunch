@@ -9,11 +9,11 @@
 <form method="post" action="?/login" use:enhance>
 	<label>
 		Username
-		<input name="username" />
+		<input class="bg-white" name="username" />
 	</label>
 	<label>
 		Password
-		<input type="password" name="password" />
+		<input class="bg-white" type="password" name="password" />
 	</label>
 	<button>Login</button>
 	<button formaction="?/register">Register</button>
