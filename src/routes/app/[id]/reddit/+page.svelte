@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index';
-	import { Button, buttonVariants } from '$lib/components/ui/button/index';
+	import { buttonVariants } from '$lib/components/ui/button/index';
 	import { Plus, X } from 'lucide-svelte';
-	import * as Sheet from '$lib/components/ui/sheet/index';
 	import * as Popover from '$lib/components/ui/popover/index';
 	import * as Form from '$lib/components/ui/form/index';
 	import { superForm } from 'sveltekit-superforms';
@@ -12,10 +11,10 @@
 	import DailyChart from './_components/daily-chart.svelte';
 	import { subredditState } from './store.svelte';
 	import { timeAgo } from '$lib/date';
+	import { invalidateAll } from '$app/navigation';
 
 	const { data }: { data: PageServerData } = $props();
 
-	const subreddits = data.subreddits;
 	let sheet_open = $state(false);
 
 	const createSubredditform = superForm(data.forms.create_subreddit, {
@@ -26,6 +25,7 @@
 					? toast.success(form.message.text)
 					: toast.error(form.message.text);
 			}
+			invalidateAll();
 		},
 		onResult(form) {
 			if (form.result) {
@@ -43,6 +43,7 @@
 					? toast.success(form.message.text)
 					: toast.error(form.message.text);
 			}
+			invalidateAll();
 		},
 		onResult(form) {
 			if (form.result) {
@@ -123,7 +124,7 @@
 		</div>
 
 		<div class="grid gap-4 md:grid-cols-2">
-			{#each subreddits as subreddit}
+			{#each data.subreddits as subreddit}
 				<Card class="relative  shadow-xl">
 					<form method="POST" action="?/removeSubreddit" use:removeSubredditform.enhance>
 						<Form.Button

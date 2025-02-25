@@ -1,4 +1,4 @@
-import { fail, superValidate } from 'sveltekit-superforms';
+import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { redditInsertSchema, redditRemoveSchema } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
@@ -37,6 +37,11 @@ export const actions: Actions = {
 		const subredditId = form.data.id;
 
 		await removeSubredditFromUser(userId, productId, subredditId);
+
+		return message(form, {
+			status: 'success',
+			text: 'subreddit removed successfully'
+		});
 	},
 	createSubreddit: async (event) => {
 		const userId = event.locals.user!.id;
@@ -60,5 +65,10 @@ export const actions: Actions = {
 		}
 
 		await insertUserSubreddit(productId, subredditUrl, subredditName);
+
+		return message(form, {
+			status: 'success',
+			text: 'subreddit created successfully'
+		});
 	}
 };
