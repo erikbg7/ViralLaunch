@@ -27,7 +27,7 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(redditRemoveSchema));
 
 		if (!userId) {
-			return redirect(302, '/demo/lucia/login');
+			return redirect(302, '/login');
 		}
 
 		if (!form.valid) {
@@ -45,7 +45,7 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(redditInsertSchema));
 
 		if (!userId) {
-			return redirect(302, '/demo/lucia/login');
+			return redirect(302, '/login');
 		}
 
 		if (!form.valid) {

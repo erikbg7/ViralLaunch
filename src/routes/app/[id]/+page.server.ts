@@ -8,7 +8,7 @@ import { platformInsertSchema } from '$lib/server/db/schema';
 
 export const load: PageServerLoad = async (event) => {
 	if (!event.locals.user) {
-		return redirect(302, '/demo/lucia/login');
+		return redirect(302, '/login');
 	}
 
 	const product_id = parseInt(event.params.id);
@@ -30,11 +30,11 @@ export const actions: Actions = {
 		const launched = form.get('launched') === 'true';
 
 		if (!userId) {
-			return redirect(302, '/demo/lucia/login');
+			return redirect(302, '/login');
 		}
 
 		if (!launchId) {
-			return redirect(302, '/demo/lucia/login');
+			return redirect(302, '/login');
 		}
 
 		await updatePlatformLaunch(userId, launchId, platformId, launched);
@@ -45,11 +45,11 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(platformInsertSchema));
 
 		if (!userId) {
-			return redirect(302, '/demo/lucia/login');
+			return redirect(302, '/login');
 		}
 
 		if (!productId) {
-			return redirect(302, '/demo/lucia/login');
+			return redirect(302, '/login');
 		}
 
 		if (!form.valid) {

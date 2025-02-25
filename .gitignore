@@ -1,5 +1,8 @@
 node_modules
 
+# VSCode
+.vscode
+
 # Output
 .output
 .vercel
@@ -21,3 +24,8 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Supabase Edge Functions
+supabase/.branches/*
+supabase/.temp/*
+
