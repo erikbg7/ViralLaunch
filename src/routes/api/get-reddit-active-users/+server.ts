@@ -30,5 +30,5 @@ export const POST = async (event) => {
 		})
 	);
 
-	return json('you have correclty called the endpoint');
+	return json({ t: 'you have correclty called the endpoint' });
 };
