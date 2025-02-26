@@ -7,7 +7,7 @@ import { json } from '@sveltejs/kit';
 export const POST = async (event) => {
 	console.log('[REDDIT API] Webhook called');
 
-	return json('you have correclty called the endpoint');
+	// return json('you have correclty called the endpoint');
 
 	// await createProduct('5ykowyszumtyuqlrmplweodv', 'kakatu');
 
