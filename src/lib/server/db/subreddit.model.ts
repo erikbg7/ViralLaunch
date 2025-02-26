@@ -60,6 +60,12 @@ export async function insertUserSubreddit(
 	}
 }
 
+export async function removeSubreddit(subredditId: number) {
+	return await db.transaction(async (tx) => {
+		await tx.delete(subreddit).where(eq(subreddit.id, subredditId));
+	});
+}
+
 export async function removeSubredditFromUser(
 	userId: string,
 	productId: number,

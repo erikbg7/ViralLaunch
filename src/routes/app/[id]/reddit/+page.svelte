@@ -63,16 +63,17 @@
 	// 		.catch((e) => console.log('error', e));
 	// }
 
-	function handleRefresh() {
-		fetch('/api/get-reddit-active-users', {
+	async function handleRefresh() {
+		// const res = await fetch('https://viral-launch-zeta.vercel.app/api/get-reddit-active-users', {
+		const res = await fetch('http://localhost:5173/api/get-reddit-active-users', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzZ212aWl6cmx5am91ZG5xYXdzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTk2NjY5NSwiZXhwIjoyMDU1NTQyNjk1fQ.IvRscrZ_WIsS1NUYBJ0KBERCtpbRljLozt_uZ1ALw3A`
+				Authorization: `Bearer `
 			}
-		})
-			.then((res) => console.log('refreshed'))
-			.catch((e) => console.log('error', e));
+		});
+		const d = await res.json();
+		console.log(d);
 	}
 
 	const createSubredditformData = createSubredditform.form;
@@ -95,7 +96,7 @@
 				Reddit
 			</h1>
 
-			<Button onclick={handleRefresh}>Refresh Data</Button>
+			<Button onclick={() => handleRefresh()}>Refresh Data</Button>
 			<Popover.Root>
 				<Popover.Trigger class={buttonVariants({ variant: 'outline' })}>
 					<Plus class="mr-2 h-4 w-4" />
