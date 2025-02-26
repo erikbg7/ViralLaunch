@@ -29,7 +29,7 @@
 </script>
 
 <section class="flex flex-col items-center space-y-4">
-	<h1 class="text-2xl">Welcome to Viral Launch, {data.user.username}</h1>
+	<h1 class="text-2xl">Welcome to Viral Launch</h1>
 
 	<div class="my-12 w-full">
 		{#await data.products}

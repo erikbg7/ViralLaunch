@@ -10,12 +10,11 @@ import {
 } from '$lib/server/db/product.model';
 
 export const load: PageServerLoad = async (event) => {
-	if (!event.locals.user) {
+	if (event.locals.session === null || event.locals.user === null) {
 		return redirect(302, '/login');
 	}
 
 	return {
-		user: event.locals.user,
 		products: await getUserProductsWithReddits(event.locals.user.id),
 		form: await superValidate(zod(productInsertSchema))
 	};

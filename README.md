@@ -52,3 +52,9 @@ curl --request POST 'http://127.0.0.1:54321/functions/v1/reddit-active-users' \
 # Launch the supabase server
 
 supabase functions serve --env-file ./supabase/.env
+
+# Drizzle apps
+
+https://github.com/rajput-hemant/infinitunes/blob/master/src/lib/db/schema.ts
+
+https://github.com/rajput-hemant/lipi/tree/master/lib/db

@@ -12,21 +12,17 @@ export const POST = async (event) => {
 	console.log('[REDDIT API] Webhook call authorized');
 
 	const subreddits = await getAllSubreddits();
-	const subredditZero = subreddits[0];
-
-	const { name, id } = subredditZero;
-
 	const dayOfWeek = ((new Date().getUTCDay() + 6) % 7) + 1;
 	const hourOfDay = new Date().getUTCHours();
 
-	console.log('DATA', { id, name, dayOfWeek, hourOfDay });
-
-	const redditApi = new RedditAPI();
-	const onlineUsers = await redditApi.getSubredditOnlineUsers(name);
-
-	console.log('ONLINE', { onlineUsers });
-
-	await insertHourlyAverage(id, dayOfWeek, hourOfDay, onlineUsers);
+	await Promise.all(
+		subreddits.map(async (subreddit) => {
+			const { name, id } = subreddit;
+			const redditApi = new RedditAPI();
+			const onlineUsers = await redditApi.getSubredditOnlineUsers(name);
+			await insertHourlyAverage(id, dayOfWeek, hourOfDay, onlineUsers);
+		})
+	);
 
 	return json('you have correclty called the endpoint');
 };
