@@ -4,16 +4,6 @@ import { getAllSubreddits, insertHourlyAverage } from '$lib/server/db/subreddit.
 import { RedditAPI } from '$lib/server/reddit-api.service';
 import { json } from '@sveltejs/kit';
 
-export async function OPTIONS() {
-	return new Response(null, {
-		headers: {
-			'Access-Control-Allow-Origin': '*', // Specify the url you wish to permit
-			'Access-Control-Allow-Methods': 'POST, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type'
-		}
-	});
-}
-
 export const POST = async (event) => {
 	console.log('[REDDIT API] Webhook called');
 
@@ -37,7 +27,7 @@ export const POST = async (event) => {
 	// 		}
 	// 	})
 
-	return json({ t: 'you have correclty called the endpoint' });
+	// return json({ t: 'you have correclty called the endpoint' });
 
 	const subreddits = await getAllSubreddits();
 	const dayOfWeek = ((new Date().getUTCDay() + 6) % 7) + 1;
