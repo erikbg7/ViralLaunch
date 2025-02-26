@@ -7,27 +7,11 @@ import { json } from '@sveltejs/kit';
 export const POST = async (event) => {
 	console.log('[REDDIT API] Webhook called');
 
-	// return json('you have correclty called the endpoint');
-
-	// await createProduct('5ykowyszumtyuqlrmplweodv', 'kakatu');
-
-	// const authHeader = event.request.headers.get('Authorization');
-	// if (!authHeader || authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
-	// 	return json({ error: 'Unauthorized' }, { status: 401 });
-	// }
-	// console.log('[REDDIT API] Webhook call authorized');
-
-	// allow cors
-	// event.respondWith(
-	// 	new Response('Hello world', {
-	// 		headers: {
-	// 			'Access-Control-Allow-Origin': '*',
-	// 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-	// 			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-	// 		}
-	// 	})
-
-	// return json({ t: 'you have correclty called the endpoint' });
+	const authHeader = event.request.headers.get('Authorization');
+	if (!authHeader || authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+	console.log('[REDDIT API] Webhook call authorized');
 
 	const subreddits = await getAllSubreddits();
 	const dayOfWeek = ((new Date().getUTCDay() + 6) % 7) + 1;
@@ -36,9 +20,13 @@ export const POST = async (event) => {
 	await Promise.all(
 		subreddits.map(async (subreddit) => {
 			const { name, id } = subreddit;
-			const redditApi = new RedditAPI();
-			const onlineUsers = await redditApi.getSubredditOnlineUsers(name);
-			await insertHourlyAverage(id, dayOfWeek, hourOfDay, onlineUsers);
+			try {
+				const redditApi = new RedditAPI();
+				const onlineUsers = await redditApi.getSubredditOnlineUsers(name);
+				await insertHourlyAverage(id, dayOfWeek, hourOfDay, onlineUsers);
+			} catch (e) {
+				console.error('[REDDIT API ERROR]', e);
+			}
 		})
 	);
 

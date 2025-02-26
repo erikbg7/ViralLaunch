@@ -126,7 +126,7 @@ export async function insertHourlyAverage(
 	if (previousRecord.length > 0) {
 		// If a previous record exists, calculate new average
 		const prevAvg = previousRecord[0].avgOnlineUsers || newOnlineUsers;
-		const newAvg = (prevAvg * 5 + newOnlineUsers) / 6;
+		const newAvg = Math.ceil((prevAvg * 5 + newOnlineUsers) / 6);
 
 		// Update existing record
 		await db
