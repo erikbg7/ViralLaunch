@@ -11,11 +11,11 @@ export const POST = async (event) => {
 
 	// await createProduct('5ykowyszumtyuqlrmplweodv', 'kakatu');
 
-	const authHeader = event.request.headers.get('Authorization');
-	if (!authHeader || authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
-	}
-	console.log('[REDDIT API] Webhook call authorized');
+	// const authHeader = event.request.headers.get('Authorization');
+	// if (!authHeader || authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
+	// 	return json({ error: 'Unauthorized' }, { status: 401 });
+	// }
+	// console.log('[REDDIT API] Webhook call authorized');
 
 	const subreddits = await getAllSubreddits();
 	const dayOfWeek = ((new Date().getUTCDay() + 6) % 7) + 1;
