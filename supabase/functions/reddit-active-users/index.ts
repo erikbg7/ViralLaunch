@@ -8,34 +8,35 @@
 //  --data '{ "name":"Functions" }'
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
-console.log("[REDDIT CRON] Starting...");
+console.log('[REDDIT CRON] Starting...');
 
 const config = {
-  webhookUrl: Deno.env.get("WEBHOOK_URL")!,
-  webhookToken: Deno.env.get("WEBHOOK_SECRET")!,
+	webhookUrl: Deno.env.get('WEBHOOK_URL')!,
+	webhookToken: Deno.env.get('WEBHOOK_SECRET')!
 };
 
 Deno.serve(async (req) => {
-  const { name } = await req.json();
-  const data = {
-    message: `Hello ${name} motherfuckker!`,
-  };
+	const { name } = await req.json();
+	const data = {
+		message: `Hello ${name} motherfuckker!`
+	};
 
-  try {
-    await fetch(config.webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.webhookToken}`,
-      },
-      body: JSON.stringify(data),
-    });
+	try {
+		fetch(config.webhookUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${config.webhookToken}`
+			},
+			body: JSON.stringify(data)
+		});
 
-    return new Response("[REDDIT CRON] Successfully sent webhook");
-  } catch (e) {
-    console.error("[REDDIT CRON] Error sending webhook", e);
-    return new Response("[REDDIT CRON] Error sending webhook", { status: 500 });
-  }
+		console.log('[REDDIT CRON] Successfully sent webhook');
+		return new Response('[REDDIT CRON] Successfully sent webhook');
+	} catch (e) {
+		console.error('[REDDIT CRON] Error sending webhook', e);
+		return new Response('[REDDIT CRON] Error sending webhook', { status: 500 });
+	}
 });
