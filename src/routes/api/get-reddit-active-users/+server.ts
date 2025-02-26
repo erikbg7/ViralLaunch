@@ -7,7 +7,9 @@ import { json } from '@sveltejs/kit';
 export const POST = async (event) => {
 	console.log('[REDDIT API] Webhook called');
 
-	await createProduct('5ykowyszumtyuqlrmplweodv', 'kakatu');
+	return json('you have correclty called the endpoint');
+
+	// await createProduct('5ykowyszumtyuqlrmplweodv', 'kakatu');
 
 	const authHeader = event.request.headers.get('Authorization');
 	if (!authHeader || authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
