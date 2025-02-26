@@ -82,10 +82,8 @@ export const actions: Actions = {
 				passwordHash
 			});
 
-			console.log('before');
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);
-			console.log('after', { session, sessionToken });
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		} catch (e) {
 			return fail(500, { message: 'An error has occurred' });

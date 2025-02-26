@@ -11,6 +11,13 @@ type DailyAverage = {
 	avgUsers: number;
 };
 
+export function getDailyAverage(
+	hourlyData: HourlyData[],
+	dayOfWeek: HourlyData['dayOfWeek']
+): HourlyData[] {
+	return hourlyData.filter((d) => d.dayOfWeek === dayOfWeek);
+}
+
 export function aggregateToDailyAverages(hourlyData: HourlyData[]): DailyAverage[] {
 	const dailyStats: Record<number, { totalUsers: number; count: number }> = {};
 

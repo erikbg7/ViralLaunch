@@ -1,5 +1,11 @@
 import { db } from '$lib/server/db';
-import { product, productSubreddit, subreddit, subredditHourlyAvg } from '$lib/server/db/schema';
+import {
+	product,
+	productSubreddit,
+	subreddit,
+	subredditHourlyAvg,
+	subredditUrlInsertSchema
+} from '$lib/server/db/schema';
 import { and, eq } from 'drizzle-orm';
 
 export async function getAllSubreddits() {
@@ -16,8 +22,6 @@ export async function getProjectSubreddits(userId: string, productId: number) {
 		.innerJoin(product, eq(productSubreddit.productId, productId))
 		.where(eq(product.userId, userId))
 		.groupBy(subreddit.id);
-
-	console.log({ result });
 
 	return result.map((row) => row.subreddit);
 
@@ -38,23 +42,22 @@ export async function insertUserSubreddit(
 	url: string,
 	name: string
 ): Promise<any> {
-	let id;
-
 	const [existingSubreddit] = await db.select().from(subreddit).where(eq(subreddit.name, name));
 
-	if (!existingSubreddit) {
+	if (existingSubreddit) {
+		await db
+			.insert(productSubreddit)
+			.values({ productId, subredditId: existingSubreddit.id })
+			.onConflictDoNothing();
+	} else {
 		const [newSubreddit] = await db
 			.insert(subreddit)
 			.values({ url, name })
 			.returning({ id: subreddit.id });
 
-		id = newSubreddit.id;
-	} else {
-		id = existingSubreddit.id;
+		await db.insert(productSubreddit).values({ productId, subredditId: newSubreddit.id });
+		// .onConflictDoNothing();
 	}
-	await db.insert(productSubreddit).values({ productId, subredditId: id }).onConflictDoNothing();
-
-	await db.insert(productSubreddit).values({ productId, subredditId: id }).onConflictDoNothing();
 }
 
 export async function removeSubredditFromUser(
@@ -137,6 +140,7 @@ export async function insertHourlyAverage(
 			dayOfWeek,
 			hourOfDay,
 			avgOnlineUsers: newOnlineUsers,
+			lastRecord: newOnlineUsers,
 			weekStartDate: '1997-03-01'
 		});
 	}
@@ -159,4 +163,19 @@ export async function getHourlyGraphData(subredditId: number) {
 			)
 		)
 		.orderBy(subredditHourlyAvg.dayOfWeek, subredditHourlyAvg.hourOfDay);
+}
+
+export function parseSubreddit(subreddit: string) {
+	try {
+		const subredditUrl = subredditUrlInsertSchema.parse(subreddit);
+		return {
+			url: subredditUrl,
+			name: subreddit.match(/reddit\.com\/r\/([^\/]+)/)?.[1]
+		};
+	} catch (e) {
+		return {
+			name: subreddit,
+			url: `https://www.reddit.com/r/${subreddit}`
+		};
+	}
 }

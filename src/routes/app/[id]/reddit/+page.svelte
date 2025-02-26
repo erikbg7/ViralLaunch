@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index';
-	import { buttonVariants } from '$lib/components/ui/button/index';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index';
 	import { Plus, X } from 'lucide-svelte';
 	import * as Popover from '$lib/components/ui/popover/index';
 	import * as Form from '$lib/components/ui/form/index';
@@ -9,8 +8,6 @@
 	import { toast } from 'svelte-sonner';
 	import { Input } from '$lib/components/ui/input';
 	import DailyChart from './_components/daily-chart.svelte';
-	import { subredditState } from './store.svelte';
-	import { timeAgo } from '$lib/date';
 	import { invalidateAll } from '$app/navigation';
 
 	const { data }: { data: PageServerData } = $props();
@@ -18,6 +15,7 @@
 	let sheet_open = $state(false);
 
 	const createSubredditform = superForm(data.forms.create_subreddit, {
+		dataType: 'json',
 		onUpdated({ form }) {
 			if (form.message) {
 				// Display the message using a toast library
@@ -53,42 +51,39 @@
 		}
 	});
 
-	function handleGenerateData(srId: string) {
-		fetch('/api/generate-fake-hourly-averages', {
+	// function handleGenerateData(srId: string) {
+	// 	fetch('/api/generate-fake-hourly-averages', {
+	// 		method: 'POST',
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		},
+	// 		body: JSON.stringify({ subredditId: srId, weekStartDate: '1994-10-27' })
+	// 	})
+	// 		.then((res) => console.log('generated'))
+	// 		.catch((e) => console.log('error', e));
+	// }
+
+	function handleRefresh() {
+		fetch('/api/get-reddit-active-users', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ subredditId: srId, weekStartDate: '1994-10-27' })
+				'Content-Type': 'application/json',
+				Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzZ212aWl6cmx5am91ZG5xYXdzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTk2NjY5NSwiZXhwIjoyMDU1NTQyNjk1fQ.IvRscrZ_WIsS1NUYBJ0KBERCtpbRljLozt_uZ1ALw3A`
+			}
 		})
-			.then((res) => console.log('generated'))
+			.then((res) => console.log('refreshed'))
 			.catch((e) => console.log('error', e));
 	}
 
 	const createSubredditformData = createSubredditform.form;
 </script>
 
-{#snippet timestamps(times: string[])}
-	<div class="mt-2 flex justify-between">
-		{#each times as time}
-			<div class="rounded-md bg-orange-500/70 px-3 py-1 text-xs text-orange-900">
-				{time}
-			</div>
-		{/each}
-	</div>
-{/snippet}
-
-{#snippet activity_graph(subredditId: string)}
-	<DailyChart {subredditId} />
-	<!-- <svg class="h-20 w-full" viewBox="0 0 100 40" preserveAspectRatio="none">
-		<path
-			d="M0 30 Q 25 10, 50 25 T 100 20"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			class="text-orange-500"
-		/>
-	</svg> -->
+{#snippet delete_chart_form_component(subredditId: string)}
+	<form method="POST" action="?/removeSubreddit" use:removeSubredditform.enhance>
+		<Form.Button class="absolute right-0 top-0" variant="ghost" name="id" value={subredditId}>
+			<X />
+		</Form.Button>
+	</form>
 {/snippet}
 
 <div class="min-h-screen">
@@ -99,6 +94,8 @@
 			>
 				Reddit
 			</h1>
+
+			<Button onclick={handleRefresh}>Refresh Data</Button>
 			<Popover.Root>
 				<Popover.Trigger class={buttonVariants({ variant: 'outline' })}>
 					<Plus class="mr-2 h-4 w-4" />
@@ -106,11 +103,12 @@
 				</Popover.Trigger>
 				<Popover.Content class="w-80">
 					<form method="POST" action="?/createSubreddit" use:createSubredditform.enhance>
-						<Form.Field form={createSubredditform} name="url">
+						<Form.Field form={createSubredditform} name="subreddit">
 							<Form.Control>
 								{#snippet children({ props })}
-									<Form.Label>Url</Form.Label>
-									<Input {...props} bind:value={$createSubredditformData.url} />
+									<Form.Label>Subreddit</Form.Label>
+									<Form.Description>Enter a ur or subreddit name (without /r)</Form.Description>
+									<Input {...props} bind:value={$createSubredditformData.subreddit} />
 								{/snippet}
 							</Form.Control>
 							<Form.Description />
@@ -125,32 +123,9 @@
 
 		<div class="grid gap-4 md:grid-cols-2">
 			{#each data.subreddits as subreddit}
-				<Card class="relative  shadow-xl">
-					<form method="POST" action="?/removeSubreddit" use:removeSubredditform.enhance>
-						<Form.Button
-							class="absolute right-0 top-0"
-							variant="ghost"
-							name="id"
-							value={subreddit.id}
-						>
-							<X />
-						</Form.Button>
-					</form>
-
-					<CardHeader>
-						<CardTitle class="text-lg text-orange-500">r/{subreddit.name}</CardTitle>
-						<span
-							>{subredditState.onlineUsers} online users - {timeAgo(
-								subredditState.lastUpdate
-							)}</span
-						>
-					</CardHeader>
-					<CardContent>
-						{@render activity_graph(String(subreddit.id))}
-						{@render timestamps(['12:05', '12:05', '12:05', '12:05'])}
-					</CardContent>
-					<!-- <button onclick={() => handleGenerateData(String(subreddit.id))}>Generate Data</button> -->
-				</Card>
+				{#key subreddit.id}
+					<DailyChart {subreddit} {delete_chart_form_component} />
+				{/key}
 			{/each}
 		</div>
 	</div>

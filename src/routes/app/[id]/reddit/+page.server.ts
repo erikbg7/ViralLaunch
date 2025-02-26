@@ -1,11 +1,12 @@
 import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { redditInsertSchema, redditRemoveSchema } from '$lib/server/db/schema';
+import { subredditInsertSchema, redditRemoveSchema } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import {
 	getProjectSubreddits,
 	insertUserSubreddit,
+	parseSubreddit,
 	removeSubredditFromUser
 } from '$lib/server/db/subreddit.model';
 
@@ -13,7 +14,7 @@ export const load: PageServerLoad = async (event) => {
 	return {
 		subreddits: await getProjectSubreddits(event.locals.user!.id, parseInt(event.params.id)),
 		forms: {
-			create_subreddit: await superValidate(zod(redditInsertSchema)),
+			create_subreddit: await superValidate(zod(subredditInsertSchema)),
 			remove_subreddit: await superValidate(zod(redditRemoveSchema))
 		}
 	};
@@ -47,7 +48,7 @@ export const actions: Actions = {
 		const userId = event.locals.user!.id;
 		const productId = parseInt(event.params.id);
 
-		const form = await superValidate(event, zod(redditInsertSchema));
+		const form = await superValidate(event, zod(subredditInsertSchema));
 
 		if (!userId) {
 			return redirect(302, '/login');
@@ -57,14 +58,18 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		const subredditUrl = form.data.url;
-		const subredditName = subredditUrl.match(/reddit\.com\/r\/([^\/]+)/)?.[1];
+		const { url, name } = parseSubreddit(form.data.subreddit);
 
-		if (!subredditName) {
-			return fail(400, { form, error: 'Invalid subreddit URL' });
+		if (!url || !name) {
+			return fail(400, { form, error: 'Not a valid subreddit' });
 		}
 
-		await insertUserSubreddit(productId, subredditUrl, subredditName);
+		try {
+			await insertUserSubreddit(productId, url, name);
+		} catch (e) {
+			console.error({ e });
+			return fail(500, { form, error: 'Failed to create subreddit' });
+		}
 
 		return message(form, {
 			status: 'success',

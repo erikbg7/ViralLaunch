@@ -8,7 +8,8 @@ import {
 	serial,
 	text,
 	timestamp,
-	varchar
+	varchar,
+	primaryKey
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
@@ -56,15 +57,18 @@ export const platform = pgTable('platform', {
 	custom: boolean('custom').default(false)
 });
 
-export const productSubreddit = pgTable('product_subreddit', {
-	id: serial('id').primaryKey(),
-	productId: integer('product_id')
-		.notNull()
-		.references(() => product.id, { onDelete: 'cascade' }),
-	subredditId: integer('subreddit_id')
-		.notNull()
-		.references(() => subreddit.id, { onDelete: 'cascade' })
-});
+export const productSubreddit = pgTable(
+	'product_subreddit',
+	{
+		productId: integer('product_id')
+			.notNull()
+			.references(() => product.id, { onDelete: 'cascade' }),
+		subredditId: integer('subreddit_id')
+			.notNull()
+			.references(() => subreddit.id, { onDelete: 'cascade' })
+	},
+	(table) => [primaryKey({ name: 'id', columns: [table.productId, table.subredditId] })]
+);
 
 export const subreddit = pgTable('subreddit', {
 	id: serial('id').primaryKey(),
@@ -122,18 +126,23 @@ export const redditRemoveSchema = z.object({
 	id: z.number()
 });
 
-export const redditInsertSchema = z.object({
-	url: z
-		.string()
-		.url()
-		.regex(/reddit.com\/r\/\w+/)
+export const subredditNameInsetSchema = z.string();
+export const subredditUrlInsertSchema = z
+	.string()
+	.url()
+	.regex(/reddit.com\/r\/\w+/);
+
+export const subredditInsertSchema = z.object({
+	subreddit: subredditUrlInsertSchema.or(subredditNameInsetSchema)
 });
+type SubredditInsertSchema = z.infer<typeof subredditInsertSchema>;
 
 export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 export type Product = typeof product.$inferSelect;
 export type Platform = typeof platform.$inferSelect;
 export type PlatformInsert = typeof platform.$inferInsert;
+export type Subreddit = typeof subreddit.$inferSelect;
 
 export type PlatformLaunch = typeof platformLaunch.$inferSelect;
 export type ProductWithPlatforms = { product: Product } & {

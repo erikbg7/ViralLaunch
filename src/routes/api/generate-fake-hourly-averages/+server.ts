@@ -12,8 +12,6 @@ export const POST = async (event) => {
 		}))
 	).flat();
 
-	console.log({ subredditId, weekStartDate, data });
-
 	await insertHourlyAverages(subredditId, weekStartDate, data);
 
 	return json('ok');

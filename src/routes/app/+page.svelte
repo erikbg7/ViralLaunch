@@ -15,7 +15,6 @@
 
 	const form = superForm(data.form, {
 		onUpdated({ form }) {
-			console.log({ m: form.message });
 			if (form.message) {
 				// Display the message using a toast library
 				form.message.status === 'success'

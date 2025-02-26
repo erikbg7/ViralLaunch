@@ -11,13 +11,12 @@ export const GET = async (event) => {
 	}
 
 	const hourlyResults = await getHourlyGraphData(parseInt(subredditId));
-	const weeklyResults = aggregateToDailyAverages(hourlyResults);
 	const currentHourlyRecord = getCurrentLastRecord(hourlyResults);
 
 	return json({
 		id: subredditId,
 		lastRecord: currentHourlyRecord?.lastRecord,
 		updatedAt: currentHourlyRecord?.updatedAt,
-		results: weeklyResults
+		results: hourlyResults
 	});
 };
