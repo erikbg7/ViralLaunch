@@ -23,17 +23,19 @@ export const POST = async (event) => {
 	// we should try to parallelize this
 
 	await Promise.all(
-		subreddits.map(async (subreddit) => {
-			const { name, id } = subreddit;
-			try {
-				const redditApi = new RedditAPI();
-				const onlineUsers = await redditApi.getSubredditOnlineUsers(name);
-				await insertHourlyAverage(id, dayOfWeek, hourOfDay, onlineUsers);
-			} catch (e) {
-				await removeSubreddit(id);
-				console.error('[REDDIT API ERROR]', e);
-			}
-		})
+		subreddits
+			.filter((subreddit) => subreddit.tracked)
+			.map(async (subreddit) => {
+				const { name, id } = subreddit;
+				try {
+					const redditApi = new RedditAPI();
+					const onlineUsers = await redditApi.getSubredditOnlineUsers(name);
+					await insertHourlyAverage(id, dayOfWeek, hourOfDay, onlineUsers);
+				} catch (e) {
+					await removeSubreddit(id);
+					console.error('[REDDIT API ERROR]', e);
+				}
+			})
 	);
 
 	return json({ t: 'you have correclty called the endpoint' });

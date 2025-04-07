@@ -24,6 +24,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 };
 
 // https://www.reddit.com/r/sveltejs/comments/196h2bs/svelte_kit_cors_adding_allowed_domains/
+
 const corsHandle: Handle = async ({ event, resolve }) => {
 	// Apply CORS header for API routes
 	if (event.url.pathname.startsWith('/api')) {
@@ -32,7 +33,7 @@ const corsHandle: Handle = async ({ event, resolve }) => {
 			return new Response(null, {
 				headers: {
 					'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Origin': '*', // Change to allow only specific domains
 					'Access-Control-Allow-Headers': '*'
 				}
 			});

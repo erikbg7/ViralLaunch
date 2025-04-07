@@ -58,3 +58,24 @@ supabase functions serve --env-file ./supabase/.env
 https://github.com/rajput-hemant/infinitunes/blob/master/src/lib/db/schema.ts
 
 https://github.com/rajput-hemant/lipi/tree/master/lib/db
+
+export const counterSchema = pgTable('counter', {
+id: serial('id').primaryKey(),
+count: integer('count').default(0),
+updatedAt: timestamp('updated_at', { mode: 'date' })
+.defaultNow()
+.$onUpdate(() => new Date())
+.notNull(),
+createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+https://github.com/ocluf/justship/tree/main/src/lib/server/email
+
+https://github.com/vanxh/openbio/tree/main/src/server
+
+https://github.com/rajput-hemant/infinitunes/tree/master/src/lib/db
+
+https://github.com/ocluf/justship/blob/main/src/lib/server/database/user.model.ts
+
+I really like to move everything from payments to a /payments folder instead of having it on the api/.
+For example, the webhook would be on /payments/webhook , then callback, then success. So everything related to payments is already in that folder encapsuled.

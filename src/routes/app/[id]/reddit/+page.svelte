@@ -9,6 +9,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import DailyChart from './_components/daily-chart.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { type Subreddit } from '$lib/server/db/schema';
 
 	const { data }: { data: PageServerData } = $props();
 
@@ -79,10 +80,23 @@
 	const createSubredditformData = createSubredditform.form;
 </script>
 
-{#snippet delete_chart_form_component(subredditId: string)}
+{#snippet delete_subreddit_form_component(subredditId: string)}
 	<form method="POST" action="?/removeSubreddit" use:removeSubredditform.enhance>
 		<Form.Button class="absolute right-0 top-0" variant="ghost" name="id" value={subredditId}>
 			<X />
+		</Form.Button>
+	</form>
+{/snippet}
+
+{#snippet track_subreddit_form_component(subreddit: Subreddit)}
+	<form method="POST" action="?/trackSubreddit" use:removeSubredditform.enhance>
+		<input class="hidden" type="text" name="tracked" value={!subreddit.tracked} />
+		<Form.Button class="absolute right-12 top-0" variant="ghost" name="id" value={subreddit.id}>
+			{#if subreddit.tracked}
+				Untrack
+			{:else}
+				Track
+			{/if}
 		</Form.Button>
 	</form>
 {/snippet}
@@ -125,7 +139,11 @@
 		<div class="grid gap-4 md:grid-cols-2">
 			{#each data.subreddits as subreddit}
 				{#key subreddit.id}
-					<DailyChart {subreddit} {delete_chart_form_component} />
+					<DailyChart
+						{subreddit}
+						{delete_subreddit_form_component}
+						{track_subreddit_form_component}
+					/>
 				{/key}
 			{/each}
 		</div>

@@ -74,6 +74,7 @@ export const subreddit = pgTable('subreddit', {
 	id: serial('id').primaryKey(),
 	name: varchar('name', { length: 128 }).notNull().unique(),
 	url: text('url').notNull().unique(),
+	tracked: boolean('tracked').default(true),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
 });
