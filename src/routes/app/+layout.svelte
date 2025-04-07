@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Toaster } from '$lib/components/ui/sonner';
-	import { Rocket } from 'lucide-svelte';
+	import { Rocket } from '@lucide/svelte';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { enhance } from '$app/forms';
 	let { children } = $props();
@@ -15,7 +15,7 @@
 	</a>
 
 	<div>
-		<span> erikbg7 </span>
+		<span>erikbg7</span>
 
 		<Avatar.Root>
 			<Avatar.Image src="https://github.com/shadcn.png" alt="@shadcn" />

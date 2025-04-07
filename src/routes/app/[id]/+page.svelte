@@ -3,7 +3,7 @@
 	import type { ProductWithPlatforms } from '$lib/server/db/schema';
 	import * as Sheet from '$lib/components/ui/sheet/index';
 	import * as Form from '$lib/components/ui/form/index';
-	import { Check } from 'lucide-svelte';
+	import { Check } from '@lucide/svelte';
 	import { enhance as svelteenhance } from '$app/forms';
 	import { superForm } from 'sveltekit-superforms';
 	import { toast } from 'svelte-sonner';
@@ -30,7 +30,9 @@
 		}
 	});
 
-	const getPlatformsPercentage = (platforms: ProductWithPlatforms['platforms']) => {
+	const getPlatformsPercentage = (
+		platforms: ProductWithPlatforms['platforms']
+	) => {
 		const total = platforms.length;
 		const launched = platforms.filter((platform) => platform.launched).length;
 		return Math.round((launched / total) * 100) || 0;
@@ -47,7 +49,9 @@
 
 		<div class="w-72 bg-card px-4 py-6">
 			<div class="flex items-center gap-2 text-black">
-				<div class="relative h-2 flex-1 overflow-hidden rounded-lg bg-neutral-400">
+				<div
+					class="relative h-2 flex-1 overflow-hidden rounded-lg bg-neutral-400"
+				>
 					<span
 						class="absolute bottom-0 left-0 top-0 bg-green-300"
 						style={`width: ${completedPercentage}%`}
@@ -59,7 +63,8 @@
 				<h3 class="mb-5 flex justify-between font-semibold">
 					Recommended
 					<span>
-						{launch.platforms.filter((p) => p.launched).length}/{launch.platforms.length}
+						{launch.platforms.filter((p) => p.launched).length}/{launch
+							.platforms.length}
 						{#if launch.platforms.filter((p) => p.launched).length === launch.platforms.length}
 							🎉
 						{/if}
@@ -73,17 +78,31 @@
 								{#if platform.launched}
 									<form action="?/updateLaunched" method="POST" use:enhance>
 										<button type="submit">
-											<input type="hidden" name="platformId" value={platform.id} />
+											<input
+												type="hidden"
+												name="platformId"
+												value={platform.id}
+											/>
 											<input type="hidden" name="launched" value={'false'} />
 											<Check class="size-4" />
 										</button>
 									</form>
 								{:else}
-									<form action="?/updateLaunched" method="POST" use:svelteenhance>
+									<form
+										action="?/updateLaunched"
+										method="POST"
+										use:svelteenhance
+									>
 										<button type="submit" aria-label="Launch">
-											<input type="hidden" name="platformId" value={platform.id} />
+											<input
+												type="hidden"
+												name="platformId"
+												value={platform.id}
+											/>
 											<input type="hidden" name="launched" value={'true'} />
-											<div class="size-4 rounded-full border-[1px] border-black" />
+											<div
+												class="size-4 rounded-full border-[1px] border-black"
+											></div>
 										</button>
 									</form>
 								{/if}

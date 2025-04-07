@@ -2,12 +2,17 @@
 	import * as Form from '$lib/components/ui/form/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { superForm } from 'sveltekit-superforms';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index';
+	import {
+		Card,
+		CardContent,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card/index';
 
 	import type { PageServerData } from './$types';
 	import { toast } from 'svelte-sonner';
 	import Rocket from '$lib/components/ui/rocket.svelte';
-	import { X } from 'lucide-svelte';
+	import { X } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 
@@ -41,7 +46,10 @@
 					{#each products as product}
 						<div class="relative m-2 h-36 w-full">
 							<Card class="relative h-full w-full shadow-xl">
-								<a class="absolute inset-0 pt-4" href={`/app/${product.id}/reddit`} />
+								<a
+									class="absolute inset-0 pt-4"
+									href={`/app/${product.id}/reddit`}
+								></a>
 								<form
 									method="POST"
 									action={`?/delete`}
@@ -63,8 +71,12 @@
 								</form>
 
 								<CardHeader>
-									<CardTitle class="text-xl text-orange-500">{product.name}</CardTitle>
-									<div class="opacity-70">{product.subreddits_tracked} subreddits tracked</div>
+									<CardTitle class="text-xl text-orange-500">
+										{product.name}
+									</CardTitle>
+									<div class="opacity-70">
+										{product.subreddits_tracked} subreddits tracked
+									</div>
 								</CardHeader>
 							</Card>
 						</div>

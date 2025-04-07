@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, buttonVariants } from '$lib/components/ui/button/index';
-	import { Plus, X } from 'lucide-svelte';
+	import { Plus, X } from '@lucide/svelte';
 	import * as Popover from '$lib/components/ui/popover/index';
 	import * as Form from '$lib/components/ui/form/index';
 	import { superForm } from 'sveltekit-superforms';
@@ -66,13 +66,16 @@
 
 	async function handleRefresh() {
 		// const res = await fetch('https://viral-launch-zeta.vercel.app/api/get-reddit-active-users', {
-		const res = await fetch('http://localhost:5173/api/get-reddit-active-users', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer `
+		const res = await fetch(
+			'http://localhost:5173/api/get-reddit-active-users',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer `
+				}
 			}
-		});
+		);
 		const d = await res.json();
 		console.log(d);
 	}
@@ -81,8 +84,17 @@
 </script>
 
 {#snippet delete_subreddit_form_component(subredditId: string)}
-	<form method="POST" action="?/removeSubreddit" use:removeSubredditform.enhance>
-		<Form.Button class="absolute right-0 top-0" variant="ghost" name="id" value={subredditId}>
+	<form
+		method="POST"
+		action="?/removeSubreddit"
+		use:removeSubredditform.enhance
+	>
+		<Form.Button
+			class="absolute right-0 top-0"
+			variant="ghost"
+			name="id"
+			value={subredditId}
+		>
 			<X />
 		</Form.Button>
 	</form>
@@ -90,8 +102,18 @@
 
 {#snippet track_subreddit_form_component(subreddit: Subreddit)}
 	<form method="POST" action="?/trackSubreddit" use:removeSubredditform.enhance>
-		<input class="hidden" type="text" name="tracked" value={!subreddit.tracked} />
-		<Form.Button class="absolute right-12 top-0" variant="ghost" name="id" value={subreddit.id}>
+		<input
+			class="hidden"
+			type="text"
+			name="tracked"
+			value={!subreddit.tracked}
+		/>
+		<Form.Button
+			class="absolute right-12 top-0"
+			variant="ghost"
+			name="id"
+			value={subreddit.id}
+		>
 			{#if subreddit.tracked}
 				Untrack
 			{:else}
@@ -117,13 +139,22 @@
 					Add /r
 				</Popover.Trigger>
 				<Popover.Content class="w-80">
-					<form method="POST" action="?/createSubreddit" use:createSubredditform.enhance>
+					<form
+						method="POST"
+						action="?/createSubreddit"
+						use:createSubredditform.enhance
+					>
 						<Form.Field form={createSubredditform} name="subreddit">
 							<Form.Control>
 								{#snippet children({ props })}
 									<Form.Label>Subreddit</Form.Label>
-									<Form.Description>Enter a ur or subreddit name (without /r)</Form.Description>
-									<Input {...props} bind:value={$createSubredditformData.subreddit} />
+									<Form.Description>
+										Enter a ur or subreddit name (without /r)
+									</Form.Description>
+									<Input
+										{...props}
+										bind:value={$createSubredditformData.subreddit}
+									/>
 								{/snippet}
 							</Form.Control>
 							<Form.Description />

@@ -7,9 +7,9 @@ import {
 	type Platform,
 	type PlatformInsert,
 	type PlatformLaunch,
-	type Product
+	type Product,
+	type User
 } from '$lib/server/db/schema';
-import type { User } from 'lucide-svelte';
 
 export async function updatePlatformLaunch(
 	userId: User['id'],
@@ -32,7 +32,10 @@ export async function updatePlatformLaunch(
 			.update(platformLaunch)
 			.set({ launched })
 			.where(
-				and(eq(platformLaunch.productId, productId), eq(platformLaunch.platformId, platformId))
+				and(
+					eq(platformLaunch.productId, productId),
+					eq(platformLaunch.platformId, platformId)
+				)
 			);
 	} catch (error) {
 		console.error(error);
