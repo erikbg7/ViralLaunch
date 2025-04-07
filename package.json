@@ -53,10 +53,15 @@
 		"@node-rs/argon2": "^2.0.2",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
+		"@tanstack/svelte-query": "^5.67.2",
+		"@trpc/client": "^10.45.2",
+		"@trpc/server": "^10.45.2",
+		"arctic": "^3.5.0",
 		"chart.js": "^4.4.8",
 		"drizzle-orm": "^0.38.4",
 		"drizzle-zod": "^0.7.0",
 		"postgres": "^3.4.5",
-		"snoowrap": "^1.23.0"
+		"snoowrap": "^1.23.0",
+		"trpc-svelte-query": "^2.1.0"
 	}
 }
