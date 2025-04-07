@@ -90,7 +90,10 @@ export async function getProductById(
 	};
 }
 
-export async function createProduct(userId: string, name: string): Promise<Product> {
+export async function createProduct(
+	userId: string,
+	name: string
+): Promise<Product> {
 	const [createdProduct] = await db.insert(product).values({
 		userId,
 		name
@@ -98,7 +101,10 @@ export async function createProduct(userId: string, name: string): Promise<Produ
 	return createdProduct;
 }
 
-export async function deleteProduct(userId: string, id: number): Promise<Product> {
+export async function deleteProduct(
+	userId: string,
+	id: number
+): Promise<Product> {
 	const [deletedProduct] = await db
 		.delete(product)
 		.where(and(eq(product.userId, userId), eq(product.id, id)));
@@ -130,6 +136,11 @@ export async function createProductWithDefaultPlatforms(
 		// Insert the post using the user's ID
 		await tx
 			.insert(platformLaunch)
-			.values(nativePlatformsIds.map((p) => ({ platformId: p.id, productId: createdProduct.id })));
+			.values(
+				nativePlatformsIds.map((p) => ({
+					platformId: p.id,
+					productId: createdProduct.id
+				}))
+			);
 	});
 }

@@ -1,4 +1,7 @@
-import { aggregateToDailyAverages, getCurrentLastRecord } from '$lib/graph/aggregators.js';
+import {
+	aggregateToDailyAverages,
+	getCurrentLastRecord
+} from '$lib/graph/aggregators.js';
 import { getHourlyGraphData } from '$lib/server/db/subreddit.model.js';
 import { error, json } from '@sveltejs/kit';
 

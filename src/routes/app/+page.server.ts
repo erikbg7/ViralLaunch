@@ -53,7 +53,10 @@ export const actions: Actions = {
 		}
 
 		try {
-			await createProductWithDefaultPlatforms(event.locals.user.id, form.data.name);
+			await createProductWithDefaultPlatforms(
+				event.locals.user.id,
+				form.data.name
+			);
 			return message(form, {
 				status: 'success',
 				text: 'launch created successfully'

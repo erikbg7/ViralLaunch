@@ -42,7 +42,10 @@ export async function insertUserSubreddit(
 	url: string,
 	name: string
 ): Promise<any> {
-	const [existingSubreddit] = await db.select().from(subreddit).where(eq(subreddit.name, name));
+	const [existingSubreddit] = await db
+		.select()
+		.from(subreddit)
+		.where(eq(subreddit.name, name));
 
 	if (existingSubreddit) {
 		await db
@@ -55,7 +58,9 @@ export async function insertUserSubreddit(
 			.values({ url, name })
 			.returning({ id: subreddit.id });
 
-		await db.insert(productSubreddit).values({ productId, subredditId: newSubreddit.id });
+		await db
+			.insert(productSubreddit)
+			.values({ productId, subredditId: newSubreddit.id });
 		// .onConflictDoNothing();
 	}
 }

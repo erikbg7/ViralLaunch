@@ -1,7 +1,10 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getProductById } from '$lib/server/db/product.model';
-import { createCustomPlatform, updatePlatformLaunch } from '$lib/server/db/platform.model';
+import {
+	createCustomPlatform,
+	updatePlatformLaunch
+} from '$lib/server/db/platform.model';
 import { fail, superValidate, type Infer } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { platformInsertSchema } from '$lib/server/db/schema';

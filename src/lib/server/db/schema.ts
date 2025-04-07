@@ -25,13 +25,19 @@ export const session = pgTable('session', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
-	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
+	expiresAt: timestamp('expires_at', {
+		withTimezone: true,
+		mode: 'date'
+	}).notNull()
 });
 
 export const product = pgTable('product', (t) => ({
 	id: t.serial('id').primaryKey(),
 	name: t.varchar('name', { length: 128 }).notNull().unique(),
-	createdAt: t.timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	createdAt: t
+		.timestamp('created_at', { withTimezone: true, mode: 'date' })
+		.defaultNow()
+		.notNull(),
 	userId: t
 		.text('user_id')
 		.notNull()
@@ -67,7 +73,9 @@ export const productSubreddit = pgTable(
 			.notNull()
 			.references(() => subreddit.id, { onDelete: 'cascade' })
 	},
-	(table) => [primaryKey({ name: 'id', columns: [table.productId, table.subredditId] })]
+	(table) => [
+		primaryKey({ name: 'id', columns: [table.productId, table.subredditId] })
+	]
 );
 
 export const subreddit = pgTable('subreddit', {
@@ -75,8 +83,12 @@ export const subreddit = pgTable('subreddit', {
 	name: varchar('name', { length: 128 }).notNull().unique(),
 	url: text('url').notNull().unique(),
 	tracked: boolean('tracked').default(true),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+		.defaultNow()
+		.notNull(),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+		.defaultNow()
+		.notNull()
 });
 
 export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
@@ -90,7 +102,9 @@ export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
 
 	avgOnlineUsers: real('avg_online_users').notNull(), // Floating point for accuracy
 	lastRecord: integer('last_record').notNull().default(0),
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+		.defaultNow()
+		.notNull(),
 
 	weekStartDate: date('week_start_date').notNull() // Which week this belongs to
 });

@@ -6,28 +6,50 @@
 <section
 	class="relative flex h-[100vh] w-[100vw] flex-col items-center justify-center space-y-4 px-12 py-12"
 >
-	<div class="absolute z-40 mx-auto my-auto size-32 rounded-full bg-red-400"></div>
+	<div
+		class="absolute z-40 mx-auto my-auto size-32 rounded-full bg-red-400"
+	></div>
 	<div class="relative grid h-full w-full grid-cols-4 grid-rows-[14] gap-4">
-		<div class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"></div>
-		<div class="relative col-span-2 row-span-7 overflow-hidden rounded-xl border border-black/20">
+		<div
+			class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
+		<div
+			class="relative col-span-2 row-span-7 overflow-hidden rounded-xl border border-black/20"
+		>
 			<div class="ph-card-gradient absolute inset-0"></div>
 			<div class="absolute inset-0 bg-[url('/pattern.png')] opacity-10"></div>
 		</div>
-		<div class="col-span-1 row-span-3 rounded-xl border border-black/20 bg-neutral-100"></div>
-		<div class="col-span-1 row-span-4 rounded-xl border border-black/20 bg-neutral-100"></div>
+		<div
+			class="col-span-1 row-span-3 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
+		<div
+			class="col-span-1 row-span-4 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
 
-		<div class="cols-span-1 row-span-4 rounded-xl border border-black/20 bg-neutral-100"></div>
-		<div class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"></div>
-		<div class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"></div>
-		<div class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"></div>
-		<div class="col-span-1 row-span-3 rounded-xl border border-black/20 bg-neutral-100"></div>
+		<div
+			class="cols-span-1 row-span-4 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
+		<div
+			class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
+		<div
+			class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
+		<div
+			class="col-span-1 row-span-7 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
+		<div
+			class="col-span-1 row-span-3 rounded-xl border border-black/20 bg-neutral-100"
+		></div>
 
 		<!-- {#each Array.from({ length: 56 }, (_, i) => i) as i}
 			<div class="rounded-md bg-gray-300" />
 		{/each} -->
 	</div>
 </section>
-<section class="relative flex h-[100vh] w-[100vw] flex-col items-center space-y-4">
+<section
+	class="relative flex h-[100vh] w-[100vw] flex-col items-center space-y-4"
+>
 	<!-- <Rocket class="rocket-launch absolute bottom-0 transition-transform" /> -->
 	<!-- <div id="clickable-area bg-red-400">
 		<svg
@@ -102,7 +124,12 @@
 	}
 
 	.ph-card-gradient {
-		background: radial-gradient(circle at 50% 100%, #f0c6a4 0%, #f1430e89 50%, #f1430e89 100%);
+		background: radial-gradient(
+			circle at 50% 100%,
+			#f0c6a4 0%,
+			#f1430e89 50%,
+			#f1430e89 100%
+		);
 	}
 
 	/* animation that translatet rocket in the y axis */

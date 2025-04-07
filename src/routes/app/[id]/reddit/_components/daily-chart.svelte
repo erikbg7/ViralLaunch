@@ -144,19 +144,19 @@
 	{@render delete_subreddit_form_component(String(subreddit.id))}
 
 	<CardHeader>
-		<CardTitle class="text-lg text-orange-500"
-			><a href={`https://www.reddit.com/r/${subreddit.name}`} target="_blank"
-				>r/{subreddit.name}</a
-			></CardTitle
-		>
+		<CardTitle class="text-lg text-orange-500">
+			<a href={`https://www.reddit.com/r/${subreddit.name}`} target="_blank">
+				r/{subreddit.name}
+			</a>
+		</CardTitle>
 	</CardHeader>
 	<CardContent>
 		<div class="flex justify-between">
-			<span
-				>{subredditState.onlineUsers} online users - {timeAgo(
+			<span>
+				{subredditState.onlineUsers} online users - {timeAgo(
 					subredditState.lastUpdate
-				)}</span
-			>
+				)}
+			</span>
 			<span>
 				<select
 					class="rounded-md bg-orange-500/70 px-3 py-1 text-xs text-orange-900"

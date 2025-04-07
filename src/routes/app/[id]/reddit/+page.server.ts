@@ -1,6 +1,9 @@
 import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { subredditInsertSchema, redditRemoveSchema } from '$lib/server/db/schema';
+import {
+	subredditInsertSchema,
+	redditRemoveSchema
+} from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import {
@@ -12,7 +15,10 @@ import {
 
 export const load: PageServerLoad = async (event) => {
 	return {
-		subreddits: await getProjectSubreddits(event.locals.user!.id, parseInt(event.params.id)),
+		subreddits: await getProjectSubreddits(
+			event.locals.user!.id,
+			parseInt(event.params.id)
+		),
 		forms: {
 			create_subreddit: await superValidate(zod(subredditInsertSchema)),
 			remove_subreddit: await superValidate(zod(redditRemoveSchema))

@@ -22,7 +22,8 @@ export const actions: Actions = {
 
 		if (!validateUsername(username)) {
 			return fail(400, {
-				message: 'Invalid username (min 3, max 31 characters, alphanumeric only)'
+				message:
+					'Invalid username (min 3, max 31 characters, alphanumeric only)'
 			});
 		}
 		if (!validatePassword(password)) {
@@ -31,7 +32,10 @@ export const actions: Actions = {
 			});
 		}
 
-		const results = await db.select().from(table.user).where(eq(table.user.username, username));
+		const results = await db
+			.select()
+			.from(table.user)
+			.where(eq(table.user.username, username));
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
@@ -118,5 +122,9 @@ function validateUsername(username: unknown): username is string {
 }
 
 function validatePassword(password: unknown): password is string {
-	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
+	return (
+		typeof password === 'string' &&
+		password.length >= 6 &&
+		password.length <= 255
+	);
 }

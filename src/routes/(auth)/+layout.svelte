@@ -5,7 +5,9 @@
 </script>
 
 <div class=" grid grid-cols-1 lg:grid-cols-2">
-	<div class="flex min-h-screen flex-col items-center justify-center bg-card p-8">
+	<div
+		class="flex min-h-screen flex-col items-center justify-center bg-card p-8"
+	>
 		<div class="flex w-full flex-1 flex-col justify-center md:w-[400px]">
 			{@render children?.()}
 		</div>
@@ -34,7 +36,11 @@
 		inset: 0px;
 		width: 100%;
 		height: 100%;
-		background-image: linear-gradient(120deg, rgb(246, 109, 11) 0%, rgb(243, 110, 9) 100%);
+		background-image: linear-gradient(
+			120deg,
+			rgb(246, 109, 11) 0%,
+			rgb(243, 110, 9) 100%
+		);
 		filter: blur(200px);
 		opacity: 0.1;
 
