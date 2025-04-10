@@ -6,7 +6,7 @@
 	type UrlListProps = {
 		subreddits: Subreddit[];
 		selectedSubredditId: Subreddit['id'] | null;
-		onSelectSubreddit: (id: Subreddit['id']) => void;
+		onSelectSubreddit: (r: Subreddit) => void;
 		onRemoveSubreddit: (id: Subreddit['id']) => void;
 		onMoveSubreddit: (dragIndex: number, hoverIndex: number) => void;
 	};
@@ -36,7 +36,7 @@
 						: 'hover:bg-muted/50'
 				} 
              ${!!isDragging ? 'opacity-50' : 'opacity-100'}`}
-				onclick={() => onSelectSubreddit(subreddit.id)}
+				onclick={() => onSelectSubreddit(subreddit)}
 			>
 				<div class="min-w-0 flex-1">
 					<h3 class="truncate font-medium">{subreddit.name}</h3>

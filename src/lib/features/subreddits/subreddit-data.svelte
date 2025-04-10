@@ -23,12 +23,10 @@
 	import { subredditStore } from '$lib/stores/subreddits.svelte';
 
 	type Props = {
-		title?: string;
-		url?: string;
 		subredditId: number;
 	};
 
-	let { subredditId = $bindable(), title, url }: Props = $props();
+	let { subredditId = $bindable() }: Props = $props();
 
 	let subreddit = api.subreddit.get.query({ subredditId });
 	let records = api.records.get.query({ workspaceId: '2', subredditId });
@@ -45,16 +43,9 @@
 <div class="space-y-6">
 	<Card>
 		<CardHeader>
-			<CardTitle>r/{title}</CardTitle>
+			<CardTitle>Weekly Activity</CardTitle>
 			<CardDescription>
-				<a
-					href={url}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="text-blue-500 hover:underline"
-				>
-					{url}
-				</a>
+				User activity patterns throughout the week
 			</CardDescription>
 		</CardHeader>
 		<CardContent>

@@ -2,20 +2,29 @@
 	import { api } from '$lib/api';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { Search, SettingsIcon } from '@lucide/svelte';
+	import { Clock, ExternalLink, Search, SettingsIcon } from '@lucide/svelte';
 
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import SubredditList from '$lib/features/subreddits/subreddit-list.svelte';
 	import AddSubredditDialog from '$lib/features/subreddits/add-subreddit-dialog.svelte';
 	import SubredditData from '$lib/features/subreddits/subreddit-data.svelte';
+	import type { Subreddit } from '$lib/server/db/schema';
+	import { subredditStore } from '$lib/stores/subreddits.svelte';
+	import { Separator } from '$lib/components/ui/separator';
+	import {
+		Tooltip,
+		TooltipContent,
+		TooltipProvider,
+		TooltipTrigger
+	} from '$lib/components/ui/tooltip';
 
-	let id = $derived(page.params.id);
+	let workspaceId = $derived(page.params.id);
 	let subredditId = $derived(parseInt(page.params.subreddit));
 
-	let subreddits = api.subreddit.list.query({ workspaceId: id });
+	let subreddits = api.subreddit.list.query({ workspaceId });
 
-	$inspect('subredditId', subredditId, id, page.params);
+	$inspect('subredditId', subredditId, workspaceId, page.params);
 	// const subredditId = page.params.subreddit;
 
 	let filteredSubreddits = $derived.by(() => {
@@ -71,6 +80,11 @@
 	// 		url.url.toLowerCase().includes(searchQuery.toLowerCase())
 	// );
 
+	const handleSelectSubreddit = (subreddit: Subreddit) => {
+		subredditStore.selectedSubreddit = subreddit;
+		goto(`/app/${workspaceId}/r/${subreddit.id}`);
+	};
+
 	// const handleAddUrl = (newUrl: Url) => {
 	// 	const updatedUrls = [...urls, newUrl];
 	// 	setUrls(updatedUrls);
@@ -106,11 +120,53 @@
 </script>
 
 <div class="flex h-screen flex-col">
-	<header class="flex items-center justify-between border-b bg-background p-4">
+	<header
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4"
+	>
 		<h1 class="text-xl font-bold">URL Dashboard</h1>
-		<Button variant="ghost" size="icon" aria-label="Settings" href="/settings">
-			<SettingsIcon class="h-5 w-5" />
-		</Button>
+		<div class="flex items-center gap-4">
+			{#if subredditStore.selectedSubreddit}
+				<div class="hidden items-center md:flex">
+					<!-- <span class="mr-2 font-medium">
+						r/{subredditStore.selectedSubreddit.name}
+					</span> -->
+					<a
+						href={subredditStore.selectedSubreddit.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-center gap-1 text-sm text-blue-500 hover:underline"
+					>
+						r/{subredditStore.selectedSubreddit.name}
+						<ExternalLink class="h-3.5 w-3.5" />
+					</a>
+				</div>
+			{/if}
+			<Separator orientation="vertical" class="hidden h-6 md:block" />
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger>
+						<div
+							class="flex cursor-help items-center gap-1 text-sm text-muted-foreground"
+						>
+							<Clock class="h-4 w-4" />
+							<span>Europe/Madrid</span>
+							<!-- <span>{getTimezoneLabel(settings.timezone)}</span> -->
+						</div>
+					</TooltipTrigger>
+					<TooltipContent>
+						<p>Timezone used for data display. Change in settings.</p>
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
+			<Button
+				variant="ghost"
+				size="icon"
+				aria-label="Settings"
+				href="/app/settings"
+			>
+				<SettingsIcon class="h-5 w-5" />
+			</Button>
+		</div>
 	</header>
 	<div class="flex h-[calc(100vh-4rem)] flex-row">
 		<aside class="flex w-full flex-col border-r p-4 md:w-80">
@@ -133,7 +189,7 @@
 				<SubredditList
 					subreddits={filteredSubreddits}
 					{selectedSubredditId}
-					onSelectSubreddit={(r) => goto(`/app/${id}/r/${r}`)}
+					onSelectSubreddit={handleSelectSubreddit}
 					onRemoveSubreddit={() => {}}
 					onMoveSubreddit={() => {}}
 				/>
@@ -145,11 +201,7 @@
 					(r) => r.id === subredditId
 				)}
 				{#key subredditId}
-					<SubredditData
-						{subredditId}
-						title={subredditData?.name}
-						url={subredditData?.url}
-					/>
+					<SubredditData {subredditId} />
 				{/key}
 			{:else}
 				<div class="flex h-full items-center justify-center">
