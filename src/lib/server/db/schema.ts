@@ -9,7 +9,9 @@ import {
 	text,
 	timestamp,
 	varchar,
-	primaryKey
+	primaryKey,
+	unique,
+	index
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
@@ -91,6 +93,33 @@ export const subreddit = pgTable('subreddit', {
 		.notNull()
 });
 
+export const subredditRecord = pgTable(
+	'subreddit_record',
+	{
+		id: serial('id').primaryKey(),
+		subredditId: integer('subreddit_id')
+			.notNull()
+			.references(() => subreddit.id, { onDelete: 'cascade' }),
+
+		users: integer('users').notNull(),
+
+		interval: integer('interval').notNull(), // 72 intervals 0 = 00:00, 71 = 23:40
+
+		// Timestamp rounded to the nearest 20 minutes
+		timestamp: timestamp('timestamp', {
+			withTimezone: true,
+			mode: 'date',
+			precision: 0
+		})
+			.defaultNow()
+			.notNull()
+	},
+	(table) => ({
+		subredditTimestampUnique: unique().on(table.subredditId, table.timestamp),
+		timestampIndex: index('timestamp_idx').on(table.timestamp)
+	})
+);
+
 export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
 	id: serial('id').primaryKey(),
 	subredditId: integer('subreddit_id')
@@ -158,6 +187,8 @@ export type Product = typeof product.$inferSelect;
 export type Platform = typeof platform.$inferSelect;
 export type PlatformInsert = typeof platform.$inferInsert;
 export type Subreddit = typeof subreddit.$inferSelect;
+
+export type SubredditRecord = typeof subredditRecord.$inferSelect;
 
 export type PlatformLaunch = typeof platformLaunch.$inferSelect;
 export type ProductWithPlatforms = { product: Product } & {
