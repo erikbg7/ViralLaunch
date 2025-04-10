@@ -9,6 +9,6 @@ export const weekDays = [
 ];
 
 export enum ChartTypes {
-	WEEKLY = 'weekly',
-	DAILY = 'daily'
+	LINEAR = 'linear',
+	HEATMAP = 'heatmap'
 }

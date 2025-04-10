@@ -1,19 +1,14 @@
 <script lang="ts">
+	import { api } from '$lib/api';
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { Search, SettingsIcon } from '@lucide/svelte';
+
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
-
-	// import ChartDisplay from '$lib/components/chart-display';
-	import { Search, SettingsIcon } from '@lucide/svelte';
 	import SubredditList from '$lib/features/subreddits/subreddit-list.svelte';
 	import AddSubredditDialog from '$lib/features/subreddits/add-subreddit-dialog.svelte';
-	import { page } from '$app/state';
-	import type { Subreddit } from '$lib/server/db/schema';
-	import { api } from '$lib/api';
 	import SubredditData from '$lib/features/subreddits/subreddit-data.svelte';
-	import { goto } from '$app/navigation';
-
-	// import { page } from '$app/stores';
-	// import Settings from "$lib/components/settings"
 
 	let id = $derived(page.params.id);
 	let subredditId = $derived(parseInt(page.params.subreddit));
@@ -36,23 +31,6 @@
 		filteredSubreddits.find((r) => r.id === subredditId)?.id || null
 	);
 	let searchQuery = $state<string>('');
-
-	function generateFakeRecords(rid: Subreddit['id']) {
-		fetch('/api/generate-fake-records', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ subredditId: rid })
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				console.log('Fake records generated:', data);
-			})
-			.catch((error) => {
-				console.error('Error generating fake records:', error);
-			});
-	}
 
 	// const [selectedUrl, setSelectedUrl] = useState<Url | null>(null);
 	// const [searchQuery, setSearchQuery] = useState('');
@@ -132,13 +110,6 @@
 		<h1 class="text-xl font-bold">URL Dashboard</h1>
 		<Button variant="ghost" size="icon" aria-label="Settings" href="/settings">
 			<SettingsIcon class="h-5 w-5" />
-		</Button>
-		<Button
-			variant="default"
-			aria-label="Fake data"
-			onclick={() => generateFakeRecords(subredditId)}
-		>
-			Generate Fake Records
 		</Button>
 	</header>
 	<div class="flex h-[calc(100vh-4rem)] flex-row">

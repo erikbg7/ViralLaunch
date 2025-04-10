@@ -1,7 +1,7 @@
 import { ChartTypes } from '$lib/constants';
 
 function createSubredditStore() {
-	let selectedChart = $state(ChartTypes.WEEKLY);
+	let selectedChart = $state(ChartTypes.LINEAR);
 
 	return {
 		get selectedChart() {

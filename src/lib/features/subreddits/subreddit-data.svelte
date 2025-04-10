@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { api } from '$lib/api';
+	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -18,6 +19,7 @@
 	import BestTimesWeek from '$lib/features/subreddits/best-times-week.svelte';
 	import Heatmap from '$lib/features/subreddits/heatmap.svelte';
 	import HourlyChart from '$lib/features/subreddits/hourly-chart.svelte';
+	import { generateFakeRecords } from '$lib/features/subreddits/utils';
 	import { subredditStore } from '$lib/stores/subreddits.svelte';
 
 	type Props = {
@@ -31,11 +33,11 @@
 	let subreddit = api.subreddit.get.query({ subredditId });
 	let records = api.records.get.query({ workspaceId: '2', subredditId });
 
-	let heatMapRecords = $derived.by(() => {
-		if (!$records.data) {
-			return [];
-		}
-	});
+	// let heatMapRecords = $derived.by(() => {
+	// 	if (!$records.data) {
+	// 		return [];
+	// 	}
+	// });
 
 	$inspect({ $records });
 </script>
@@ -58,20 +60,27 @@
 		<CardContent>
 			<Tabs bind:value={subredditStore.selectedChart}>
 				<TabsList class="mb-4">
-					<TabsTrigger value={ChartTypes.WEEKLY}>Weekly Chart</TabsTrigger>
-					<TabsTrigger value={ChartTypes.DAILY}>Daily Chart</TabsTrigger>
+					<TabsTrigger value={ChartTypes.HEATMAP}>Heatmap</TabsTrigger>
+					<TabsTrigger value={ChartTypes.LINEAR}>Linear Chart</TabsTrigger>
 				</TabsList>
-				<TabsContent value={ChartTypes.WEEKLY} class="h-[400px]">
+
+				<Button
+					variant="default"
+					aria-label="Fake data"
+					onclick={() => generateFakeRecords(subredditId)}
+				>
+					Generate Fake Records
+				</Button>
+
+				<TabsContent value={ChartTypes.HEATMAP} class="h-[400px]">
 					<!-- responsive container -->
 					<div class="h-full w-full">
-						<!-- <WeeklyChart chartData={$subreddit?.data?.results || []} /> -->
 						<Heatmap records={$records.data} />
 					</div>
 				</TabsContent>
-				<TabsContent value={ChartTypes.DAILY} class="h-[400px]">
+				<TabsContent value={ChartTypes.LINEAR} class="h-[400px]">
 					<!-- responsive container -->
 					<div class="h-full w-full">
-						<!-- <DailyChart chartData={$subreddit?.data?.results || []} /> -->
 						<HourlyChart chartData={$records?.data?.[0] || []} />
 					</div>
 				</TabsContent>
