@@ -1,3 +1,5 @@
+import type { SubredditRecord } from '$lib/server/db/schema';
+
 type HourlyData = {
 	dayOfWeek: number;
 	hourOfDay: number;
@@ -85,3 +87,51 @@ export function getCurrentLastRecord(
 //     const hourlyData = await getHourlyGraphData(subredditId, weekStartDate);
 //     return aggregateToDailyAverages(hourlyData);
 //   }
+
+const INTERVALS_IN_HOUR = 3; // 20 minutes intervals
+const INTERVALS_IN_DAY = 24 * INTERVALS_IN_HOUR; // 24 hours
+const INTERVALS_IN_WEEK = 7 * INTERVALS_IN_DAY; // 7 days
+
+export type DayRecordByHour = {
+	day: number;
+	records: Array<{ hour: number; users: number }>;
+};
+
+export type WeeklyRecordsByHour = {
+	maxUsers: number;
+	dailyRecordsByHour: Array<DayRecordByHour>;
+};
+
+export const aggregateRecordsToHourlyData = (
+	records: SubredditRecord[][]
+): WeeklyRecordsByHour => {
+	let maxUsers = 0;
+	let dailyRecordsByHour: DayRecordByHour[] = [];
+
+	records.forEach((dailyRecords) => {
+		const dailyRecordByHour: DayRecordByHour = {
+			day: dailyRecords[0].timestamp.getUTCDay(),
+			records: []
+		};
+
+		for (let i = 0; i < dailyRecords.length; i += 3) {
+			const hour = Math.floor(dailyRecords[i + 2].interval / INTERVALS_IN_HOUR);
+			let i1 = dailyRecords[i]?.users || 0;
+			let i2 = dailyRecords[i + 1]?.users || 0;
+			let i3 = dailyRecords[i + 2]?.users || 0;
+
+			let avg = Math.ceil((i1 + i2 + i3) / 3);
+			let max = Math.max(i1, i2, i3);
+
+			maxUsers = Math.max(max, maxUsers);
+
+			dailyRecordByHour.records.push({ hour, users: avg });
+		}
+
+		dailyRecordsByHour.push(dailyRecordByHour);
+	});
+	return {
+		maxUsers,
+		dailyRecordsByHour
+	};
+};

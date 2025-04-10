@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '$lib/server/trpc/trpc';
 import { db } from '$lib/server/db';
-import { subredditRecord } from '$lib/server/db/schema';
+import {
+	subredditRecord,
+	type SubredditRecord,
+	type WeeklySubredditRecords
+} from '$lib/server/db/schema';
 import { eq, getTableColumns } from 'drizzle-orm';
 
 export const recordsRouter = router({
@@ -14,7 +18,7 @@ export const recordsRouter = router({
 					.from(subredditRecord)
 					.where(eq(subredditRecord.subredditId, input.subredditId));
 
-				let recordsPerWeekDay: Array<any>[] = Array.from(
+				let recordsPerWeekDay: WeeklySubredditRecords = Array.from(
 					{ length: 7 },
 					() => []
 				);
