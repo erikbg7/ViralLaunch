@@ -12,7 +12,8 @@
 	import type { SubredditRecord } from '$lib/server/db/schema';
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
-	let days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+	let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 	let { records: r = [] }: { records: SubredditRecord[][] } = $props();
 
@@ -38,54 +39,52 @@
 <div
 	class="flex h-full w-full flex-col items-center justify-center overflow-x-auto"
 >
-	<div class="overflow-x-auto pb-4">
-		<div class="min-w-[720px]">
-			<div class="flex gap-[2px]">
-				<!-- Empty corner cell -->
-				<div class="w-12"></div>
+	<div class="w-full overflow-x-auto pb-4">
+		<div class="flex gap-[2px]">
+			<!-- Empty corner cell -->
+			<div class="w-12"></div>
 
-				<!-- Hour labels  -->
-				{#each hours as hour}
-					<div class="w-10 text-center text-xs text-muted-foreground">
-						{formatHour(hour)}
-					</div>
-				{/each}
-			</div>
-
-			<TooltipProvider>
-				{#each days as day, dayIndex}
-					<div class="flex h-10 items-center">
-						<!-- Day label -->
-						<div class="w-12 pr-2 text-right text-sm font-medium">{day}</div>
-
-						<!-- Hour cells -->
-						{#each hours as hour}
-							{@const users =
-								records.dailyRecordsByHour
-									.find((d) => d.day === dayIndex)
-									?.records?.at?.(hour)?.users || 0}
-
-							<Tooltip delayDuration={100}>
-								<TooltipTrigger>
-									<div
-										class="m-px h-8 w-10 rounded transition-colors duration-200 hover:border-2 hover:border-[#f97015]"
-										style={`background-color: ${getCellColor(users, hour)}`}
-									></div>
-								</TooltipTrigger>
-								<TooltipContent>
-									<div class="text-center">
-										<div class="font-medium">
-											{days[dayIndex]} at {formatHour(hour)}
-										</div>
-										<div>{users} users</div>
-									</div>
-								</TooltipContent>
-							</Tooltip>
-						{/each}
-					</div>
-				{/each}
-			</TooltipProvider>
+			<!-- Hour labels  -->
+			{#each hours as hour}
+				<div class="w-[4%] text-center text-xs text-muted-foreground">
+					{formatHour(hour)}
+				</div>
+			{/each}
 		</div>
+
+		<TooltipProvider>
+			{#each days as day, dayIndex}
+				<div class="flex h-10 w-full items-center">
+					<!-- Day label -->
+					<div class="w-12 pr-2 text-right text-sm font-medium">{day}</div>
+
+					<!-- Hour cells -->
+					{#each hours as hour}
+						{@const users =
+							records.dailyRecordsByHour
+								.find((d) => d.day === dayIndex)
+								?.records?.at?.(hour)?.users || 0}
+
+						<Tooltip delayDuration={100}>
+							<TooltipTrigger class="m-px w-[4%]">
+								<div
+									class="h-8 w-full rounded transition-colors duration-200 hover:border-2 hover:border-[#f97015]"
+									style={`background-color: ${getCellColor(users, hour)}`}
+								></div>
+							</TooltipTrigger>
+							<TooltipContent>
+								<div class="text-center">
+									<div class="font-medium">
+										{days[dayIndex]} at {formatHour(hour)}
+									</div>
+									<div>{users} users</div>
+								</div>
+							</TooltipContent>
+						</Tooltip>
+					{/each}
+				</div>
+			{/each}
+		</TooltipProvider>
 	</div>
 
 	<!-- Legend -->

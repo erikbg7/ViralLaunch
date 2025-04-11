@@ -4,8 +4,15 @@ import type { Subreddit } from '$lib/server/db/schema';
 function createSubredditStore() {
 	let selectedChart = $state<ChartTypes>(ChartTypes.HEATMAP);
 	let selectedSubreddit = $state<Subreddit | null>(null);
+	let selectedSubredditName = $state<string | null>(null);
 
 	return {
+		get selectedSubredditName() {
+			return selectedSubredditName;
+		},
+		set selectedSubredditName(value: string | null) {
+			selectedSubredditName = value;
+		},
 		get selectedSubreddit() {
 			return selectedSubreddit;
 		},

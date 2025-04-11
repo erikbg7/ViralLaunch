@@ -31,59 +31,57 @@
 	let subreddit = api.subreddit.get.query({ subredditId });
 	let records = api.records.get.query({ workspaceId: '2', subredditId });
 
-	// let heatMapRecords = $derived.by(() => {
-	// 	if (!$records.data) {
-	// 		return [];
-	// 	}
-	// });
-
 	$inspect({ $records });
 </script>
 
-<div class="space-y-6">
-	<Card>
-		<CardHeader>
-			<CardTitle>Weekly Activity</CardTitle>
-			<CardDescription>
-				User activity patterns throughout the week
-			</CardDescription>
-		</CardHeader>
-		<CardContent>
-			<Tabs bind:value={subredditStore.selectedChart}>
-				<TabsList class="mb-4">
-					<TabsTrigger value={ChartTypes.HEATMAP}>Heatmap</TabsTrigger>
-					<TabsTrigger value={ChartTypes.LINEAR}>Linear Chart</TabsTrigger>
-				</TabsList>
+{#if !$records.data}
+	Loading...
+{:else}
+	<div class="space-y-6">
+		<Card>
+			<CardHeader>
+				<CardTitle>Weekly Activity</CardTitle>
+				<CardDescription>
+					User activity patterns throughout the week
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<Tabs bind:value={subredditStore.selectedChart}>
+					<TabsList class="mb-4">
+						<TabsTrigger value={ChartTypes.HEATMAP}>Heatmap</TabsTrigger>
+						<TabsTrigger value={ChartTypes.LINEAR}>Linear Chart</TabsTrigger>
+					</TabsList>
 
-				<Button
-					variant="default"
-					aria-label="Fake data"
-					onclick={() => generateFakeRecords(subredditId)}
-				>
-					Generate Fake Records
-				</Button>
+					<Button
+						variant="default"
+						aria-label="Fake data"
+						onclick={() => generateFakeRecords(subredditId)}
+					>
+						Generate Fake Records
+					</Button>
 
-				<TabsContent value={ChartTypes.HEATMAP} class="h-[400px]">
-					<!-- responsive container -->
-					<div class="h-full w-full">
-						<Heatmap records={$records.data} />
-					</div>
-				</TabsContent>
-				<TabsContent value={ChartTypes.LINEAR} class="h-[400px]">
-					<!-- responsive container -->
-					<div class="h-full w-full">
-						<HourlyChart chartData={$records?.data?.[0] || []} />
-					</div>
-				</TabsContent>
-			</Tabs>
-		</CardContent>
-	</Card>
+					<TabsContent value={ChartTypes.HEATMAP} class="h-[400px]">
+						<!-- responsive container -->
+						<div class="h-full w-full">
+							<Heatmap records={$records.data || []} />
+						</div>
+					</TabsContent>
+					<TabsContent value={ChartTypes.LINEAR} class="h-[400px]">
+						<!-- responsive container -->
+						<div class="h-full w-full">
+							<HourlyChart chartData={$records?.data?.[0] || []} />
+						</div>
+					</TabsContent>
+				</Tabs>
+			</CardContent>
+		</Card>
 
-	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-		<BestTimesToday />
-		<BestTimesWeek />
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+			<BestTimesToday records={$records.data || []} />
+			<BestTimesWeek />
+		</div>
+
+		<!-- {/* Add the UserActivity component */} -->
+		<!-- <UserActivity url={url} /> -->
 	</div>
-
-	<!-- {/* Add the UserActivity component */} -->
-	<!-- <UserActivity url={url} /> -->
-</div>
+{/if}

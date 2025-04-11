@@ -82,6 +82,8 @@
 
 	const handleSelectSubreddit = (subreddit: Subreddit) => {
 		subredditStore.selectedSubreddit = subreddit;
+		subredditStore.selectedSubredditName = subreddit.name;
+
 		goto(`/app/${workspaceId}/r/${subreddit.id}`);
 	};
 
@@ -136,7 +138,7 @@
 						rel="noopener noreferrer"
 						class="flex items-center gap-1 text-sm text-blue-500 hover:underline"
 					>
-						r/{subredditStore.selectedSubreddit.name}
+						r/{subredditStore.selectedSubredditName}
 						<ExternalLink class="h-3.5 w-3.5" />
 					</a>
 				</div>

@@ -20,6 +20,17 @@
 	}: UrlListProps = $props();
 
 	let isDragging = $state(false);
+
+	$effect(() => {
+		if (selectedSubredditId) {
+			const selectedSubreddit = subreddits.find(
+				(r) => r.id === selectedSubredditId
+			);
+			if (selectedSubreddit) {
+				onSelectSubreddit(selectedSubreddit);
+			}
+		}
+	});
 </script>
 
 {#if subreddits.length === 0}
