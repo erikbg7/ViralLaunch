@@ -1,16 +1,10 @@
 <script lang="ts">
 	import { api } from '$lib/api';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import { Clock, ExternalLink, Search, SettingsIcon } from '@lucide/svelte';
 
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
-	import SubredditList from '$lib/features/subreddits/subreddit-list.svelte';
-	import AddSubredditDialog from '$lib/features/subreddits/add-subreddit-dialog.svelte';
-	import SubredditData from '$lib/features/subreddits/subreddit-data.svelte';
-	import type { Subreddit } from '$lib/server/db/schema';
-	import { subredditStore } from '$lib/stores/subreddits.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import {
 		Tooltip,
@@ -18,28 +12,48 @@
 		TooltipProvider,
 		TooltipTrigger
 	} from '$lib/components/ui/tooltip';
+	import { debounced } from '$lib/stores/debounce.svelte';
+	import { subredditStore } from '$lib/stores/subreddits.svelte';
+	import SubredditList from '$lib/features/subreddits/subreddit-list.svelte';
+	import AddSubredditDialog from '$lib/features/subreddits/add-subreddit-dialog.svelte';
+	import SubredditData from '$lib/features/subreddits/subreddit-data.svelte';
+	import type { Subreddit } from '$lib/server/db/schema';
 
-	let workspaceId = $derived(page.params.id);
 	let subredditId = $derived(parseInt(page.params.subreddit));
 
-	let subreddits = api.subreddit.list.query({ workspaceId });
+	let subreddits = api.subreddit.list.query({ workspaceId: page.params.id });
 
-	$inspect('subredditId', subredditId, workspaceId, page.params);
+	$inspect('subredditId', subredditId, page.params);
 	// const subredditId = page.params.subreddit;
+	let searchQuery = $state<string | null | undefined>();
 
-	let filteredSubreddits = $derived.by(() => {
-		if ($subreddits.isSuccess) {
-			return $subreddits.data.filter((subreddit) =>
-				subreddit.name.toLowerCase().includes(searchQuery.toLowerCase())
-			);
-		}
-		return [];
-	});
+	let filteredSubreddits = $derived.by(
+		debounced(() => {
+			if ($subreddits.isSuccess) {
+				const q = searchQuery?.toLowerCase() || '';
+				return $subreddits.data.filter((subreddit) =>
+					subreddit.name.toLowerCase().includes(q)
+				);
+			}
+			return [];
+		}, 200)
+	);
 
 	let selectedSubredditId = $derived(
 		filteredSubreddits.find((r) => r.id === subredditId)?.id || null
 	);
-	let searchQuery = $state<string>('');
+
+	$effect(() => {
+		if ($subreddits.data && subredditId) {
+			const selectedSubreddit = $subreddits.data.find(
+				(r) => r.id === subredditId
+			);
+			if (selectedSubreddit) {
+				subredditStore.selectedSubreddit = selectedSubreddit;
+				subredditStore.selectedSubredditName = selectedSubreddit.name;
+			}
+		}
+	});
 
 	// const [selectedUrl, setSelectedUrl] = useState<Url | null>(null);
 	// const [searchQuery, setSearchQuery] = useState('');
@@ -80,11 +94,12 @@
 	// 		url.url.toLowerCase().includes(searchQuery.toLowerCase())
 	// );
 
-	const handleSelectSubreddit = (subreddit: Subreddit) => {
-		subredditStore.selectedSubreddit = subreddit;
-		subredditStore.selectedSubredditName = subreddit.name;
+	const handleMoveSubreddit = (dragIndex: number, hoverIndex: number) => {
+		console.log('trying to move the subreddit');
+	};
 
-		goto(`/app/${workspaceId}/r/${subreddit.id}`);
+	const handleRemoveSubreddit = (subreddit: Subreddit) => {
+		console.log('trying to remove the subreddit');
 	};
 
 	// const handleAddUrl = (newUrl: Url) => {
@@ -180,7 +195,7 @@
 					type="search"
 					placeholder="Search URLs..."
 					class="pl-8"
-					value={''}
+					bind:value={searchQuery}
 				/>
 			</div>
 			<div class="mb-4 flex items-center justify-between">
@@ -191,9 +206,8 @@
 				<SubredditList
 					subreddits={filteredSubreddits}
 					{selectedSubredditId}
-					onSelectSubreddit={handleSelectSubreddit}
-					onRemoveSubreddit={() => {}}
-					onMoveSubreddit={() => {}}
+					onRemoveSubreddit={handleRemoveSubreddit}
+					onMoveSubreddit={handleMoveSubreddit}
 				/>
 			</div>
 		</aside>

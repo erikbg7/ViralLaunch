@@ -79,3 +79,7 @@ https://github.com/ocluf/justship/blob/main/src/lib/server/database/user.model.t
 
 I really like to move everything from payments to a /payments folder instead of having it on the api/.
 For example, the webhook would be on /payments/webhook , then callback, then success. So everything related to payments is already in that folder encapsuled.
+
+TODO
+
+- Use subreddit name on the url (app/12321/r/SaaS). The name of the subreddit is already unique (capitalization matters), so we can just use it. Does it require changes to db? Do I require to use it as the id? Or just setting the name as unique is enough?
