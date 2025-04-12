@@ -1,4 +1,4 @@
-import type { SubredditRecord } from '$lib/server/db/schema';
+import type { WeeklySubredditRecords } from '$lib/server/db/schema';
 
 type HourlyData = {
 	dayOfWeek: number;
@@ -103,14 +103,14 @@ export type WeeklyRecordsByHour = {
 };
 
 export const aggregateRecordsToHourlyData = (
-	records: SubredditRecord[][]
+	records: WeeklySubredditRecords
 ): WeeklyRecordsByHour => {
 	let maxUsers = 0;
 	let dailyRecordsByHour: DayRecordByHour[] = [];
 
 	records.forEach((dailyRecords) => {
 		const dailyRecordByHour: DayRecordByHour = {
-			day: dailyRecords[0].timestamp.getUTCDay(),
+			day: new Date(dailyRecords[35]?.timestamp)?.getUTCDay(),
 			records: []
 		};
 

@@ -14,7 +14,7 @@ function generateFakeDayDate20MinInterval(day: number, interval: number) {
 	return date;
 }
 
-function get20MinIntervalStart(date: Date): Date {
+function get20MinIntervalStart(date: Date): string {
 	const minutes = date.getUTCMinutes();
 	const floored = Math.floor(minutes / 20) * 20;
 
@@ -26,7 +26,7 @@ function get20MinIntervalStart(date: Date): Date {
 		floored,
 		0,
 		0
-	);
+	).toISOString();
 }
 
 export const POST = async (event) => {
@@ -39,7 +39,9 @@ export const POST = async (event) => {
 		const data = intervals.map((_, index) => ({
 			subredditId,
 			users: Math.floor(
-				((Math.random() * dindex) / 10) * 100 * parseInt(subredditId)
+				((Math.random() * Math.max(dindex, 1)) / 10) *
+					100 *
+					parseInt(subredditId)
 			),
 			interval: index,
 			// Timestamp rounded to the nearest 20 minutes
