@@ -107,7 +107,7 @@ export const subredditRecord = pgTable(
 
 		// Timestamp rounded to the nearest 20 minutes
 		timestamp: timestamp('timestamp', {
-			withTimezone: true,
+			withTimezone: false,
 			mode: 'date',
 			precision: 0
 		})

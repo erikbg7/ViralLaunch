@@ -25,7 +25,7 @@ export const recordsRouter = router({
 
 				records.forEach((record) => {
 					const date = new Date(record.timestamp);
-					const weekDay = date.getDay();
+					const weekDay = date.getUTCDay();
 					const previousRecords = recordsPerWeekDay[weekDay] || [];
 					previousRecords.push(record);
 

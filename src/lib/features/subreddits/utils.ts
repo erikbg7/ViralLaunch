@@ -1,4 +1,5 @@
 import type { Subreddit } from '$lib/server/db/schema';
+import { toast } from 'svelte-sonner';
 
 export function generateFakeRecords(rid: Subreddit['id']) {
 	fetch('/api/generate-fake-records', {
@@ -11,8 +12,10 @@ export function generateFakeRecords(rid: Subreddit['id']) {
 		.then((response) => response.json())
 		.then((data) => {
 			console.log('Fake records generated:', data);
+			toast.success('Fake records generated successfully');
 		})
 		.catch((error) => {
 			console.error('Error generating fake records:', error);
+			toast.success('Error generating fake records');
 		});
 }
