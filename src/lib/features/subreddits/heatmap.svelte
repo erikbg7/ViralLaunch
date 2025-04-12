@@ -10,19 +10,18 @@
 	} from '$lib/components/ui/tooltip';
 	import { aggregateRecordsToHourlyData } from '$lib/graph/aggregators';
 	import type { SubredditRecord } from '$lib/server/db/schema';
+	import { formatHourByLocale, getWeekDaysInUserTimezone } from '$lib/timezone';
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
 
-	let days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+	let days = getWeekDaysInUserTimezone();
 
 	let { records: r = [] }: { records: SubredditRecord[][] } = $props();
 
 	let records = aggregateRecordsToHourlyData(r);
 	let maxValue = records.maxUsers;
 
-	const formatHour = (hour: number) => {
-		return `${hour % 12 === 0 ? 12 : hour % 12}${hour < 12 ? 'am' : 'pm'}`;
-	};
+	const formatHour = (hour: number) => formatHourByLocale(hour);
 
 	const getCellColor = (users: number | undefined, hour: number) => {
 		if (!users) {
