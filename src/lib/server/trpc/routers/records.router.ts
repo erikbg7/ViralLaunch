@@ -1,11 +1,7 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '$lib/server/trpc/trpc';
 import { db } from '$lib/server/db';
-import {
-	subredditRecord,
-	type SubredditRecord,
-	type WeeklySubredditRecords
-} from '$lib/server/db/schema';
+import { subredditRecord } from '$lib/server/db/schema';
 import { eq, getTableColumns } from 'drizzle-orm';
 
 export const recordsRouter = router({
@@ -18,26 +14,17 @@ export const recordsRouter = router({
 					.from(subredditRecord)
 					.where(eq(subredditRecord.subredditId, input.subredditId));
 
-				let recordsPerWeekDay: WeeklySubredditRecords = Array.from(
-					{ length: 7 },
-					() => []
-				);
+				const groupedByUtcDay = Array.from({ length: 7 }, () => [] as any[]);
 
-				records.forEach((record) => {
-					const date = new Date(record.timestamp);
-					const weekDay = date.getUTCDay();
-					const previousRecords = recordsPerWeekDay[weekDay] || [];
-					previousRecords.push(record);
+				for (const record of records) {
+					const utcDay = new Date(`${record.timestamp}Z`).getUTCDay(); // 0 = Sunday
+					groupedByUtcDay[utcDay].push(record);
+				}
 
-					recordsPerWeekDay[weekDay] = previousRecords;
-				});
-
-				return recordsPerWeekDay;
+				return groupedByUtcDay;
 			} catch (error) {
 				console.error('Error fetching subreddits:', error);
 				throw new Error('Failed to fetch subreddits');
 			}
-
-			// return CenterService.getSubreddit(input.subreddit, ctx.user.id);
 		})
 });

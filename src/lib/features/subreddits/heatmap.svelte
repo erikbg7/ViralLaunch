@@ -13,14 +13,12 @@
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
 
-	let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	let days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 	let { records: r = [] }: { records: SubredditRecord[][] } = $props();
 
 	let records = aggregateRecordsToHourlyData(r);
 	let maxValue = records.maxUsers;
-
-	console.log({ rrrrr: records });
 
 	const formatHour = (hour: number) => {
 		return `${hour % 12 === 0 ? 12 : hour % 12}${hour < 12 ? 'am' : 'pm'}`;
