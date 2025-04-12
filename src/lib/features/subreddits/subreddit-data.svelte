@@ -19,7 +19,10 @@
 	import BestTimesWeek from '$lib/features/subreddits/best-times-week.svelte';
 	import Heatmap from '$lib/features/subreddits/heatmap.svelte';
 	import HourlyChart from '$lib/features/subreddits/hourly-chart.svelte';
-	import { generateFakeRecords } from '$lib/features/subreddits/utils';
+	import {
+		deleteAllRecords,
+		generateFakeRecords
+	} from '$lib/features/subreddits/utils';
 	import { subredditStore } from '$lib/stores/subreddits.svelte';
 
 	type Props = {
@@ -58,6 +61,14 @@
 						onclick={() => generateFakeRecords(subredditId)}
 					>
 						Generate Fake Records
+					</Button>
+
+					<Button
+						variant="default"
+						aria-label="Fake data"
+						onclick={() => deleteAllRecords(subredditId)}
+					>
+						Delete All Records
 					</Button>
 
 					<TabsContent value={ChartTypes.HEATMAP} class="h-[400px]">
