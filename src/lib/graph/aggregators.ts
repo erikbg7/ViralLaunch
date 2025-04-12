@@ -135,3 +135,37 @@ export const aggregateRecordsToHourlyData = (
 		dailyRecordsByHour
 	};
 };
+
+export type DailyBestTime = {
+	hour: number;
+	users: number;
+} | null;
+
+export const getTodayBestTimes = (
+	records: WeeklySubredditRecords
+): [DailyBestTime, DailyBestTime, DailyBestTime, DailyBestTime] => {
+	const today = new Date();
+
+	const dayOfWeek = today.getUTCDay();
+	const aggregatedHourlyRecords = aggregateRecordsToHourlyData(records);
+
+	const todayRecords = aggregatedHourlyRecords.dailyRecordsByHour[dayOfWeek];
+
+	if (todayRecords) {
+		const bestTimes = todayRecords.records
+			.sort((a, b) => b.users - a.users)
+			.slice(0, 4)
+			.map((record) => ({
+				hour: record.hour,
+				users: record.users
+			}));
+		return bestTimes as [
+			DailyBestTime,
+			DailyBestTime,
+			DailyBestTime,
+			DailyBestTime
+		];
+	}
+
+	return [null, null, null, null];
+};
