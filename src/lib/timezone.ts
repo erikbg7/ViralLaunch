@@ -1,24 +1,46 @@
-// List of common timezones with their UTC offsets
-export const timezones = [
-	{ value: 'UTC', label: 'UTC', offset: 0 },
-	{ value: 'America/New_York', label: 'New York (UTC-5/UTC-4)', offset: -5 },
-	{ value: 'America/Chicago', label: 'Chicago (UTC-6/UTC-5)', offset: -6 },
-	{ value: 'America/Denver', label: 'Denver (UTC-7/UTC-6)', offset: -7 },
-	{
-		value: 'America/Los_Angeles',
-		label: 'Los Angeles (UTC-8/UTC-7)',
-		offset: -8
-	},
-	{ value: 'America/Anchorage', label: 'Anchorage (UTC-9/UTC-8)', offset: -9 },
-	{ value: 'Pacific/Honolulu', label: 'Honolulu (UTC-10)', offset: -10 },
-	{ value: 'Europe/London', label: 'London (UTC+0/UTC+1)', offset: 0 },
-	{ value: 'Europe/Paris', label: 'Paris (UTC+1/UTC+2)', offset: 1 },
-	{ value: 'Europe/Helsinki', label: 'Helsinki (UTC+2/UTC+3)', offset: 2 },
-	{ value: 'Asia/Dubai', label: 'Dubai (UTC+4)', offset: 4 },
-	{ value: 'Asia/Singapore', label: 'Singapore (UTC+8)', offset: 8 },
-	{ value: 'Asia/Tokyo', label: 'Tokyo (UTC+9)', offset: 9 },
-	{ value: 'Australia/Sydney', label: 'Sydney (UTC+10/UTC+11)', offset: 10 }
-];
+/**
+ * Formats a UTC date according to a specific IANA timezone.
+ * @param utcDate - The original UTC Date.
+ * @param timeZone - The IANA timezone identifier (e.g. 'America/New_York').
+ * @returns A string representing the formatted local date/time.
+ */
+export function formatUTCToLocal(
+	utcDate: Date | number,
+	timeZone: string
+): string {
+	// If times are not correctly converted, try adding a Z to the date string to force UTC parsing
+	return new Intl.DateTimeFormat('en-US', {
+		timeZone,
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit'
+	}).format(utcDate);
+}
+
+/**
+ * Converts a UTC Date to a local Date by applying the given offset.
+ * @param utcDate - The original UTC date.
+ * @param offset - Timezone offset in hours (e.g., -5 for New York standard time).
+ * @returns A new Date object adjusted by the offset.
+ */
+export function convertUTCToLocal(utcDate: Date, offset: number): Date {
+	// Convert offset hours to milliseconds and add to UTC time.
+	return new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
+}
+
+export function convertTimestampToLocalDate(
+	utcTimestamp: string,
+	offset: number
+): Date {
+	const utcDate = new Date(utcTimestamp);
+	const utcDate2 = new Date(`${utcTimestamp}Z`);
+	console.log({ utcTimestamp, utcDate, utcDate2, offset });
+	// Convert offset hours to milliseconds and add to UTC time.
+	return new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
+}
 
 export function formatHourByLocale(hour: number, locale = navigator.language) {
 	const date = new Date(Date.UTC(2000, 0, 1, hour, 0)); // fixed dummy date

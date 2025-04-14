@@ -18,6 +18,7 @@
 	import AddSubredditDialog from '$lib/features/subreddits/add-subreddit-dialog.svelte';
 	import SubredditData from '$lib/features/subreddits/subreddit-data.svelte';
 	import type { Subreddit } from '$lib/server/db/schema';
+	import { serverConfig } from '$lib/stores/settings.svelte';
 
 	let subredditId = $derived(parseInt(page.params.subreddit));
 
@@ -166,7 +167,7 @@
 							class="flex cursor-help items-center gap-1 text-sm text-muted-foreground"
 						>
 							<Clock class="h-4 w-4" />
-							<span>Europe/Madrid</span>
+							<span>{serverConfig.timezone}</span>
 							<!-- <span>{getTimezoneLabel(settings.timezone)}</span> -->
 						</div>
 					</TooltipTrigger>
