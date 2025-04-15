@@ -1,27 +1,8 @@
+import { weekDays, WeekDay } from '$lib/constants';
 import type { RouterOutput } from '$lib/server/trpc/router';
 import { serverConfig } from '$lib/stores/settings.svelte';
 
 type RawRecords = RouterOutput['records']['get2'];
-
-export enum WeekDays {
-	MONDAY = 'Monday',
-	TUESDAY = 'Tuesday',
-	WEDNESDAY = 'Wednesday',
-	THURSDAY = 'Thursday',
-	FRIDAY = 'Friday',
-	SATURDAY = 'Saturday',
-	SUNDAY = 'Sunday'
-}
-
-export const weekDays = [
-	WeekDays.SUNDAY,
-	WeekDays.MONDAY,
-	WeekDays.TUESDAY,
-	WeekDays.WEDNESDAY,
-	WeekDays.THURSDAY,
-	WeekDays.FRIDAY,
-	WeekDays.SATURDAY
-];
 
 type DailyRecord = {
 	date: Date;
@@ -34,17 +15,17 @@ export type ParsedRecords = {
 	peakTodayUsers: number;
 	bestTodayTimes: { date: Date; users: number }[];
 	bestWeeklyTimes: { date: Date; users: number }[];
-	records: Record<WeekDays, DailyRecord[]>;
-	hourlyRecords: Record<WeekDays, DailyRecord[]>;
+	records: Record<WeekDay, DailyRecord[]>;
+	hourlyRecords: Record<WeekDay, DailyRecord[]>;
 };
 
 export function aggregateToHeatmapRecords(
-	parsedRecords: Record<WeekDays, DailyRecord[]>
-): Record<WeekDays, DailyRecord[]> {
+	parsedRecords: Record<WeekDay, DailyRecord[]>
+): Record<WeekDay, DailyRecord[]> {
 	let recordsClone = { ...parsedRecords };
 
 	for (const weekday in recordsClone) {
-		const dailyRecords = parsedRecords[weekday as WeekDays];
+		const dailyRecords = parsedRecords[weekday as WeekDay];
 		const dailyRecordByHour: DailyRecord[] = [];
 
 		for (let i = 0; i < dailyRecords.length; i += 3) {
@@ -61,7 +42,7 @@ export function aggregateToHeatmapRecords(
 			});
 		}
 
-		recordsClone[weekday as WeekDays] = dailyRecordByHour;
+		recordsClone[weekday as WeekDay] = dailyRecordByHour;
 	}
 	return recordsClone;
 }
@@ -71,23 +52,23 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 	let peakTodayUsers = 0;
 
 	let records: ParsedRecords['records'] = {
-		[WeekDays.MONDAY]: [],
-		[WeekDays.TUESDAY]: [],
-		[WeekDays.WEDNESDAY]: [],
-		[WeekDays.THURSDAY]: [],
-		[WeekDays.FRIDAY]: [],
-		[WeekDays.SATURDAY]: [],
-		[WeekDays.SUNDAY]: []
+		[WeekDay.MONDAY]: [],
+		[WeekDay.TUESDAY]: [],
+		[WeekDay.WEDNESDAY]: [],
+		[WeekDay.THURSDAY]: [],
+		[WeekDay.FRIDAY]: [],
+		[WeekDay.SATURDAY]: [],
+		[WeekDay.SUNDAY]: []
 	};
 
-	let mostUsersByDay: Record<WeekDays, DailyRecord> = {
-		[WeekDays.MONDAY]: { users: 0 } as DailyRecord,
-		[WeekDays.TUESDAY]: { users: 0 } as DailyRecord,
-		[WeekDays.WEDNESDAY]: { users: 0 } as DailyRecord,
-		[WeekDays.THURSDAY]: { users: 0 } as DailyRecord,
-		[WeekDays.FRIDAY]: { users: 0 } as DailyRecord,
-		[WeekDays.SATURDAY]: { users: 0 } as DailyRecord,
-		[WeekDays.SUNDAY]: { users: 0 } as DailyRecord
+	let mostUsersByDay: Record<WeekDay, DailyRecord> = {
+		[WeekDay.MONDAY]: { users: 0 } as DailyRecord,
+		[WeekDay.TUESDAY]: { users: 0 } as DailyRecord,
+		[WeekDay.WEDNESDAY]: { users: 0 } as DailyRecord,
+		[WeekDay.THURSDAY]: { users: 0 } as DailyRecord,
+		[WeekDay.FRIDAY]: { users: 0 } as DailyRecord,
+		[WeekDay.SATURDAY]: { users: 0 } as DailyRecord,
+		[WeekDay.SUNDAY]: { users: 0 } as DailyRecord
 	};
 
 	const todayIndex = new Date().getDay();

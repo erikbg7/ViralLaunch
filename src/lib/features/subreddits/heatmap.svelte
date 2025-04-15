@@ -5,11 +5,8 @@
 		TooltipProvider,
 		TooltipTrigger
 	} from '$lib/components/ui/tooltip';
-	import {
-		WeekDays,
-		weekDays,
-		type ParsedRecords
-	} from '$lib/stores/subreddit-data.svelte';
+	import { weekDays, type WeekDay } from '$lib/constants';
+	import { type ParsedRecords } from '$lib/stores/subreddit-data.svelte';
 	import { formatHourByLocale } from '$lib/timezone';
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
@@ -33,7 +30,7 @@
 		return `hsla(24, 95%, 53%, ${intensity * 0.9})`;
 	};
 
-	const getRecordUsers = (day: WeekDays, hour: number) => {
+	const getRecordUsers = (day: WeekDay, hour: number) => {
 		const dayRecords = hourlyRecords?.[day];
 		if (!dayRecords) {
 			return 0;
