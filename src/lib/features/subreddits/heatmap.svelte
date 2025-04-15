@@ -1,6 +1,3 @@
-<script module>
-</script>
-
 <script lang="ts">
 	import {
 		Tooltip,
@@ -8,28 +5,41 @@
 		TooltipProvider,
 		TooltipTrigger
 	} from '$lib/components/ui/tooltip';
-	import { aggregateRecordsToHourlyData } from '$lib/graph/aggregators';
-	import type { SubredditRecord } from '$lib/server/db/schema';
-	import { formatHourByLocale, getWeekDaysInUserTimezone } from '$lib/timezone';
+	import {
+		WeekDays,
+		weekDays,
+		type ParsedRecords
+	} from '$lib/stores/subreddit-data.svelte';
+	import { formatHourByLocale } from '$lib/timezone';
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
 
-	let days = getWeekDaysInUserTimezone();
-
-	let { records: r = [] }: { records: SubredditRecord[][] } = $props();
-
-	let records = aggregateRecordsToHourlyData(r);
-	let maxValue = records.maxUsers;
+	let {
+		maxUsers = 0,
+		hourlyRecords
+	}: {
+		maxUsers?: number;
+		hourlyRecords: ParsedRecords['hourlyRecords'] | undefined;
+	} = $props();
 
 	const formatHour = (hour: number) => formatHourByLocale(hour);
 
-	const getCellColor = (users: number | undefined, hour: number) => {
+	const getCellColor = (users: number | undefined) => {
 		if (!users) {
 			return 'transparent';
 		}
 
-		const intensity = users / maxValue;
+		const intensity = users / maxUsers;
 		return `hsla(24, 95%, 53%, ${intensity * 0.9})`;
+	};
+
+	const getRecordUsers = (day: WeekDays, hour: number) => {
+		const dayRecords = hourlyRecords?.[day];
+		if (!dayRecords) {
+			return 0;
+		}
+		const record = dayRecords.find((r) => r.date.getHours() === hour);
+		return record ? record.users : 0;
 	};
 </script>
 
@@ -50,29 +60,27 @@
 		</div>
 
 		<TooltipProvider>
-			{#each days as day, dayIndex}
+			{#each weekDays as day}
 				<div class="flex h-10 w-full items-center">
 					<!-- Day label -->
-					<div class="w-12 pr-2 text-right text-sm font-medium">{day}</div>
+					<div class="w-12 pr-2 text-right text-sm font-medium">
+						{day.slice(0, 3)}
+					</div>
 
 					<!-- Hour cells -->
 					{#each hours as hour}
-						{@const users =
-							records.dailyRecordsByHour
-								.find((d) => d.day === dayIndex)
-								?.records?.at?.(hour)?.users || 0}
-
+						{@const users = getRecordUsers(day, hour)}
 						<Tooltip delayDuration={100}>
 							<TooltipTrigger class="m-px w-[4%]">
 								<div
 									class="h-8 w-full rounded transition-colors duration-200 hover:border-2 hover:border-[#f97015]"
-									style={`background-color: ${getCellColor(users, hour)}`}
+									style={`background-color: ${getCellColor(users)}`}
 								></div>
 							</TooltipTrigger>
 							<TooltipContent>
 								<div class="text-center">
 									<div class="font-medium">
-										{days[dayIndex]} at {formatHour(hour)}
+										{day.slice(0, 3)} at {formatHour(hour)}
 									</div>
 									<div>{users} users</div>
 								</div>

@@ -18,11 +18,16 @@
 	import BestTimesToday from '$lib/features/subreddits/best-times-today.svelte';
 	import BestTimesWeek from '$lib/features/subreddits/best-times-week.svelte';
 	import Heatmap from '$lib/features/subreddits/heatmap.svelte';
-	import HourlyChart from '$lib/features/subreddits/hourly-chart.svelte';
 	import {
 		deleteAllRecords,
 		generateFakeRecords
 	} from '$lib/features/subreddits/utils';
+	import WeeklyChart from '$lib/features/subreddits/weekly-chart.svelte';
+	import { serverConfig } from '$lib/stores/settings.svelte';
+	import {
+		mapRecords,
+		type ParsedRecords
+	} from '$lib/stores/subreddit-data.svelte';
 	import { subredditStore } from '$lib/stores/subreddits.svelte';
 
 	type Props = {
@@ -31,10 +36,63 @@
 
 	let { subredditId = $bindable() }: Props = $props();
 
-	let subreddit = api.subreddit.get.query({ subredditId });
-	let records = api.records.get.query({ workspaceId: '2', subredditId });
+	let weeklyData =
+		$state<{ interval: number; date: Date; users: number }[][]>();
 
-	$inspect({ $records });
+	let parsedRecords = $state<ParsedRecords>();
+
+	// let subreddit = api.subreddit.get.query({ subredditId });
+	let records = api.records.get.query({ workspaceId: '2', subredditId });
+	let records2 = api.records.get2.query({ workspaceId: '2', subredditId });
+
+	$effect(() => {
+		let weeklyUsersPeak = 0;
+
+		if ($records2.data) {
+			parsedRecords = mapRecords($records2.data);
+			const r = $records2.data;
+			let r2 = [];
+			const groupedByUtcDay: typeof weeklyData = Array.from(
+				{ length: 7 },
+				() => []
+			);
+
+			for (const record of r) {
+				weeklyUsersPeak = Math.max(weeklyUsersPeak, record.users);
+				const localDate = new Date(
+					serverConfig.dateFormatter.format(Date.parse(record.timestamp))
+				);
+
+				const day = localDate.getDay(); // 0 = Sunday
+
+				r2.push({
+					date: localDate,
+					interval: record.interval,
+					users: record.users
+				});
+
+				groupedByUtcDay[day].push({
+					date: localDate,
+					interval: record.interval,
+					users: record.users
+				});
+			}
+
+			groupedByUtcDay.forEach((dayRecords) => {
+				dayRecords.sort((a, b) => {
+					const hourA = a.date.getHours();
+					const hourB = b.date.getHours();
+					return hourA - hourB;
+				});
+			});
+
+			// TODO: once the records are grouped by day, we need to sort them by hour
+			weeklyData = groupedByUtcDay;
+			$inspect({ $records2: $records2.data, r2, weeklyData });
+		}
+	});
+
+	$inspect({ API_RECORDS: $records });
 </script>
 
 {#if !$records.data}
@@ -74,13 +132,19 @@
 					<TabsContent value={ChartTypes.HEATMAP} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
-							<Heatmap records={$records.data || []} />
+							{#if weeklyData?.length}
+								<Heatmap
+									maxUsers={parsedRecords?.peakWeeklyUsers}
+									hourlyRecords={parsedRecords?.hourlyRecords}
+								/>
+							{/if}
 						</div>
 					</TabsContent>
 					<TabsContent value={ChartTypes.LINEAR} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
-							<HourlyChart chartData={$records?.data?.[0] || []} />
+							<!-- <HourlyChart chartData={$records?.data?.[0] || []} /> -->
+							<WeeklyChart chartData={$records?.data || []} />
 						</div>
 					</TabsContent>
 				</Tabs>
@@ -88,11 +152,8 @@
 		</Card>
 
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-			<BestTimesToday records={$records.data || []} />
-			<BestTimesWeek />
+			<BestTimesToday bestTimes={parsedRecords?.bestTodayTimes || []} />
+			<BestTimesWeek records={$records.data || []} />
 		</div>
-
-		<!-- {/* Add the UserActivity component */} -->
-		<!-- <UserActivity url={url} /> -->
 	</div>
 {/if}

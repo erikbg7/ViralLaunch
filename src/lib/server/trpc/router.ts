@@ -4,6 +4,7 @@ import { centerRouter } from '$lib/server/trpc/routers/center.router';
 import { boulderingRouter } from '$lib/server/trpc/routers/bouldering.router';
 import { subredditRouter } from '$lib/server/trpc/routers/subreddit.router';
 import { recordsRouter } from '$lib/server/trpc/routers/records.router';
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 
 export const appRouter = router({
 	// auth: authRouter,
@@ -19,3 +20,5 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+export type RouterInput = inferRouterInputs<AppRouter>;
+export type RouterOutput = inferRouterOutputs<AppRouter>;
