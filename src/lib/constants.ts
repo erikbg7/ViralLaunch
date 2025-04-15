@@ -18,7 +18,7 @@ export const weekDays = [
 	WeekDay.SATURDAY
 ];
 
-export enum ChartTypes {
+export enum ChartType {
 	LINEAR = 'linear',
 	HEATMAP = 'heatmap'
 }

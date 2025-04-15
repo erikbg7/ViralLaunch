@@ -1,8 +1,8 @@
-import { ChartTypes } from '$lib/constants';
+import { ChartType } from '$lib/constants';
 import type { Subreddit } from '$lib/server/db/schema';
 
 function createSubredditStore() {
-	let selectedChart = $state<ChartTypes>(ChartTypes.HEATMAP);
+	let selectedChart = $state<ChartType>(ChartType.HEATMAP);
 	let selectedSubreddit = $state<Subreddit | null>(null);
 	let selectedSubredditName = $state<string | null>(null);
 
@@ -22,7 +22,7 @@ function createSubredditStore() {
 		get selectedChart() {
 			return selectedChart;
 		},
-		set selectedChart(value: ChartTypes) {
+		set selectedChart(value: ChartType) {
 			selectedChart = value;
 		}
 	};

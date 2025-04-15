@@ -14,7 +14,7 @@
 		TabsList,
 		TabsTrigger
 	} from '$lib/components/ui/tabs';
-	import { ChartTypes } from '$lib/constants';
+	import { ChartType } from '$lib/constants';
 	import BestTimesToday from '$lib/features/subreddits/best-times-today.svelte';
 	import BestTimesWeek from '$lib/features/subreddits/best-times-week.svelte';
 	import Heatmap from '$lib/features/subreddits/heatmap.svelte';
@@ -109,8 +109,8 @@
 			<CardContent>
 				<Tabs bind:value={subredditStore.selectedChart}>
 					<TabsList class="mb-4">
-						<TabsTrigger value={ChartTypes.HEATMAP}>Heatmap</TabsTrigger>
-						<TabsTrigger value={ChartTypes.LINEAR}>Linear Chart</TabsTrigger>
+						<TabsTrigger value={ChartType.HEATMAP}>Heatmap</TabsTrigger>
+						<TabsTrigger value={ChartType.LINEAR}>Linear Chart</TabsTrigger>
 					</TabsList>
 
 					<Button
@@ -129,7 +129,7 @@
 						Delete All Records
 					</Button>
 
-					<TabsContent value={ChartTypes.HEATMAP} class="h-[400px]">
+					<TabsContent value={ChartType.HEATMAP} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
 							{#if weeklyData?.length}
@@ -140,7 +140,7 @@
 							{/if}
 						</div>
 					</TabsContent>
-					<TabsContent value={ChartTypes.LINEAR} class="h-[400px]">
+					<TabsContent value={ChartType.LINEAR} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
 							<!-- <HourlyChart chartData={$records?.data?.[0] || []} /> -->
