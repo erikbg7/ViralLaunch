@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, buttonVariants } from '$lib/components/ui/button/index';
+	import { buttonVariants } from '$lib/components/ui/button/index';
 	import { Plus, X } from '@lucide/svelte';
 	import * as Popover from '$lib/components/ui/popover/index';
 	import * as Form from '$lib/components/ui/form/index';
@@ -51,22 +51,6 @@
 			}
 		}
 	});
-
-	async function handleRefresh() {
-		// const res = await fetch('https://viral-launch-zeta.vercel.app/api/get-reddit-active-users', {
-		const res = await fetch(
-			'http://localhost:5173/api/get-reddit-active-users',
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer `
-				}
-			}
-		);
-		const d = await res.json();
-		console.log(d);
-	}
 
 	const createSubredditformData = createSubredditform.form;
 </script>
@@ -120,7 +104,6 @@
 				Reddit
 			</h1>
 
-			<Button onclick={() => handleRefresh()}>Refresh Data</Button>
 			<Popover.Root>
 				<Popover.Trigger class={buttonVariants({ variant: 'outline' })}>
 					<Plus class="mr-2 h-4 w-4" />
