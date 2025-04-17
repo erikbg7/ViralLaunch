@@ -1,18 +1,19 @@
 <script lang="ts">
-	import { weekDays } from '$lib/constants';
-	import type { WeeklySubredditRecords } from '$lib/server/db/schema';
-	import { getWeekDaysInUserTimezone } from '$lib/timezone';
-	import { Chart, registerables } from 'chart.js';
 	import { onDestroy } from 'svelte';
+	import { Chart, registerables } from 'chart.js';
+	import { weekDays } from '$lib/constants';
+	import type {
+		DailyRecord,
+		ParsedRecords
+	} from '$lib/stores/subreddit-data.svelte';
 
 	Chart.register(...registerables);
 
 	type Props = {
-		chartData: WeeklySubredditRecords;
-		loading?: boolean;
+		chartData: ParsedRecords['records'] | undefined;
 	};
 
-	let { chartData = $bindable(), loading = false }: Props = $props();
+	let { chartData }: Props = $props();
 
 	let currentDate = new Date();
 	let currentHour = currentDate.getUTCHours();
@@ -24,28 +25,38 @@
 	function renderWeeklyChart() {
 		if (chartInstance) chartInstance.destroy();
 
-		const hourLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
-		function intervalToHourString(i: number) {
-			const hour = Math.floor(i / 3);
-			const minute = (i % 3) * 20;
-			return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+		const chartX = Array.from({ length: 504 }, (_, i) => i);
+
+		function getRecordForX(x: number) {
+			let day = Math.floor(x / 72);
+			let hour = Math.floor((x % 72) / 3);
+			let minute = [0, 20, 40][(x % 72) % 3];
+
+			return chartData[weekDays[day]]?.find((d) => {
+				return d.date.getHours() === hour && d.date.getMinutes() === minute;
+			});
 		}
 
-		const intervals = Array.from({ length: 72 * 7 }, (_, i) => i);
+		function formatRecordDate(record: DailyRecord | undefined) {
+			if (!record) return '';
+			let dayDisplay = weekDays[record.date.getDay()];
+			let hourDisplay = record.date.getHours();
+			let minuteDisplay = record.date.getMinutes();
+			let ampm = hourDisplay >= 12 ? 'PM' : 'AM';
+
+			return `${dayDisplay} ${String(hourDisplay).padStart(2, '0')}:${String(
+				minuteDisplay
+			).padStart(2, '0')} ${ampm}`;
+		}
 
 		chartInstance = new Chart(chartCanvas, {
 			type: 'line',
 			data: {
-				labels: intervals,
+				labels: chartX.map((x) => formatRecordDate(getRecordForX(x))),
 				datasets: [
 					{
 						label: 'Online Users',
-						data: intervals.map(
-							(_, i) =>
-								chartData[Math.floor(i / 72)]?.find(
-									(d) => d.interval === i % 72
-								)?.users || 0
-						),
+						data: chartX.map((x) => getRecordForX(x)?.users || 0),
 						borderColor: 'rgb(249,115,22)',
 						backgroundColor: 'rgba(249,115,22, 0.5)',
 						borderWidth: 2,
@@ -66,31 +77,15 @@
 						// add bold font
 						ctx.font = '12px Arial';
 						ctx.fillStyle = 'red';
-						// ctx.fillText(
-						// 	`${currentHour}:${String(currentMinute).padStart(2, '0')}`,
-						// 	x - 15,
-						// 	30
-						// );
-						// fill text background with black and rounded borders
+
+						let text = `${currentHour}:${String(currentMinute).padStart(2, '0')}`;
 						ctx.beginPath();
-						ctx.roundRect(
-							x - 18,
-							22,
-							ctx.measureText(
-								`${currentHour}:${String(currentMinute).padStart(2, '0')}`
-							).width + 6,
-							18,
-							5
-						);
+						ctx.roundRect(x - 18, 22, ctx.measureText(text).width + 6, 18, 5);
 						ctx.fill();
 						ctx.clip();
 
 						ctx.fillStyle = 'white';
-						ctx.fillText(
-							`${currentHour}:${String(currentMinute).padStart(2, '0')}`,
-							x - 15,
-							32
-						);
+						ctx.fillText(text, x - 15, 32);
 						ctx.restore();
 					},
 
@@ -144,26 +139,12 @@
 						}
 					}
 				}
-				// scales: {
-				// 	x: {
-				// 		ticks: {
-				// 			// For a category axis, the val is the index so the lookup via getLabelForValue is needed
-				// 			callback: function (val, index) {
-				// 				// Hide every 2nd tick label
-				// 				// console.log({ val });
-				// 				return intervalToHourString(parseInt(val));
-				// 				return index % 3 === 0
-				// 					? intervalToHourString(parseInt(val))
-				// 					: '';
-				// 			}
-				// 		}
-				// 	}
-				// }
 			}
 		});
 	}
 
 	$effect(() => {
+		if (!chartData) return;
 		renderWeeklyChart();
 	});
 

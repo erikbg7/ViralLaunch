@@ -144,7 +144,7 @@
 						<!-- responsive container -->
 						<div class="h-full w-full">
 							<!-- <HourlyChart chartData={$records?.data?.[0] || []} /> -->
-							<WeeklyChart chartData={$records?.data || []} />
+							<WeeklyChart chartData={parsedRecords?.records} />
 						</div>
 					</TabsContent>
 				</Tabs>
