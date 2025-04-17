@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { trpcClientMessage } from '$lib/api';
 import { PSQLTRPCError } from '$lib/server/trpc/errors';
-import { CenterRepository } from '$lib/server/repositories/center.repository';
+import { CenterRepository } from '$lib/server/repositories/record.repository';
 import type { Center, CenterFilter } from '$lib/server/db/schema';
 
 export class CenterService {

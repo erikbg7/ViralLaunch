@@ -7,15 +7,15 @@ import {
 import type { Actions, PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import {
-	getProjectSubreddits,
 	insertUserSubreddit,
 	parseSubreddit,
 	removeSubredditFromUser
 } from '$lib/server/db/subreddit.model';
+import { SubredditRepository } from '$lib/server/repositories/subreddit.repository';
 
 export const load: PageServerLoad = async (event) => {
 	return {
-		subreddits: await getProjectSubreddits(
+		subreddits: await SubredditRepository.getByWorkspaceId(
 			event.locals.user!.id,
 			parseInt(event.params.id)
 		),

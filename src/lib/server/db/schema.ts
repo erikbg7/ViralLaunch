@@ -33,6 +33,7 @@ export const session = pgTable('session', {
 	}).notNull()
 });
 
+// This should be called workspace
 export const product = pgTable('product', (t) => ({
 	id: t.serial('id').primaryKey(),
 	name: t.varchar('name', { length: 128 }).notNull().unique(),
@@ -103,6 +104,7 @@ export const subredditRecord = pgTable(
 
 		users: integer('users').notNull(),
 
+		// TODO: We should be able to get completely rid of intervals and floor the timestamp using SQL instead
 		interval: integer('interval').notNull(), // 72 intervals 0 = 00:00, 71 = 23:40
 
 		// Timestamp rounded to the nearest 20 minutes

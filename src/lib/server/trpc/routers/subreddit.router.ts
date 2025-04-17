@@ -1,24 +1,19 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '$lib/server/trpc/trpc';
-import {
-	getHourlyGraphData,
-	getProjectSubreddits
-} from '$lib/server/db/subreddit.model';
+import { getHourlyGraphData } from '$lib/server/db/subreddit.model';
 import { TRPCError } from '@trpc/server';
 import { getCurrentLastRecord } from '$lib/graph/aggregators';
-// import { centerFilterSchema, centerInsertSchema } from '$lib/server/db/schema';
+import { SubredditRepository } from '$lib/server/repositories/subreddit.repository';
 
 export const subredditRouter = router({
 	list: protectedProcedure
 		.input(z.object({ workspaceId: z.string() }))
 		.query(async ({ ctx, input }) => {
 			try {
-				const subreddits = await getProjectSubreddits(
+				return SubredditRepository.getByWorkspaceId(
 					ctx.user.id,
 					parseInt(input.workspaceId)
 				);
-
-				return subreddits;
 			} catch (error) {
 				console.error('Error fetching subreddits:', error);
 				throw new Error('Failed to fetch subreddits');

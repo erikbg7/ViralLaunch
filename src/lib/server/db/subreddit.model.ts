@@ -8,35 +8,6 @@ import {
 } from '$lib/server/db/schema';
 import { and, eq } from 'drizzle-orm';
 
-export async function getAllSubreddits() {
-	return await db.select().from(subreddit);
-}
-
-export async function getProjectSubreddits(userId: string, productId: number) {
-	const result = await db
-		.select({
-			subreddit: subreddit
-		})
-		.from(productSubreddit)
-		.innerJoin(subreddit, eq(productSubreddit.subredditId, subreddit.id))
-		.innerJoin(product, eq(productSubreddit.productId, productId))
-		.where(eq(product.userId, userId))
-		.groupBy(subreddit.id);
-
-	return result.map((row) => row.subreddit);
-
-	// const subreddits = await db
-	// 	.select({ subreddit: subreddit })
-	// 	.from(subreddit)
-	// 	.leftJoin(
-	// 		productSubreddit,
-	// 		and(eq(productSubreddit.subredditId, subreddit.id), eq(productSubreddit.productId, productId))
-	// 	)
-	// 	.where(eq(productSubreddit.productId, productId));
-
-	// return subreddits.map((row) => row.subreddit);
-}
-
 export async function insertUserSubreddit(
 	productId: number,
 	url: string,

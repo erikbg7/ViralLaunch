@@ -6,9 +6,9 @@ import {
 	type BoulderingGrade,
 	type UpdateClimbingSession
 } from '$lib/server/db/schema';
-import { BoulderingRepository } from '$lib/server/repositories/bouldering.repository';
+import { BoulderingRepository } from '$lib/server/repositories/subreddit.repository';
 import { trpcClientMessage } from '$lib/api';
-import { CenterRepository } from '$lib/server/repositories/center.repository';
+import { CenterRepository } from '$lib/server/repositories/record.repository';
 
 export class BoulderingService {
 	static async getAllSessions(userId: BoulderingSession['userId']) {
