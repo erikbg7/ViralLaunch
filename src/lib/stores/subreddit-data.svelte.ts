@@ -4,7 +4,12 @@ import { serverConfig } from '$lib/stores/settings.svelte';
 
 type RawRecords = RouterOutput['records']['get2'];
 
-type DailyRecord = {
+// TODO: Daily records should no have an interval, as it could be missleading because does not tak einto account user timezone.
+// For example, 23:20 UTC would have interval 70, but in UTC+2 it would be 01:20 interval 70. Which would result in a
+// improper sorting of the records.
+// WE SHOULD ALWAYS PREDEFINE WHAT WE WANT TO SHOW BASED ON DAY, HOUR AND INTERVAL.
+// THEN FIND A RECORD LOOKING AT ITS DATE AND TIME.
+export type DailyRecord = {
 	date: Date;
 	interval: number;
 	users: number;
@@ -13,7 +18,7 @@ type DailyRecord = {
 export type ParsedRecords = {
 	peakWeeklyUsers: number;
 	peakTodayUsers: number;
-	bestTodayTimes: { date: Date; users: number }[];
+	bestTodayTimes: DailyRecord[];
 	bestWeeklyTimes: { date: Date; users: number }[];
 	records: Record<WeekDay, DailyRecord[]>;
 	hourlyRecords: Record<WeekDay, DailyRecord[]>;
@@ -101,7 +106,9 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 		records[weekday].push(record);
 	}
 
-	let bestTodayTimes = todayRecords
+	let hourlyRecordsByDay = aggregateToHeatmapRecords(records);
+
+	let bestTodayTimes = hourlyRecordsByDay[weekDays[todayIndex]]
 		.sort((a, b) => b.users - a.users)
 		.slice(0, 4);
 
@@ -111,6 +118,6 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 		bestTodayTimes,
 		bestWeeklyTimes: Object.values(mostUsersByDay),
 		records,
-		hourlyRecords: aggregateToHeatmapRecords(records)
+		hourlyRecords: hourlyRecordsByDay
 	};
 }
