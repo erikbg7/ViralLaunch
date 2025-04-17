@@ -6,17 +6,10 @@ import { cronRouter } from '$lib/server/trpc/routers/cron.router';
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 
 export const appRouter = router({
-	// auth: authRouter,
-	// center: centerRouter,
-	// bouldering: boulderingRouter,
+	auth: authRouter,
 	cron: cronRouter,
 	subreddit: subredditRouter,
-	records: recordsRouter,
-	hello: router({
-		get: publicProcedure.query(() => {
-			return 'Hello world!';
-		})
-	})
+	records: recordsRouter
 });
 
 export type AppRouter = typeof appRouter;

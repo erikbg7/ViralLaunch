@@ -13,13 +13,23 @@ import {
 	unique,
 	index
 } from 'drizzle-orm/pg-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import {
+	createInsertSchema,
+	createSelectSchema,
+	createUpdateSchema
+} from 'drizzle-zod';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
-	age: integer('age'),
 	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull()
+	passwordHash: text('password_hash').notNull(), // google oauth users should not have this, but it is not nullable
+	createdAt: timestamp('created_at', { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+
+	email: text('email').unique(),
+	googleId: text('google_id').unique(),
+	avatar: text('avatar')
 });
 
 export const session = pgTable('session', {
@@ -150,6 +160,7 @@ export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
 // TODO: use custom_platform table to store custom platforms that a user can add
 // e.g. reddit/r/indoor_boulder
 
+export const userUpdateSchema = createUpdateSchema(user);
 export const userSelectSchema = createSelectSchema(user);
 export const sessionSelectSchema = createSelectSchema(session);
 export const productSelectSchema = createSelectSchema(product);

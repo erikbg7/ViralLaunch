@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { session, user, USER_ROLES, type User } from '$lib/server/db/schema';
+import { session, user, type User } from '$lib/server/db/schema';
 import { sha256 } from '@oslojs/crypto/sha2';
 import {
 	encodeBase32LowerCase,
@@ -10,11 +10,9 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { eq, getTableColumns } from 'drizzle-orm';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
+export const sessionCookieName = 'auth-session';
 
 export class AuthRepository {
-	static USER_COOKIE = 'auth-session';
-	static GUEST_COOKIE = 'guest-auth-session';
-
 	static generateUserId() {
 		// ID with 120 bits of entropy, or about the same as UUID v4.
 		const bytes = crypto.getRandomValues(new Uint8Array(15));
@@ -28,15 +26,8 @@ export class AuthRepository {
 		return token;
 	}
 
-	static getCookieNameByRole(role: string) {
-		return {
-			[USER_ROLES.GUEST]: AuthRepository.GUEST_COOKIE,
-			[USER_ROLES.USER]: AuthRepository.USER_COOKIE
-		}[role];
-	}
-
-	static deleteCookie(event: RequestEvent, name: string) {
-		event.cookies.delete(name, {
+	static deleteCookie(event: RequestEvent) {
+		event.cookies.delete(sessionCookieName, {
 			path: '/'
 		});
 	}
@@ -46,10 +37,10 @@ export class AuthRepository {
 	}
 
 	static setCookie(
-		name: string,
 		event: RequestEvent,
 		content: string,
-		expiresAt: Date
+		expiresAt: Date,
+		name: string = sessionCookieName
 	) {
 		event.cookies.set(name, content, {
 			httpOnly: true,
@@ -64,10 +55,7 @@ export class AuthRepository {
 		const sessionId = encodeHexLowerCase(
 			sha256(new TextEncoder().encode(token))
 		);
-		const expiresAt =
-			user.role === USER_ROLES.GUEST
-				? new Date(Date.now() + DAY_IN_MS * 30)
-				: new Date(Date.now() + DAY_IN_MS * 30 * 12 * 10);
+		const expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
 
 		const [newSession] = await db
 			.insert(session)
@@ -87,8 +75,7 @@ export class AuthRepository {
 				// Adjust user table here to tweak returned data
 				user: {
 					id: user.id,
-					username: user.username,
-					role: user.role
+					username: user.username
 				},
 				session: session
 			})

@@ -1,7 +1,8 @@
 import { and, eq, getTableColumns } from 'drizzle-orm';
 import { db } from '$lib/server/db';
-import { user, USER_ROLES, userUpdateSchema } from '$lib/server/db/schema';
 import { encodeBase32LowerCase } from '@oslojs/encoding';
+import { hash, verify } from '@node-rs/argon2';
+import { user, userUpdateSchema, type User } from '$lib/server/db/schema';
 
 export class UserRepository {
 	static generateId() {
@@ -9,6 +10,16 @@ export class UserRepository {
 		const bytes = crypto.getRandomValues(new Uint8Array(15));
 		const id = encodeBase32LowerCase(bytes);
 		return id;
+	}
+
+	static async generatePasswordHash(password: string) {
+		// recommended minimum parameters
+		return await hash(password, {
+			memoryCost: 19456,
+			timeCost: 2,
+			outputLen: 32,
+			parallelism: 1
+		});
 	}
 
 	static async get(username: string) {
@@ -32,24 +43,21 @@ export class UserRepository {
 	}
 
 	static async create(
+		id: User['id'],
+		username: string,
+		passwordHash: string,
 		email?: string,
-		username?: string,
-		passwordHash?: string,
 		googleId?: string,
-		pinHash?: string,
 		avatar?: string
 	) {
-		const id = UserRepository.generateId();
 		const [newUser] = await db
 			.insert(user)
 			.values({
 				id,
-				role: USER_ROLES.USER,
 				email,
 				username,
 				passwordHash,
 				googleId,
-				pinHash,
 				avatar
 			})
 			.returning(getTableColumns(user))
@@ -67,14 +75,16 @@ export class UserRepository {
 			.where(and(eq(user.id, userId)));
 	}
 
-	static async createGuest() {
-		const id = UserRepository.generateId();
-		const guest = await db
-			.insert(user)
-			.values({ id, role: USER_ROLES.GUEST })
-			.returning(getTableColumns(user))
-			.execute();
-		return guest.at(0)!;
+	static verifyPassword(
+		password: string,
+		passwordHash: string
+	): Promise<boolean> {
+		return verify(passwordHash, password, {
+			memoryCost: 19456,
+			timeCost: 2,
+			outputLen: 32,
+			parallelism: 1
+		});
 	}
 
 	static validateUsername(username: unknown): username is string {

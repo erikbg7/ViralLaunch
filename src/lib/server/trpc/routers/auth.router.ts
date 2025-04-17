@@ -9,16 +9,13 @@ const credentialsLoginShema = z.object({
 
 export const authRouter = router({
 	logout: protectedProcedure.mutation(async ({ ctx }) => {
-		return await AuthService.logout(ctx.event, ctx.user);
+		return await AuthService.logout(ctx.event);
 	}),
 	login: publicProcedure
 		.input(credentialsLoginShema)
 		.query(async ({ ctx, input }) => {
 			return await AuthService.login(ctx.event, input.email, input.password);
 		}),
-	loginAsGuest: publicProcedure.mutation(async ({ ctx }) => {
-		return await AuthService.loginAsGuest(ctx.event);
-	}),
 	loginWithGoogle: publicProcedure.mutation(async ({ ctx }) => {
 		return await AuthService.loginWithGoogle(ctx.event);
 	})
