@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '$lib/server/trpc/trpc';
-import { getHourlyGraphData } from '$lib/server/db/subreddit.model';
 import { TRPCError } from '@trpc/server';
-import { getCurrentLastRecord } from '$lib/graph/aggregators';
 import { SubredditRepository } from '$lib/server/repositories/subreddit.repository';
 
 export const subredditRouter = router({
@@ -21,33 +19,7 @@ export const subredditRouter = router({
 
 			// return CenterService.getSubreddit(input.subreddit, ctx.user.id);
 		}),
-	get: protectedProcedure
-		.input(z.object({ subredditId: z.number() }))
-		.query(async ({ ctx, input }) => {
-			try {
-				const subredditId = input.subredditId;
 
-				if (!subredditId) {
-					throw new TRPCError({
-						message: 'A subreddit it is needed',
-						code: 'INTERNAL_SERVER_ERROR'
-					});
-				}
-
-				const hourlyResults = await getHourlyGraphData(subredditId);
-				const currentHourlyRecord = getCurrentLastRecord(hourlyResults);
-
-				return {
-					id: subredditId,
-					lastRecord: currentHourlyRecord?.lastRecord,
-					updatedAt: currentHourlyRecord?.updatedAt,
-					results: hourlyResults
-				};
-			} catch (error) {
-				console.error('Error fetching subreddit:', error);
-				throw new Error('Failed to fetch subreddit');
-			}
-		}),
 	create: protectedProcedure
 		.input(z.object({ url: z.string() }))
 		.mutation(({ ctx, input }) => {

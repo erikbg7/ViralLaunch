@@ -52,18 +52,6 @@
 		}
 	});
 
-	// function handleGenerateData(srId: string) {
-	// 	fetch('/api/generate-fake-hourly-averages', {
-	// 		method: 'POST',
-	// 		headers: {
-	// 			'Content-Type': 'application/json'
-	// 		},
-	// 		body: JSON.stringify({ subredditId: srId, weekStartDate: '1994-10-27' })
-	// 	})
-	// 		.then((res) => console.log('generated'))
-	// 		.catch((e) => console.log('error', e));
-	// }
-
 	async function handleRefresh() {
 		// const res = await fetch('https://viral-launch-zeta.vercel.app/api/get-reddit-active-users', {
 		const res = await fetch(

@@ -191,7 +191,6 @@ export type PlatformInsert = typeof platform.$inferInsert;
 export type Subreddit = typeof subreddit.$inferSelect;
 
 export type SubredditRecord = typeof subredditRecord.$inferSelect;
-export type WeeklySubredditRecords = Array<Array<SubredditRecord>>;
 
 export type PlatformLaunch = typeof platformLaunch.$inferSelect;
 export type ProductWithPlatforms = { product: Product } & {

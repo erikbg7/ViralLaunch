@@ -8,8 +8,7 @@
 	import { subredditState } from '../store.svelte';
 	import {
 		aggregateToDailyAverages,
-		aggregateToHourlyAverages,
-		getDailyAverage
+		aggregateToHourlyAverages
 	} from '$lib/graph/aggregators';
 	import { timeAgo } from '$lib/date';
 	import {
@@ -61,7 +60,6 @@
 		const hourLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
 		const day = ((new Date().getUTCDay() + 6) % 7) + 1;
-		// const data = getDailyAverage(chartData, day);
 		const data = aggregateToHourlyAverages(chartData);
 
 		chartInstance = new Chart(chartCanvas, {
