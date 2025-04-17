@@ -23,7 +23,6 @@
 		generateFakeRecords
 	} from '$lib/features/subreddits/utils';
 	import WeeklyChart from '$lib/features/subreddits/weekly-chart.svelte';
-	import { serverConfig } from '$lib/stores/settings.svelte';
 	import {
 		mapRecords,
 		type ParsedRecords
@@ -36,63 +35,17 @@
 
 	let { subredditId = $bindable() }: Props = $props();
 
-	let weeklyData =
-		$state<{ interval: number; date: Date; users: number }[][]>();
-
 	let parsedRecords = $state<ParsedRecords>();
 
 	// let subreddit = api.subreddit.get.query({ subredditId });
+
 	let records = api.records.get.query({ workspaceId: '2', subredditId });
-	let records2 = api.records.get2.query({ workspaceId: '2', subredditId });
 
 	$effect(() => {
-		let weeklyUsersPeak = 0;
-
-		if ($records2.data) {
-			parsedRecords = mapRecords($records2.data);
-			const r = $records2.data;
-			let r2 = [];
-			const groupedByUtcDay: typeof weeklyData = Array.from(
-				{ length: 7 },
-				() => []
-			);
-
-			for (const record of r) {
-				weeklyUsersPeak = Math.max(weeklyUsersPeak, record.users);
-				const localDate = new Date(
-					serverConfig.dateFormatter.format(Date.parse(record.timestamp))
-				);
-
-				const day = localDate.getDay(); // 0 = Sunday
-
-				r2.push({
-					date: localDate,
-					interval: record.interval,
-					users: record.users
-				});
-
-				groupedByUtcDay[day].push({
-					date: localDate,
-					interval: record.interval,
-					users: record.users
-				});
-			}
-
-			groupedByUtcDay.forEach((dayRecords) => {
-				dayRecords.sort((a, b) => {
-					const hourA = a.date.getHours();
-					const hourB = b.date.getHours();
-					return hourA - hourB;
-				});
-			});
-
-			// TODO: once the records are grouped by day, we need to sort them by hour
-			weeklyData = groupedByUtcDay;
-			$inspect({ $records2: $records2.data, r2, weeklyData });
+		if ($records.data) {
+			parsedRecords = mapRecords($records.data);
 		}
 	});
-
-	$inspect({ API_RECORDS: $records });
 </script>
 
 {#if !$records.data}
@@ -132,7 +85,7 @@
 					<TabsContent value={ChartType.HEATMAP} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
-							{#if weeklyData?.length}
+							{#if parsedRecords}
 								<Heatmap
 									maxUsers={parsedRecords?.peakWeeklyUsers}
 									hourlyRecords={parsedRecords?.hourlyRecords}
@@ -152,8 +105,13 @@
 		</Card>
 
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-			<BestTimesToday bestTimes={parsedRecords?.bestTodayTimes || []} />
-			<BestTimesWeek records={$records.data || []} />
+			{#if parsedRecords}
+				<BestTimesToday bestTimes={parsedRecords.bestTodayTimes} />
+				<BestTimesWeek
+					maxUsers={parsedRecords.peakWeeklyUsers}
+					bestTimes={parsedRecords.bestWeeklyTimes}
+				/>
+			{/if}
 		</div>
 	</div>
 {/if}

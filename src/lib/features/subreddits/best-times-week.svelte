@@ -6,19 +6,22 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import { weekDays } from '$lib/constants';
+	import type { ParsedRecords } from '$lib/stores/subreddit-data.svelte';
 	import CalendarDays from '@lucide/svelte/icons/calendar-days';
 
-	let topDays = [0, 1, 2];
-	let maxUsers = 700;
-	let weekData = [
-		{ day: 'Monday', peakUsers: 100, peakHour: '12 PM' },
-		{ day: 'Tuesday', peakUsers: 200, peakHour: '1 PM' },
-		{ day: 'Wednesday', peakUsers: 300, peakHour: '2 PM' },
-		{ day: 'Thursday', peakUsers: 400, peakHour: '3 PM' },
-		{ day: 'Friday', peakUsers: 500, peakHour: '4 PM' },
-		{ day: 'Saturday', peakUsers: 600, peakHour: '5 PM' },
-		{ day: 'Sunday', peakUsers: 700, peakHour: '6 PM' }
-	];
+	let {
+		maxUsers,
+		bestTimes
+	}: {
+		maxUsers: number;
+		bestTimes: ParsedRecords['bestWeeklyTimes'];
+	} = $props();
+
+	let topDays = Object.entries(bestTimes)
+		.sort(([, a], [, b]) => b.users - a.users)
+		.map(([day]) => day)
+		.slice(0, 3);
 </script>
 
 <Card>
@@ -30,25 +33,25 @@
 		<CardDescription>Daily peak users (top 3 days highlighted)</CardDescription>
 	</CardHeader>
 	<CardContent>
-		{#if weekData.length === 0}
+		{#if !bestTimes}
 			<div class="flex h-32 items-center justify-center">
 				<p class="text-muted-foreground">Loading data...</p>
 			</div>
 		{:else}
 			<div class="space-y-3">
-				{#each weekData as day, index}
-					{@const isTopDay = topDays.includes(index)}
-					{@const rank = topDays.indexOf(index) + 1}
+				{#each weekDays as day}
+					{@const record = bestTimes[day]}
+					{@const rank = topDays.indexOf(day) + 1}
 
 					<div class="flex items-center gap-3">
-						<div class="w-24 text-sm font-medium">{day.day}</div>
+						<div class="w-24 text-sm font-medium">{day || ''}</div>
 						<div class="h-8 flex-1 overflow-hidden rounded-md bg-muted">
 							<div
 								class="flex h-full items-center rounded-md px-3 font-medium text-white"
 								style={`
-                                width: ${(day.peakUsers / maxUsers) * 100}%;
+                                width: ${(record.users / maxUsers) * 100}%;
                                 background-color: ${
-																	isTopDay
+																	!!rank
 																		? rank === 1
 																			? 'hsl(24, 95%, 53%)'
 																			: rank === 2
@@ -58,10 +61,10 @@
 																};
                                 `}
 							>
-								{day.peakUsers} at {day.peakHour}
+								{record.users} at {record.date.getHours()}:{record.date.getMinutes()}
 							</div>
 						</div>
-						{#if isTopDay}
+						{#if rank}
 							<div
 								class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 font-bold text-orange-600"
 							>

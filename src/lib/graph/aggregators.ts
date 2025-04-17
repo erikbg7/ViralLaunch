@@ -102,6 +102,21 @@ export type WeeklyRecordsByHour = {
 	dailyRecordsByHour: Array<DayRecordByHour>;
 };
 
+function getPeakUsersRecord(r: DayRecordByHour) {
+	return r.records.reduce((acc, record) => {
+		if (!acc || record.users > acc.users) {
+			return record;
+		}
+		return acc;
+	});
+}
+
+type SubredditHeatmapRecord = {
+	users: number;
+	interval: number;
+	date: Date;
+};
+
 export const aggregateRecordsToHourlyData = (
 	records: WeeklySubredditRecords
 ): WeeklyRecordsByHour => {
@@ -141,31 +156,14 @@ export type DailyBestTime = {
 	users: number;
 } | null;
 
-export const getTodayBestTimes = (
-	records: WeeklySubredditRecords
-): [DailyBestTime, DailyBestTime, DailyBestTime, DailyBestTime] => {
-	const today = new Date();
+type DailyBestReport = {
+	day: number;
+	peakHour: number;
+	peakUsers: number;
+};
 
-	const dayOfWeek = today.getUTCDay();
-	const aggregatedHourlyRecords = aggregateRecordsToHourlyData(records);
-
-	const todayRecords = aggregatedHourlyRecords.dailyRecordsByHour[dayOfWeek];
-
-	if (todayRecords) {
-		const bestTimes = todayRecords.records
-			.sort((a, b) => b.users - a.users)
-			.slice(0, 4)
-			.map((record) => ({
-				hour: record.hour,
-				users: record.users
-			}));
-		return bestTimes as [
-			DailyBestTime,
-			DailyBestTime,
-			DailyBestTime,
-			DailyBestTime
-		];
-	}
-
-	return [null, null, null, null];
+type WeeklyBestTimes = {
+	topWeekDays: DailyBestReport[];
+	topDays: number[];
+	maxUsers: number;
 };

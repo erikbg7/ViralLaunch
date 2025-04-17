@@ -54,27 +54,6 @@ export function formatHourByLocale(hour: number, locale = navigator.language) {
 	return formatter.format(date);
 }
 
-// Get the current week days in the user's timezone
-export function getWeekDaysInUserTimezone() {
-	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-	const formatter = new Intl.DateTimeFormat('en-US', {
-		weekday: 'short',
-		timeZone
-	});
-
-	// Start from a known Monday (e.g., 2025-04-07)
-	const start = new Date(Date.UTC(2025, 3, 6)); // April 6, 2025 is a Monday
-	const days = [];
-
-	for (let i = 0; i < 7; i++) {
-		const date = new Date(start);
-		date.setUTCDate(start.getUTCDate() + i);
-		days.push(formatter.format(date));
-	}
-
-	return days;
-}
-
 // Get the user's local timezone
 export function getUserTimezone(): string {
 	try {

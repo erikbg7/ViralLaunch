@@ -19,7 +19,7 @@ export type ParsedRecords = {
 	peakWeeklyUsers: number;
 	peakTodayUsers: number;
 	bestTodayTimes: DailyRecord[];
-	bestWeeklyTimes: { date: Date; users: number }[];
+	bestWeeklyTimes: Record<WeekDay, DailyRecord>;
 	records: Record<WeekDay, DailyRecord[]>;
 	hourlyRecords: Record<WeekDay, DailyRecord[]>;
 };
@@ -116,7 +116,7 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 		peakWeeklyUsers,
 		peakTodayUsers,
 		bestTodayTimes,
-		bestWeeklyTimes: Object.values(mostUsersByDay),
+		bestWeeklyTimes: mostUsersByDay,
 		records,
 		hourlyRecords: hourlyRecordsByDay
 	};
