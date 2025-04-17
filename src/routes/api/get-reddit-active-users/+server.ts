@@ -1,42 +1,33 @@
-import { SUPABASE_SERVICE_KEY } from '$env/static/private';
-import { createProduct } from '$lib/server/db/product.model.js';
-import {
-	getAllSubreddits,
-	insertHourlyAverage,
-	removeSubreddit
-} from '$lib/server/db/subreddit.model.js';
-import { RedditAPI } from '$lib/server/reddit-api.service';
 import { json } from '@sveltejs/kit';
+import { createTrpcCaller } from '$lib/server/trpc/caller.js';
+import { floorTo20Minutes, getIntervalFromDate } from '$lib/timezone.js';
 
 export const POST = async (event) => {
-	console.log('[REDDIT API] Webhook called');
+	console.log('[CRON] Webhook called');
 
-	const authHeader = event.request.headers.get('Authorization');
-	if (!authHeader || authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
-	}
-	console.log('[REDDIT API] Webhook call authorized');
+	const api = await createTrpcCaller(event);
+	const subreddits = await api.cron.getSubreddits();
 
-	const subreddits = await getAllSubreddits();
-	const dayOfWeek = ((new Date().getUTCDay() + 6) % 7) + 1;
-	const hourOfDay = new Date().getUTCHours();
-	// we should try to parallelize this
+	console.log('[CRON] Getting ', subreddits.length, ' subreddits');
 
-	await Promise.all(
-		subreddits
-			.filter((subreddit) => subreddit.tracked)
-			.map(async (subreddit) => {
-				const { name, id } = subreddit;
-				try {
-					const redditApi = new RedditAPI();
-					const onlineUsers = await redditApi.getSubredditOnlineUsers(name);
-					await insertHourlyAverage(id, dayOfWeek, hourOfDay, onlineUsers);
-				} catch (e) {
-					await removeSubreddit(id);
-					console.error('[REDDIT API ERROR]', e);
-				}
-			})
-	);
+	const date = new Date();
+	const flooredDate = floorTo20Minutes(date);
+	const interval = getIntervalFromDate(flooredDate);
+	const flooredDateString = flooredDate.toISOString();
 
-	return json({ t: 'you have correclty called the endpoint' });
+	subreddits.forEach((subreddit) => {
+		if (subreddit.tracked) {
+			const { name, id } = subreddit;
+			console.log('[CRON] Getting online users for subreddit', name);
+
+			api.cron.createRecord({
+				id,
+				name,
+				interval,
+				date: flooredDateString
+			});
+		}
+	});
+
+	return json({ t: '[CRON] Information request end.' });
 };

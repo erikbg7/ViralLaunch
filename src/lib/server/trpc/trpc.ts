@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import { transformer } from '$lib/api/transformer';
 import type { Context } from '$lib/server/trpc/context';
 import type { Session, User } from '$lib/server/db/schema';
+import { SUPABASE_SERVICE_KEY } from '$env/static/private';
 
 const t = initTRPC.context<Context>().create({
 	transformer
@@ -24,16 +25,16 @@ const isAuthed = t.middleware(async ({ ctx, next }) => {
 	});
 });
 
-//   const isCostumer = t.middleware(async ({ ctx, next }) => {
-// 	if (!ctx?.session?.user?.isCustomer) {
-// 	  throw new TRPCError({
-// 		code: 'UNAUTHORIZED',
-// 		message: 'You must be a customer to access this resource',
-// 	  });
-// 	}
-
-// 	return next({ ctx: { ...ctx, session: ctx.session } });
-//   });
+const isAdmin = t.middleware(async ({ ctx, next }) => {
+	const authHeader = ctx.event.request.headers.get('Authorization');
+	if (!authHeader || authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
+		throw new TRPCError({
+			code: 'UNAUTHORIZED',
+			message: 'Unauthorized admin procedure'
+		});
+	}
+	return next({ ctx });
+});
 
 export const router = t.router;
 
@@ -48,6 +49,12 @@ export const publicProcedure = t.procedure;
  * @link https://trpc.io/docs/v11/procedures
  **/
 export const protectedProcedure = t.procedure.use(isAuthed);
+
+/**
+ * Create an admin procedure
+ * @link https://trpc.io/docs/v11/procedures
+ **/
+export const adminProcedure = t.procedure.use(isAdmin);
 
 /**
  * Create a server-side caller
