@@ -75,7 +75,7 @@ export class AuthRepository {
 				// Adjust user table here to tweak returned data
 				user: {
 					id: user.id,
-					username: user.username
+					email: user.email
 				},
 				session: session
 			})

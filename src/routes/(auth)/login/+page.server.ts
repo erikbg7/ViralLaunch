@@ -1,8 +1,8 @@
-import { UserRepository } from '$lib/server/repositories/user.repository';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { AuthRepository } from '$lib/server/repositories/auth.repository';
 import { createTrpcCaller } from '$lib/server/trpc/caller';
+import { tryCatch } from '$lib/try';
+import { AuthService } from '$lib/server/services/auth.service';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
@@ -17,66 +17,28 @@ export const actions: Actions = {
 		const username = formData.get('username');
 		const password = formData.get('password');
 
-		if (!UserRepository.validateUsername(username)) {
-			return fail(400, {
-				message:
-					'Invalid username (min 3, max 31 characters, alphanumeric only)'
-			});
-		}
-		if (!UserRepository.validatePassword(password)) {
-			return fail(400, {
-				message: 'Invalid password (min 6, max 255 characters)'
-			});
-		}
-
-		const existingUser = await UserRepository.get(username);
-
-		if (!existingUser) {
-			return fail(400, { message: 'Incorrect username or password' });
-		}
-
-		const validPassword = await UserRepository.verifyPassword(
-			password,
-			existingUser.passwordHash
+		const login = await tryCatch(
+			AuthService.login(event, username as string, password as string)
 		);
-
-		if (!validPassword) {
-			return fail(400, { message: 'Incorrect username or password' });
+		if (login.error) {
+			return fail(400, { message: login.error.message });
 		}
-
-		const sessionToken = AuthRepository.generateSessionToken();
-		const session = await AuthRepository.createSession(
-			sessionToken,
-			existingUser
-		);
-		AuthRepository.setCookie(event, sessionToken, session.expiresAt);
 
 		return redirect(302, '/app');
 	},
 	register: async (event) => {
 		const formData = await event.request.formData();
-		const username = formData.get('username');
-		const password = formData.get('password');
+		const email = formData.get('email') as string;
+		const password = formData.get('password') as string;
 
-		if (!UserRepository.validateUsername(username)) {
-			return fail(400, { message: 'Invalid username' });
+		const register = await tryCatch(
+			AuthService.register(event, email, password)
+		);
+
+		if (register.error) {
+			return fail(400, { message: register.error.message });
 		}
-		if (!UserRepository.validatePassword(password)) {
-			return fail(400, { message: 'Invalid password' });
-		}
 
-		const userId = UserRepository.generateId();
-		const passwordHash = await UserRepository.generatePasswordHash(password);
-
-		try {
-			const user = await UserRepository.create(userId, username, passwordHash);
-
-			const sessionToken = AuthRepository.generateSessionToken();
-			const session = await AuthRepository.createSession(sessionToken, user);
-			AuthRepository.setCookie(event, sessionToken, session.expiresAt);
-		} catch (e) {
-			return fail(500, { message: 'An error has occurred' });
-		}
 		return redirect(302, '/app');
 	},
 	logout: async (event) => {

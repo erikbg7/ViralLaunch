@@ -21,15 +21,15 @@ import {
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
-	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull(), // google oauth users should not have this, but it is not nullable
+	googleId: text('google_id').unique(),
+	email: text('email').unique().notNull(),
+	passwordHash: text('password_hash'),
+	username: text('username'),
+	avatar: text('avatar'),
+
 	createdAt: timestamp('created_at', { withTimezone: true })
 		.notNull()
-		.defaultNow(),
-
-	email: text('email').unique(),
-	googleId: text('google_id').unique(),
-	avatar: text('avatar')
+		.defaultNow()
 });
 
 export const session = pgTable('session', {
