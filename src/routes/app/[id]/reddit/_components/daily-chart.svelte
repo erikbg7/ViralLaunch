@@ -8,7 +8,8 @@
 	import { subredditState } from '../store.svelte';
 	import {
 		aggregateToDailyAverages,
-		aggregateToHourlyAverages
+		aggregateToHourlyAverages,
+		type HourlyData
 	} from '$lib/graph/aggregators';
 	import { timeAgo } from '$lib/date';
 	import {
@@ -33,9 +34,9 @@
 		track_subreddit_form_component
 	}: Props = $props();
 
-	let chartCanvas;
-	let chartInstance;
-	let chartData = [];
+	let chartCanvas: HTMLCanvasElement;
+	let chartInstance: Chart | null = null;
+	let chartData: HourlyData[] = [];
 	let mounted = $state(false);
 	let lastRecord = $state(0);
 	let lastUpdate = $state('');

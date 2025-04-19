@@ -1,4 +1,4 @@
-type HourlyData = {
+export type HourlyData = {
 	dayOfWeek: number;
 	hourOfDay: number;
 	lastRecord: number;
