@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Plus } from '@lucide/svelte';
+	import type { EventHandler } from 'svelte/elements';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Dialog,
@@ -35,7 +36,7 @@
 	let error = $state<string | null>(null);
 	// const [error, setError] = useState<string | null>(null);
 
-	const handleSubmit = (e) => {
+	const handleSubmit: EventHandler = (e) => {
 		e.preventDefault();
 
 		// Basic validation
