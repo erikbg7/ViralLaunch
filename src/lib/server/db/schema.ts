@@ -104,10 +104,10 @@ export const subredditRecord = pgTable(
 			.defaultNow()
 			.notNull()
 	},
-	(table) => ({
-		subredditTimestampUnique: unique().on(table.subredditId, table.timestamp),
-		timestampIndex: index('timestamp_idx').on(table.timestamp)
-	})
+	(table) => [
+		unique('unique_subreddit_timestamp').on(table.subredditId, table.timestamp),
+		index('timestamp_idx').on(table.timestamp)
+	]
 );
 
 export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
