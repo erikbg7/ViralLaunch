@@ -1,11 +1,10 @@
 import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import {
-	product,
-	productSubreddit,
 	subreddit,
-	type Product,
-	type Subreddit
+	userSubreddits,
+	type Subreddit,
+	type UserSubreddits
 } from '$lib/server/db/schema';
 
 export class SubredditRepository {
@@ -21,18 +20,14 @@ export class SubredditRepository {
 		return result.at(0);
 	}
 
-	static async getByWorkspaceId(
-		userId: Product['userId'],
-		workspaceId: Product['id']
-	) {
+	static async getSubredditsByUserId(userId: UserSubreddits['userId']) {
 		const result = await db
 			.select({
 				subreddit: subreddit
 			})
-			.from(productSubreddit)
-			.innerJoin(subreddit, eq(productSubreddit.subredditId, subreddit.id))
-			.innerJoin(product, eq(productSubreddit.productId, workspaceId))
-			.where(eq(product.userId, userId))
+			.from(userSubreddits)
+			.innerJoin(subreddit, eq(userSubreddits.subredditId, subreddit.id))
+			.where(eq(userSubreddits.userId, userId))
 			.groupBy(subreddit.id);
 
 		return result.map((row) => row.subreddit);

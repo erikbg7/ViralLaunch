@@ -43,20 +43,6 @@ export const session = pgTable('session', {
 	}).notNull()
 });
 
-// This should be called workspace
-export const product = pgTable('product', (t) => ({
-	id: t.serial('id').primaryKey(),
-	name: t.varchar('name', { length: 128 }).notNull().unique(),
-	createdAt: t
-		.timestamp('created_at', { withTimezone: true, mode: 'date' })
-		.defaultNow()
-		.notNull(),
-	userId: t
-		.text('user_id')
-		.notNull()
-		.references(() => user.id)
-}));
-
 export const preferences = pgTable('preferences', {
 	id: serial('id').primaryKey(),
 	userId: text('user_id')
@@ -80,21 +66,6 @@ export const userSubreddits = pgTable(
 			name: 'user_subreddit_id',
 			columns: [table.userId, table.subredditId]
 		})
-	]
-);
-
-export const productSubreddit = pgTable(
-	'product_subreddit',
-	{
-		productId: integer('product_id')
-			.notNull()
-			.references(() => product.id, { onDelete: 'cascade' }),
-		subredditId: integer('subreddit_id')
-			.notNull()
-			.references(() => subreddit.id, { onDelete: 'cascade' })
-	},
-	(table) => [
-		primaryKey({ name: 'id', columns: [table.productId, table.subredditId] })
 	]
 );
 
@@ -157,27 +128,13 @@ export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
 	weekStartDate: date('week_start_date').notNull() // Which week this belongs to
 });
 
-// TODO: platforms should be fixed, we just need a int to represent each platform
-// each bit will represent a platform
-// platforms_activation = 0b00000001
-// platforms_product = 0b00000010
-// this will save us a lot of space in the database
-// we can use a bit mask to check if a platform is activated
-
-// TODO: use custom_platform table to store custom platforms that a user can add
-// e.g. reddit/r/indoor_boulder
-
 export const userUpdateSchema = createUpdateSchema(user);
 export const userSelectSchema = createSelectSchema(user);
 export const sessionSelectSchema = createSelectSchema(session);
-export const productSelectSchema = createSelectSchema(product);
 
 export const userInsertSchema = createInsertSchema(user);
 export const sessionInsertSchema = createInsertSchema(session);
-export const productInsertSchema = createInsertSchema(product).pick({
-	name: true,
-	userId: true
-});
+
 export const platformInsertSchema = z.object({
 	name: z.string(),
 	description: z.string(),
@@ -202,9 +159,7 @@ type SubredditInsertSchema = z.infer<typeof subredditInsertSchema>;
 
 export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
-export type Product = typeof product.$inferSelect;
+export type UserSubreddits = typeof userSubreddits.$inferSelect;
 export type Subreddit = typeof subreddit.$inferSelect;
 
 export type SubredditRecord = typeof subredditRecord.$inferSelect;
-
-export type ProductWithPlatforms = { product: Product };

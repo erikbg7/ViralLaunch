@@ -22,7 +22,7 @@
 
 	let subredditId = $derived(parseInt(page.params.subreddit));
 
-	let subreddits = api.subreddit.list.query({ workspaceId: page.params.id });
+	let subreddits = api.subreddit.list.query();
 
 	$inspect('subredditId', subredditId, page.params);
 	// const subredditId = page.params.subreddit;

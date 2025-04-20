@@ -15,9 +15,8 @@ import { SubredditRepository } from '$lib/server/repositories/subreddit.reposito
 
 export const load: PageServerLoad = async (event) => {
 	return {
-		subreddits: await SubredditRepository.getByWorkspaceId(
-			event.locals.user!.id,
-			parseInt(event.params.id)
+		subreddits: await SubredditRepository.getSubredditsByUserId(
+			event.locals.user!.id
 		),
 		forms: {
 			create_subreddit: await superValidate(zod(subredditInsertSchema)),
@@ -29,7 +28,6 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
 	removeSubreddit: async (event) => {
 		const userId = event.locals.user!.id;
-		const productId = parseInt(event.params.id);
 
 		const form = await superValidate(event, zod(redditRemoveSchema));
 
@@ -43,7 +41,7 @@ export const actions: Actions = {
 
 		const subredditId = form.data.id;
 
-		await removeSubredditFromUser(userId, productId, subredditId);
+		await removeSubredditFromUser(userId, subredditId);
 
 		return message(form, {
 			status: 'success',
@@ -52,7 +50,6 @@ export const actions: Actions = {
 	},
 	createSubreddit: async (event) => {
 		const userId = event.locals.user!.id;
-		const productId = parseInt(event.params.id);
 
 		const form = await superValidate(event, zod(subredditInsertSchema));
 
@@ -71,7 +68,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await insertUserSubreddit(productId, url, name);
+			await insertUserSubreddit(url, name);
 		} catch (e) {
 			console.error({ e });
 			return fail(500, { form, error: 'Failed to create subreddit' });

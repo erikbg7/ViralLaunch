@@ -1,39 +1,35 @@
 import { db } from '$lib/server/db';
 import {
-	product,
-	productSubreddit,
 	subreddit,
 	subredditHourlyAvg,
-	subredditUrlInsertSchema
+	subredditUrlInsertSchema,
+	userSubreddits
 } from '$lib/server/db/schema';
 import { and, eq } from 'drizzle-orm';
 
 export async function insertUserSubreddit(
-	productId: number,
 	url: string,
 	name: string
 ): Promise<any> {
-	const [existingSubreddit] = await db
-		.select()
-		.from(subreddit)
-		.where(eq(subreddit.name, name));
-
-	if (existingSubreddit) {
-		await db
-			.insert(productSubreddit)
-			.values({ productId, subredditId: existingSubreddit.id })
-			.onConflictDoNothing();
-	} else {
-		const [newSubreddit] = await db
-			.insert(subreddit)
-			.values({ url, name })
-			.returning({ id: subreddit.id });
-
-		await db
-			.insert(productSubreddit)
-			.values({ productId, subredditId: newSubreddit.id });
-		// .onConflictDoNothing();
-	}
+	// const [existingSubreddit] = await db
+	// 	.select()
+	// 	.from(subreddit)
+	// 	.where(eq(subreddit.name, name));
+	// if (existingSubreddit) {
+	// 	await db
+	// 		.insert(productSubreddit)
+	// 		.values({ productId, subredditId: existingSubreddit.id })
+	// 		.onConflictDoNothing();
+	// } else {
+	// 	const [newSubreddit] = await db
+	// 		.insert(subreddit)
+	// 		.values({ url, name })
+	// 		.returning({ id: subreddit.id });
+	// 	await db
+	// 		.insert(productSubreddit)
+	// 		.values({ productId, subredditId: newSubreddit.id });
+	// 	// .onConflictDoNothing();
+	// }
 }
 
 export async function removeSubreddit(subredditId: number) {
@@ -44,25 +40,29 @@ export async function removeSubreddit(subredditId: number) {
 
 export async function removeSubredditFromUser(
 	userId: string,
-	productId: number,
 	subredditId: number
 ) {
 	return await db.transaction(async (tx) => {
-		const [userProduct] = await tx
+		const [userSubreddit] = await tx
 			.select()
-			.from(product)
-			.where(and(eq(product.id, productId), eq(product.userId, userId)));
+			.from(userSubreddits)
+			.where(
+				and(
+					eq(userSubreddits.subredditId, subredditId),
+					eq(userSubreddits.userId, userId)
+				)
+			);
 
-		if (!userProduct) {
-			throw new Error('Product not found');
+		if (!userSubreddit) {
+			throw new Error('Your cannot untrack a subreddit you are not following.');
 		}
 
 		return await tx
-			.delete(productSubreddit)
+			.delete(userSubreddits)
 			.where(
 				and(
-					eq(productSubreddit.productId, productId),
-					eq(productSubreddit.subredditId, subredditId)
+					eq(userSubreddits.userId, userId),
+					eq(userSubreddits.subredditId, subredditId)
 				)
 			);
 	});

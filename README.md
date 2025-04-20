@@ -83,3 +83,7 @@ For example, the webhook would be on /payments/webhook , then callback, then suc
 TODO
 
 - Use subreddit name on the url (app/12321/r/SaaS). The name of the subreddit is already unique (capitalization matters), so we can just use it. Does it require changes to db? Do I require to use it as the id? Or just setting the name as unique is enough?
+
+- When the user first signs up we should show an onboarding. Prompt some subreddits that he can follow for free and usually allow self promotion or are good places to show off your product. For example, r/saas, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness.
+
+- Allow a user to EXPLORE (use as keyword) subreddits. This is a good way to find new subreddits to follow. A user should be able to explore most followed subreddits, subreddits with more users, etc.
