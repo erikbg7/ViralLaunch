@@ -57,24 +57,31 @@ export const product = pgTable('product', (t) => ({
 		.references(() => user.id)
 }));
 
-export const platformLaunch = pgTable('platform_launch', {
+export const preferences = pgTable('preferences', {
 	id: serial('id').primaryKey(),
-	launched: boolean('launched').default(false),
-	productId: integer('product_id')
+	userId: text('user_id')
 		.notNull()
-		.references(() => product.id, { onDelete: 'cascade' }),
-	platformId: integer('platform_id')
-		.notNull()
-		.references(() => platform.id, { onDelete: 'cascade' })
+		.references(() => user.id)
+		.unique()
 });
 
-export const platform = pgTable('platform', {
-	id: serial('id').primaryKey(),
-	name: varchar('name', { length: 128 }).notNull().unique(),
-	description: text('description').default(''),
-	url: text('url').notNull().unique(),
-	custom: boolean('custom').default(false)
-});
+export const userSubreddits = pgTable(
+	'user_subreddits',
+	{
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id),
+		subredditId: integer('subreddit_id')
+			.notNull()
+			.references(() => subreddit.id, { onDelete: 'cascade' })
+	},
+	(table) => [
+		primaryKey({
+			name: 'user_subreddit_id',
+			columns: [table.userId, table.subredditId]
+		})
+	]
+);
 
 export const productSubreddit = pgTable(
 	'product_subreddit',
@@ -164,7 +171,6 @@ export const userUpdateSchema = createUpdateSchema(user);
 export const userSelectSchema = createSelectSchema(user);
 export const sessionSelectSchema = createSelectSchema(session);
 export const productSelectSchema = createSelectSchema(product);
-export const platformSelectSchema = createSelectSchema(platform);
 
 export const userInsertSchema = createInsertSchema(user);
 export const sessionInsertSchema = createInsertSchema(session);
@@ -197,20 +203,8 @@ type SubredditInsertSchema = z.infer<typeof subredditInsertSchema>;
 export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 export type Product = typeof product.$inferSelect;
-export type Platform = typeof platform.$inferSelect;
-export type PlatformInsert = typeof platform.$inferInsert;
 export type Subreddit = typeof subreddit.$inferSelect;
 
 export type SubredditRecord = typeof subredditRecord.$inferSelect;
 
-export type PlatformLaunch = typeof platformLaunch.$inferSelect;
-export type ProductWithPlatforms = { product: Product } & {
-	platforms: Array<{
-		id: Platform['id'];
-		name: Platform['name'];
-		description: Platform['description'];
-		url: Platform['url'];
-		launched: PlatformLaunch['launched'];
-		custom: Platform['custom'];
-	}>;
-};
+export type ProductWithPlatforms = { product: Product };

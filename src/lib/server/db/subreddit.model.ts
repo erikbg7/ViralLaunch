@@ -62,7 +62,6 @@ export async function removeSubredditFromUser(
 			.where(
 				and(
 					eq(productSubreddit.productId, productId),
-					eq(productSubreddit.productId, productId),
 					eq(productSubreddit.subredditId, subredditId)
 				)
 			);
