@@ -32,7 +32,7 @@
 			let hour = Math.floor((x % 72) / 3);
 			let minute = [0, 20, 40][(x % 72) % 3];
 
-			return chartData[weekDays[day]]?.find((d) => {
+			return chartData?.[weekDays[day]]?.find((d) => {
 				return d.date.getHours() === hour && d.date.getMinutes() === minute;
 			});
 		}

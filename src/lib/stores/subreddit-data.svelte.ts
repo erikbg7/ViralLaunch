@@ -2,7 +2,7 @@ import { weekDays, WeekDay } from '$lib/constants';
 import type { RouterOutput } from '$lib/server/trpc/router';
 import { serverConfig } from '$lib/stores/settings.svelte';
 
-type RawRecords = RouterOutput['records']['get2'];
+type RawRecords = RouterOutput['records']['get'];
 
 // TODO: Daily records should no have an interval, as it could be missleading because does not tak einto account user timezone.
 // For example, 23:20 UTC would have interval 70, but in UTC+2 it would be 01:20 interval 70. Which would result in a
