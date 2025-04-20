@@ -25,23 +25,33 @@ export const subredditRouter = router({
 			// return CenterService.createSubreddit(input.name, ctx.user.id);
 		}),
 	untrack: protectedProcedure
-		.input(z.object({ workspaceId: z.number() }))
-		.mutation(({ ctx, input }) => {})
+		.input(z.object({ subredditId: z.number() }))
+		.mutation(({ ctx, input }) => {
+			return SubredditRepository.deleteFromUser(ctx.user.id, input.subredditId);
+		}),
 
-	// list: protectedProcedure
-	// 	.input(centerFilterSchema.optional())
-	// 	.query(({ ctx, input }) => {
-	// 		return CenterService.searchCenters(ctx.user.id, input);
-	// 	}),
-	// get: protectedProcedure
-	// 	.input(z.object({ centerId: z.number() }))
-	// 	.query(({ ctx, input }) => {
-	// 		return CenterService.getById(input.centerId, ctx.user.id);
-	// 	}),
-	// create: protectedProcedure
-	// 	.input(centerInsertSchema.omit({ id: true, userId: true }))
-	// 	.mutation(({ input, ctx }) => {
-	// 		const grading = input.grading as Record<string, string>;
-	// 		return CenterService.createCenter(input.name, grading, ctx.user.id);
-	// 	})
+	insert: protectedProcedure
+		.input(z.object({ subreddit: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			const { url, name } = await SubredditRepository.parse(input.subreddit);
+
+			if (!url || !name) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'Invalid subreddit URL'
+				});
+			}
+
+			const existingSubreddit = await SubredditRepository.getById(name);
+
+			if (existingSubreddit) {
+				await SubredditRepository.createForUser(
+					ctx.user.id,
+					existingSubreddit.id
+				);
+			} else {
+				const newSubreddit = await SubredditRepository.create(url, name);
+				await SubredditRepository.createForUser(ctx.user.id, newSubreddit!.id);
+			}
+		})
 });

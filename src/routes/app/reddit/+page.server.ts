@@ -1,3 +1,4 @@
+import { createTrpcCaller } from '$lib/server/trpc/caller';
 import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import {
@@ -6,12 +7,8 @@ import {
 } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
-import {
-	insertUserSubreddit,
-	parseSubreddit,
-	removeSubredditFromUser
-} from '$lib/server/db/subreddit.model';
 import { SubredditRepository } from '$lib/server/repositories/subreddit.repository';
+import { tryCatch } from '$lib/try';
 
 export const load: PageServerLoad = async (event) => {
 	return {
@@ -41,7 +38,10 @@ export const actions: Actions = {
 
 		const subredditId = form.data.id;
 
-		await removeSubredditFromUser(userId, subredditId);
+		const trpc = await createTrpcCaller(event);
+		await trpc.subreddit.untrack({
+			subredditId
+		});
 
 		return message(form, {
 			status: 'success',
@@ -61,17 +61,17 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
-		const { url, name } = parseSubreddit(form.data.subreddit);
+		const trpc = await createTrpcCaller(event);
 
-		if (!url || !name) {
-			return fail(400, { form, error: 'Not a valid subreddit' });
-		}
+		const insertion = await tryCatch(
+			trpc.subreddit.insert({
+				subreddit: form.data.subreddit
+			})
+		);
 
-		try {
-			await insertUserSubreddit(url, name);
-		} catch (e) {
-			console.error({ e });
-			return fail(500, { form, error: 'Failed to create subreddit' });
+		if (insertion.error) {
+			console.error('Error inserting subreddit:', insertion.error);
+			return fail(400, { form, error: 'Failed to insert subreddit' });
 		}
 
 		return message(form, {
