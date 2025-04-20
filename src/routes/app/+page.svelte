@@ -49,6 +49,7 @@
 								<a
 									class="absolute inset-0 pt-4"
 									href={`/app/${product.id}/reddit`}
+									aria-label={`View ${product.name} on Reddit`}
 								></a>
 								<form
 									method="POST"
