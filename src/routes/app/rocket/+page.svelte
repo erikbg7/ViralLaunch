@@ -93,36 +93,6 @@
 </section>
 
 <style>
-	/* Positioning container */
-	#clickable-container {
-		position: relative;
-		width: 200px;
-		height: 200px;
-	}
-
-	/* The clipped div (background styling) */
-	#clipped-div {
-		width: 100%;
-		height: 100%;
-		background: lightblue;
-		pointer-events: none; /* Prevent clicks */
-	}
-
-	/* Clickable SVG overlay */
-	#clickable-svg {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		pointer-events: auto; /* Ensure clicks work */
-	}
-	/* Container for positioning */
-
-	.clipped {
-		clip-path: inset(0% 45% 0% 45% round 0px 20px 0px 40px);
-	}
-
 	.ph-card-gradient {
 		background: radial-gradient(
 			circle at 50% 100%,
