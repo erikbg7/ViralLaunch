@@ -222,7 +222,9 @@
 				{/key}
 			{:else}
 				<div class="flex h-full items-center justify-center">
-					<p class="text-muted-foreground">Select a URL to view its data</p>
+					<p class="text-muted-foreground">
+						Select a subreddit to view its data
+					</p>
 				</div>
 			{/if}
 		</main>
