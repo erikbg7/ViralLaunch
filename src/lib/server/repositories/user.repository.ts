@@ -9,13 +9,13 @@ import {
 
 export class UserRepository {
 	static async get(email: User['email']) {
-		const users = await db
+		const [retrievedUser] = await db
 			.select()
 			.from(user)
 			.where(eq(user.email, email))
 			.limit(1);
 
-		return users.at(0);
+		return retrievedUser;
 	}
 
 	static async getFromGoogleId(googleId: string) {
