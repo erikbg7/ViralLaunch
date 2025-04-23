@@ -1,23 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-
-	import {
-		Card,
-		CardContent,
-		CardDescription,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
-	import { Label } from '$lib/components/ui/label';
-	import {
-		Select,
-		SelectContent,
-		SelectItem,
-		SelectTrigger
-	} from '$lib/components/ui/select';
-	import { timezones } from '$lib/constants';
 	import EmailNotifications from '$lib/features/settings/email-notifications.svelte';
-	import { serverConfig } from '$lib/stores/settings.svelte';
+	import TimezoneConfig from '$lib/features/settings/timezone-config.svelte';
 	import { ArrowLeft } from '@lucide/svelte';
 </script>
 
@@ -35,38 +19,7 @@
 	</div>
 
 	<div class="space-y-6">
-		<Card>
-			<CardHeader>
-				<CardTitle>Timezone</CardTitle>
-				<CardDescription>
-					Set your preferred timezone for data display
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<div class="space-y-4">
-					<div>
-						<Label>Timezone</Label>
-						<Select type="single" bind:value={serverConfig.timezone}>
-							<SelectTrigger class="mt-2 w-full">
-								{timezones.find((tz) => tz.value === serverConfig.timezone)
-									?.label}
-							</SelectTrigger>
-							<SelectContent>
-								{#each timezones as timezone}
-									<SelectItem value={timezone.value}>
-										{timezone.label}
-									</SelectItem>
-								{/each}
-							</SelectContent>
-						</Select>
-						<p class="mt-2 text-sm text-muted-foreground">
-							User activity data will be adjusted based on your timezone
-						</p>
-					</div>
-				</div>
-			</CardContent>
-		</Card>
-
+		<TimezoneConfig />
 		<EmailNotifications />
 	</div>
 </div>
