@@ -140,3 +140,9 @@ subscriptionService: get followed subs
 analyticsService: fetch data
 
 digestEmailService: prepare & send daily/weekly emails
+
+climbergirls
+indoorbouldering
+sveltejs
+announcements
+bouldering

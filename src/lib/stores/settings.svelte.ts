@@ -33,7 +33,6 @@ const createServerConfig = () => {
 		set timezone(value: TimeZone) {
 			timezone = value;
 		},
-
 		get dateFormatter() {
 			return dateFormatter;
 		}

@@ -30,7 +30,7 @@
 	import { subredditStore } from '$lib/stores/subreddits.svelte';
 
 	type Props = {
-		subredditId: number;
+		subredditId: string;
 	};
 
 	let { subredditId = $bindable() }: Props = $props();
@@ -39,7 +39,7 @@
 
 	// let subreddit = api.subreddit.get.query({ subredditId });
 
-	let records = api.records.get.query({ workspaceId: '2', subredditId });
+	let records = api.records.get.query({ subredditId });
 
 	$effect(() => {
 		if ($records.data) {

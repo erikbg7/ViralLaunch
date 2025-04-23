@@ -2,9 +2,10 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '$lib/server/trpc/trpc';
 import { RecordRepository } from '$lib/server/repositories/record.repository';
 
+// this should be called analytics
 export const recordsRouter = router({
 	get: protectedProcedure
-		.input(z.object({ workspaceId: z.string(), subredditId: z.number() }))
+		.input(z.object({ subredditId: z.string() }))
 		.query(async ({ input }) => {
 			try {
 				return await RecordRepository.getAllRecords(input.subredditId);

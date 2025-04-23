@@ -3,6 +3,15 @@ import { SubredditRepository } from '$lib/server/repositories/subreddit.reposito
 import { TRPCError } from '@trpc/server';
 
 export class FollowService {
+	static async getAllSubreddits() {
+		try {
+			return SubredditRepository.getAll();
+		} catch (error) {
+			console.error('Error fetching subreddits:', error);
+			throw new Error('Failed to fetch subreddits');
+		}
+	}
+
 	static async getFollowedSubreddits(userId: string) {
 		try {
 			return SubredditRepository.getSubredditsByUserId(userId);
@@ -20,6 +29,8 @@ export class FollowService {
 		// return CenterService.createSubreddit(input.name, ctx.user.id);
 		const { url, name } = await this.parse(subredditName);
 
+		console.log({ url, name });
+
 		if (!url || !name) {
 			throw new TRPCError({
 				code: 'BAD_REQUEST',
@@ -28,6 +39,8 @@ export class FollowService {
 		}
 
 		const existingSubreddit = await SubredditRepository.getById(name);
+
+		console.log({ existingSubreddit });
 
 		if (existingSubreddit) {
 			await SubredditRepository.createForUser(userId, existingSubreddit.id);
@@ -39,7 +52,7 @@ export class FollowService {
 		}
 	}
 
-	static async removeFollowedSubreddit(userId: string, subredditId: number) {
+	static async removeFollowedSubreddit(userId: string, subredditId: string) {
 		try {
 			SubredditRepository.deleteFromUser(userId, subredditId);
 		} catch (e) {}

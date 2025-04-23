@@ -5,7 +5,7 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
-	import { subredditState } from '../store.svelte';
+
 	import {
 		aggregateToDailyAverages,
 		aggregateToHourlyAverages,
@@ -144,17 +144,17 @@
 
 	<CardHeader>
 		<CardTitle class="text-lg text-orange-500">
-			<a href={`https://www.reddit.com/r/${subreddit.name}`} target="_blank">
-				r/{subreddit.name}
+			<a href={`https://www.reddit.com/r/${subreddit.id}`} target="_blank">
+				r/{subreddit.id}
 			</a>
 		</CardTitle>
 	</CardHeader>
 	<CardContent>
 		<div class="flex justify-between">
 			<span>
-				{subredditState.onlineUsers} online users - {timeAgo(
+				<!-- {subredditState.onlineUsers} online users - {timeAgo(
 					subredditState.lastUpdate
-				)}
+				)} -->
 			</span>
 			<span>
 				<select

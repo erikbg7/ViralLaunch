@@ -11,13 +11,19 @@ import {
 	varchar,
 	primaryKey,
 	unique,
-	index
+	index,
+	pgEnum
 } from 'drizzle-orm/pg-core';
 import {
 	createInsertSchema,
 	createSelectSchema,
 	createUpdateSchema
 } from 'drizzle-zod';
+import {
+	NotificationFrequency,
+	notificationHours,
+	TimeZone
+} from '$lib/constants';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -43,12 +49,34 @@ export const session = pgTable('session', {
 	}).notNull()
 });
 
+// const timezonesEnum = pgEnum(
+// 	'timezones',
+// 	Object.values(TimeZone) as [string, ...string[]]
+// );
+
+// const notificationFrequencyEnum = pgEnum(
+// 	'notification_frequency',
+// 	Object.values(NotificationFrequency) as [string, ...string[]]
+// );
+
+// const notificationHourEnum = pgEnum(
+// 	'notification_hour',
+// 	notificationHours as [string, ...string[]]
+// );
+
 export const preferences = pgTable('preferences', {
 	id: serial('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id)
 		.unique()
+	// timezone: timezonesEnum().default(TimeZone.UTC),
+	// notificationFrequency: notificationFrequencyEnum(
+	// 	'notification_frequency'
+	// ).default(NotificationFrequency.NEVER),
+	// notificationHour: notificationHourEnum('notification_hour').default(
+	// 	notificationHours[0]
+	// )
 });
 
 export const userSubreddits = pgTable(
@@ -57,7 +85,7 @@ export const userSubreddits = pgTable(
 		userId: text('user_id')
 			.notNull()
 			.references(() => user.id),
-		subredditId: integer('subreddit_id')
+		subredditId: text('subreddit_id')
 			.notNull()
 			.references(() => subreddit.id, { onDelete: 'cascade' })
 	},
@@ -70,14 +98,9 @@ export const userSubreddits = pgTable(
 );
 
 export const subreddit = pgTable('subreddit', {
-	id: serial('id').primaryKey(),
-	name: varchar('name', { length: 128 }).notNull().unique(),
+	id: text('id').primaryKey().unique(),
 	url: text('url').notNull().unique(),
-	tracked: boolean('tracked').default(true),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-		.defaultNow()
-		.notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
 		.defaultNow()
 		.notNull()
 });
@@ -86,7 +109,7 @@ export const subredditRecord = pgTable(
 	'subreddit_record',
 	{
 		id: serial('id').primaryKey(),
-		subredditId: integer('subreddit_id')
+		subredditId: text('subreddit_id')
 			.notNull()
 			.references(() => subreddit.id, { onDelete: 'cascade' }),
 
@@ -109,24 +132,6 @@ export const subredditRecord = pgTable(
 		index('timestamp_idx').on(table.timestamp)
 	]
 );
-
-export const subredditHourlyAvg = pgTable('subreddit_hourly_avg', {
-	id: serial('id').primaryKey(),
-	subredditId: integer('subreddit_id')
-		.notNull()
-		.references(() => subreddit.id, { onDelete: 'cascade' }),
-
-	dayOfWeek: integer('day_of_week').notNull(), // 1 = Monday, ..., 7 = Sunday
-	hourOfDay: integer('hour_of_day').notNull(), // 0 = 00:00, 23 = 23:00
-
-	avgOnlineUsers: real('avg_online_users').notNull(), // Floating point for accuracy
-	lastRecord: integer('last_record').notNull().default(0),
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-		.defaultNow()
-		.notNull(),
-
-	weekStartDate: date('week_start_date').notNull() // Which week this belongs to
-});
 
 export const userUpdateSchema = createUpdateSchema(user);
 export const userSelectSchema = createSelectSchema(user);

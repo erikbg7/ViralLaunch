@@ -13,21 +13,21 @@ export class SubredditRepository {
 		return await db.select().from(subreddit);
 	}
 
-	static async create(url: string, name: string) {
+	static async create(url: string, id: string) {
 		const result = await db
 			.insert(subreddit)
-			.values({ url, name })
+			.values({ url, id })
 			.returning(getTableColumns(subreddit));
 
 		return result.at(0);
 	}
 
-	static async getById(name: Subreddit['name']) {
-		const result = await db
+	static async getById(id: Subreddit['id']) {
+		const [result] = await db
 			.select()
 			.from(subreddit)
-			.where(eq(subreddit.name, name));
-		return result.at(0);
+			.where(eq(subreddit.id, id));
+		return result;
 	}
 
 	static async getSubredditsByUserId(userId: UserSubreddits['userId']) {

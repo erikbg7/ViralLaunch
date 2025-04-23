@@ -12,8 +12,7 @@ export const cronRouter = router({
 	createRecord: adminProcedure
 		.input(
 			z.object({
-				id: z.number(),
-				name: z.string(),
+				id: z.string(),
 				interval: z.number(),
 				date: z.string()
 			})
@@ -22,8 +21,8 @@ export const cronRouter = router({
 			try {
 				// console.log('[TRPC]', input.name, input.interval, input.date);
 				const redditService = new RedditService();
-				const users = await redditService.getOnlineUsers(input.name);
-				console.log('[TRPC] ', input.name, ' - ', users);
+				const users = await redditService.getOnlineUsers(input.id);
+				console.log('[TRPC] ', input.id, ' - ', users);
 				await RecordRepository.createRecord(
 					input.id,
 					users,

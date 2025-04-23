@@ -20,7 +20,7 @@
 	import type { Subreddit } from '$lib/server/db/schema';
 	import { serverConfig } from '$lib/stores/settings.svelte';
 
-	let subredditId = $derived(parseInt(page.params.subreddit));
+	let subredditId = $derived(page.params.subreddit);
 
 	let subreddits = api.subreddit.following.query();
 
@@ -33,7 +33,7 @@
 			if ($subreddits.isSuccess) {
 				const q = searchQuery?.toLowerCase() || '';
 				return $subreddits.data.filter((subreddit) =>
-					subreddit.name.toLowerCase().includes(q)
+					subreddit.id.toLowerCase().includes(q)
 				);
 			}
 			return [];
@@ -51,7 +51,7 @@
 			);
 			if (selectedSubreddit) {
 				subredditStore.selectedSubreddit = selectedSubreddit;
-				subredditStore.selectedSubredditName = selectedSubreddit.name;
+				subredditStore.selectedSubredditName = selectedSubreddit.id;
 			}
 		}
 	});
@@ -214,9 +214,6 @@
 		</aside>
 		<main class="flex-1 overflow-auto p-4">
 			{#if subredditId}
-				{@const subredditData = $subreddits?.data?.find(
-					(r) => r.id === subredditId
-				)}
 				{#key subredditId}
 					<SubredditData {subredditId} />
 				{/key}

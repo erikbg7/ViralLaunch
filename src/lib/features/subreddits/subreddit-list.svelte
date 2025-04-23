@@ -44,7 +44,7 @@
 					href="/app/r/{subreddit.id}"
 				>
 					<div class="min-w-0 flex-1">
-						<h3 class="truncate font-medium">{subreddit.name}</h3>
+						<h3 class="truncate font-medium">{subreddit.id}</h3>
 						<p class="truncate text-sm text-muted-foreground">
 							{subreddit.url}
 						</p>
@@ -57,7 +57,7 @@
 							e.stopPropagation();
 							onRemoveSubreddit(subreddit);
 						}}
-						aria-label={`Remove ${subreddit.name}`}
+						aria-label={`Remove ${subreddit.id}`}
 					>
 						<Trash2 class="h-4 w-4" />
 					</Button>
