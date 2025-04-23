@@ -41,7 +41,7 @@
 			>
 				<a
 					class="flex items-center justify-center"
-					href="/app/2/r/{subreddit.id}"
+					href="/app/r/{subreddit.id}"
 				>
 					<div class="min-w-0 flex-1">
 						<h3 class="truncate font-medium">{subreddit.name}</h3>
