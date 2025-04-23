@@ -30,6 +30,10 @@ export const cronRouter = router({
 					input.date
 				);
 			} catch (e) {
+				console.error(
+					'[TRPC] Error while getting online users for subreddit',
+					e
+				);
 				// Send mail to admin saying that we could not retreive information for this subreddit
 			}
 		})

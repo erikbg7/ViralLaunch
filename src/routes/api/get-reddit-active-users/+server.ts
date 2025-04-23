@@ -15,16 +15,17 @@ export const POST = async (event) => {
 	const interval = getIntervalFromDate(flooredDate);
 	const flooredDateString = flooredDate.toISOString();
 
-	subreddits.forEach((subreddit) => {
+	let promises = subreddits.map((subreddit) => {
 		const { id } = subreddit;
 		console.log('[CRON] Getting online users for subreddit', id);
-
-		api.cron.createRecord({
+		return api.cron.createRecord({
 			id,
 			interval,
 			date: flooredDateString
-		});
+		}) as Promise<void>;
 	});
+
+	await Promise.all(promises);
 
 	return json({ t: '[CRON] Information request end.' });
 };
