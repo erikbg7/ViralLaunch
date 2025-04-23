@@ -58,6 +58,7 @@
 		"@trpc/server": "^10.45.2",
 		"arctic": "^3.5.0",
 		"chart.js": "^4.4.8",
+		"devalue": "^5.1.1",
 		"drizzle-orm": "^0.38.4",
 		"drizzle-zod": "^0.7.0",
 		"postgres": "^3.4.5",
