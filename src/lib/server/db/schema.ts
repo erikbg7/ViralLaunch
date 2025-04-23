@@ -155,10 +155,15 @@ export const subredditUrlInsertSchema = z
 export const subredditInsertSchema = z.object({
 	subreddit: subredditUrlInsertSchema.or(subredditNameInsetSchema)
 });
-type SubredditInsertSchema = z.infer<typeof subredditInsertSchema>;
 
 export type Session = typeof session.$inferSelect;
+export type SessionInsert = typeof session.$inferInsert;
+export type SessionUpdate = Partial<typeof session.$inferInsert>;
+
 export type User = typeof user.$inferSelect;
+export type UserInsert = typeof user.$inferInsert;
+export type UserUpdate = Partial<typeof user.$inferInsert>;
+
 export type UserSubreddits = typeof userSubreddits.$inferSelect;
 export type Subreddit = typeof subreddit.$inferSelect;
 

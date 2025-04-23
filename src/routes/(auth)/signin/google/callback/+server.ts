@@ -1,6 +1,6 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { AuthService } from '$lib/server/services/auth.service';
 import { tryCatch } from '$lib/try';
+import { OAuthService } from '$lib/server/services/auth/oauth.service';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const code = event.url.searchParams.get('code');
@@ -9,7 +9,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const codeVerifier = event.cookies.get('google_code_verifier') ?? null;
 
 	const validation = await tryCatch(
-		AuthService.validateGoogleOAuthResult(
+		OAuthService.validateGoogleOAuthResult(
 			code,
 			state,
 			storedState,
@@ -23,7 +23,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		});
 	}
 
-	await AuthService.handleCallbackLogin(
+	await OAuthService.handleCallbackLogin(
 		event,
 		validation.data.googleUserId,
 		validation.data.username,

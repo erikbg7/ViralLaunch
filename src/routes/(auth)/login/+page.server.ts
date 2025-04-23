@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createTrpcCaller } from '$lib/server/trpc/caller';
 import { tryCatch } from '$lib/try';
-import { AuthService } from '$lib/server/services/auth.service';
+import { AuthService } from '$lib/server/services/auth/auth.service';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {

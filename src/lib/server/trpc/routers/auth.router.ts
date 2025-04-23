@@ -1,6 +1,11 @@
 import { z } from 'zod';
-import { AuthService } from '../../services/auth.service';
-import { protectedProcedure, publicProcedure, router } from '../trpc';
+import { AuthService } from '$lib/server/services/auth/auth.service';
+import { OAuthService } from '$lib/server/services/auth/oauth.service';
+import {
+	protectedProcedure,
+	publicProcedure,
+	router
+} from '$lib/server/trpc/trpc';
 
 const credentialsLoginShema = z.object({
 	email: z.string(),
@@ -17,6 +22,6 @@ export const authRouter = router({
 			return await AuthService.login(ctx.event, input.email, input.password);
 		}),
 	loginWithGoogle: publicProcedure.mutation(async ({ ctx }) => {
-		return await AuthService.loginWithGoogle(ctx.event);
+		return await OAuthService.loginWithGoogle(ctx.event);
 	})
 });

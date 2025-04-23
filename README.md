@@ -87,3 +87,56 @@ TODO
 - When the user first signs up we should show an onboarding. Prompt some subreddits that he can follow for free and usually allow self promotion or are good places to show off your product. For example, r/saas, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness.
 
 - Allow a user to EXPLORE (use as keyword) subreddits. This is a good way to find new subreddits to follow. A user should be able to explore most followed subreddits, subreddits with more users, etc.
+
+- Repository: only handles DB interaction
+- Service: handles business logic, a service can use other services
+
+/services
+/auth
+authService.ts // register, login, logout
+oauthService.ts // handle login with Google, etc.
+
+/userSubreddits
+followService.ts // follow/unfollow logic
+subscriptionService.ts // get followed subreddits
+
+/analytics
+analyticsService.ts // fetches analytics based on user/subreddit
+statsAggregator.ts // handles internal aggregation of scraped data
+
+/notifications
+digestEmailService.ts // assembles and sends digest emails
+
+---
+
+    🔁 Example: One Use Case Flow
+
+Use Case: sendWeeklyDigestEmail(userId)
+Where it lives: digestEmailService.ts
+
+Flow:
+
+Get the list of subreddits the user follows:
+followService.getFollowedSubreddits(userId)
+
+For each subreddit, get analytics:
+analyticsService.getWeeklyAnalytics(userId, subredditId)
+
+Format the data into an email-friendly report.
+
+Send via email adapter:
+emailProvider.send(userEmail, subject, body)
+
+---
+
+authService: login, register
+
+oauthService: third-party auth
+
+followService: follow/unfollow
+
+subscriptionService: get followed subs
+
+analyticsService: fetch data
+
+digestEmailService: prepare & send daily/weekly emails
