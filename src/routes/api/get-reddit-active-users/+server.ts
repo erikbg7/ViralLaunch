@@ -17,7 +17,7 @@ export const POST = async (event) => {
 
 	subreddits.forEach((subreddit) => {
 		const { id } = subreddit;
-		console.log('[CRON] Getting online users for subreddit', name);
+		console.log('[CRON] Getting online users for subreddit', id);
 
 		api.cron.createRecord({
 			id,
