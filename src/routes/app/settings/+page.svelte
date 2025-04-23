@@ -16,6 +16,7 @@
 		SelectTrigger
 	} from '$lib/components/ui/select';
 	import { timezones } from '$lib/constants';
+	import EmailNotifications from '$lib/features/settings/email-notifications.svelte';
 	import { serverConfig } from '$lib/stores/settings.svelte';
 	import { ArrowLeft } from '@lucide/svelte';
 </script>
@@ -33,35 +34,39 @@
 		<h1 class="text-2xl font-bold">Settings</h1>
 	</div>
 
-	<Card>
-		<CardHeader>
-			<CardTitle>Timezone</CardTitle>
-			<CardDescription>
-				Set your preferred timezone for data display
-			</CardDescription>
-		</CardHeader>
-		<CardContent>
-			<div class="space-y-4">
-				<div>
-					<Label>Timezone</Label>
-					<Select type="single" bind:value={serverConfig.timezone}>
-						<SelectTrigger class="mt-2 w-full">
-							{timezones.find((tz) => tz.value === serverConfig.timezone)
-								?.label}
-						</SelectTrigger>
-						<SelectContent>
-							{#each timezones as timezone}
-								<SelectItem value={timezone.value}>
-									{timezone.label}
-								</SelectItem>
-							{/each}
-						</SelectContent>
-					</Select>
-					<p class="mt-2 text-sm text-muted-foreground">
-						User activity data will be adjusted based on your timezone
-					</p>
+	<div class="space-y-6">
+		<Card>
+			<CardHeader>
+				<CardTitle>Timezone</CardTitle>
+				<CardDescription>
+					Set your preferred timezone for data display
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<div class="space-y-4">
+					<div>
+						<Label>Timezone</Label>
+						<Select type="single" bind:value={serverConfig.timezone}>
+							<SelectTrigger class="mt-2 w-full">
+								{timezones.find((tz) => tz.value === serverConfig.timezone)
+									?.label}
+							</SelectTrigger>
+							<SelectContent>
+								{#each timezones as timezone}
+									<SelectItem value={timezone.value}>
+										{timezone.label}
+									</SelectItem>
+								{/each}
+							</SelectContent>
+						</Select>
+						<p class="mt-2 text-sm text-muted-foreground">
+							User activity data will be adjusted based on your timezone
+						</p>
+					</div>
 				</div>
-			</div>
-		</CardContent>
-	</Card>
+			</CardContent>
+		</Card>
+
+		<EmailNotifications />
+	</div>
 </div>
