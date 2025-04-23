@@ -39,9 +39,7 @@ export const actions: Actions = {
 		const subredditId = form.data.id;
 
 		const trpc = await createTrpcCaller(event);
-		await trpc.subreddit.untrack({
-			subredditId
-		});
+		await trpc.subreddit.unfollow({ subredditId });
 
 		return message(form, {
 			status: 'success',
@@ -64,9 +62,7 @@ export const actions: Actions = {
 		const trpc = await createTrpcCaller(event);
 
 		const insertion = await tryCatch(
-			trpc.subreddit.insert({
-				subreddit: form.data.subreddit
-			})
+			trpc.subreddit.follow({ subreddit: form.data.subreddit })
 		);
 
 		if (insertion.error) {
