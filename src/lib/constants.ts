@@ -1,3 +1,8 @@
+export enum WeekStart {
+	SUNDAY = 'Sunday',
+	MONDAY = 'Monday'
+}
+
 export enum WeekDay {
 	MONDAY = 'Monday',
 	TUESDAY = 'Tuesday',
@@ -16,6 +21,25 @@ export const weekDays = [
 	WeekDay.THURSDAY,
 	WeekDay.FRIDAY,
 	WeekDay.SATURDAY
+];
+
+export const weekDaysSundayStart = [
+	WeekDay.SUNDAY,
+	WeekDay.MONDAY,
+	WeekDay.TUESDAY,
+	WeekDay.WEDNESDAY,
+	WeekDay.THURSDAY,
+	WeekDay.FRIDAY,
+	WeekDay.SATURDAY
+];
+export const weekDaysMondayStart = [
+	WeekDay.MONDAY,
+	WeekDay.TUESDAY,
+	WeekDay.WEDNESDAY,
+	WeekDay.THURSDAY,
+	WeekDay.FRIDAY,
+	WeekDay.SATURDAY,
+	WeekDay.SUNDAY
 ];
 
 export enum ChartType {
@@ -79,6 +103,11 @@ export const notificationHours = [
 	'23:00',
 	'23:30'
 ];
+
+export enum TimeFormat {
+	AM_PM = 'am_pm',
+	H24 = 'h24'
+}
 
 export enum TimeZone {
 	UTC = 'UTC',

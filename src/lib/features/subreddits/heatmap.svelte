@@ -5,9 +5,10 @@
 		TooltipProvider,
 		TooltipTrigger
 	} from '$lib/components/ui/tooltip';
-	import { weekDays, type WeekDay } from '$lib/constants';
+	import { type WeekDay } from '$lib/constants';
+	import { Formatter } from '$lib/stores/formatters.svelte';
+	import { serverConfig } from '$lib/stores/settings.svelte';
 	import { type ParsedRecords } from '$lib/stores/subreddit-data.svelte';
-	import { formatHourByLocale } from '$lib/timezone';
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
 
@@ -18,8 +19,6 @@
 		maxUsers?: number;
 		hourlyRecords: ParsedRecords['hourlyRecords'] | undefined;
 	} = $props();
-
-	const formatHour = (hour: number) => formatHourByLocale(hour);
 
 	const getCellColor = (users: number | undefined) => {
 		if (!users) {
@@ -35,7 +34,10 @@
 		if (!dayRecords) {
 			return 0;
 		}
-		const record = dayRecords.find((r) => r.date.getHours() === hour);
+
+		const records = dayRecords.filter((r) => r.date.getHours() === hour);
+		const record = records[records.length - 1];
+
 		return record ? record.users : 0;
 	};
 </script>
@@ -51,13 +53,13 @@
 			<!-- Hour labels  -->
 			{#each hours as hour}
 				<div class="w-[4%] text-center text-xs text-muted-foreground">
-					{formatHour(hour)}
+					{Formatter.formatHour(hour)}
 				</div>
 			{/each}
 		</div>
 
 		<TooltipProvider>
-			{#each weekDays as day}
+			{#each serverConfig.weekdays as day}
 				<div class="flex h-10 w-full items-center">
 					<!-- Day label -->
 					<div class="w-12 pr-2 text-right text-sm font-medium">
@@ -77,7 +79,7 @@
 							<TooltipContent>
 								<div class="text-center">
 									<div class="font-medium">
-										{day.slice(0, 3)} at {formatHour(hour)}
+										{day.slice(0, 3)} at {Formatter.formatHour(hour)}
 									</div>
 									<div>{users} users</div>
 								</div>

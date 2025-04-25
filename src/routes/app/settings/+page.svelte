@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import DisplayPreferences from '$lib/features/settings/display-preferences.svelte';
 	import EmailNotifications from '$lib/features/settings/email-notifications.svelte';
 	import TimezoneConfig from '$lib/features/settings/timezone-config.svelte';
 	import { ArrowLeft } from '@lucide/svelte';
@@ -20,6 +21,7 @@
 
 	<div class="space-y-6">
 		<TimezoneConfig />
+		<DisplayPreferences />
 		<EmailNotifications />
 	</div>
 </div>
