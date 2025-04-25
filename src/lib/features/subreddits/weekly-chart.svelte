@@ -33,15 +33,15 @@
 			let minute = [0, 20, 40][(x % 72) % 3];
 
 			return chartData?.[weekDays[day]]?.find((d) => {
-				return d.date.getHours() === hour && d.date.getMinutes() === minute;
+				return d.date?.getHours() === hour && d.date?.getMinutes() === minute;
 			});
 		}
 
 		function formatRecordDate(record: DailyRecord | undefined) {
 			if (!record) return '';
 			let dayDisplay = weekDays[record.date.getDay()];
-			let hourDisplay = record.date.getHours();
-			let minuteDisplay = record.date.getMinutes();
+			let hourDisplay = record.date?.getHours();
+			let minuteDisplay = record.date?.getMinutes();
 			let ampm = hourDisplay >= 12 ? 'PM' : 'AM';
 
 			return `${dayDisplay} ${String(hourDisplay).padStart(2, '0')}:${String(

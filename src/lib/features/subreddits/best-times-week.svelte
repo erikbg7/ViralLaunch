@@ -61,7 +61,7 @@
 																};
                                 `}
 							>
-								{record.users} at {record.date.getHours()}:{record.date.getMinutes()}
+								{record.users} at {record.date?.getHours()}:{record.date?.getMinutes()}
 							</div>
 						</div>
 						{#if rank}
