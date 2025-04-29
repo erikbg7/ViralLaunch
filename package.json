@@ -14,7 +14,8 @@
 		"lint": "prettier --check . && eslint .",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"build:emails": "node scripts/pre-render-emails.mjs"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -62,6 +63,7 @@
 		"drizzle-orm": "^0.38.4",
 		"drizzle-zod": "^0.7.0",
 		"postgres": "^3.4.5",
+		"resend": "^4.4.1",
 		"snoowrap": "^1.23.0",
 		"trpc-svelte-query": "^2.1.0"
 	}

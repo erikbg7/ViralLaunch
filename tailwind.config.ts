@@ -60,6 +60,9 @@ const config: Config = {
 					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
+			borderColor: {
+				border: 'hsl(var(--border) / <alpha-value>)'
+			},
 			borderRadius: {
 				xl: 'calc(var(--radius) + 4px)',
 				lg: 'var(--radius)',
@@ -82,6 +85,9 @@ const config: Config = {
 					'0%,70%,100%': { opacity: '1' },
 					'20%,50%': { opacity: '0' }
 				}
+			},
+			backgroundColor: {
+				background: 'hsl(var(--background) / <alpha-value>)'
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',

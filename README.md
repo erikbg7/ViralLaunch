@@ -80,9 +80,9 @@ https://github.com/ocluf/justship/blob/main/src/lib/server/database/user.model.t
 I really like to move everything from payments to a /payments folder instead of having it on the api/.
 For example, the webhook would be on /payments/webhook , then callback, then success. So everything related to payments is already in that folder encapsuled.
 
-TODO
+# TODO
 
-- Use subreddit name on the url (app/12321/r/SaaS). The name of the subreddit is already unique (capitalization matters), so we can just use it. Does it require changes to db? Do I require to use it as the id? Or just setting the name as unique is enough?
+- Heatmap, Best Daily, Besr Weekly, etc. should not be attached to any stateful component or store. We should receive all formatting options trhough props. This way we can use the same component for emails.
 
 - When the user first signs up we should show an onboarding. Prompt some subreddits that he can follow for free and usually allow self promotion or are good places to show off your product. For example, r/saas, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness.
 

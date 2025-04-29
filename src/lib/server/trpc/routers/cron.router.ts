@@ -4,8 +4,19 @@ import { adminProcedure, router } from '$lib/server/trpc/trpc';
 import { RedditService } from '$lib/server/services/reddit.service';
 import { RecordRepository } from '$lib/server/repositories/record.repository';
 import { SubredditRepository } from '$lib/server/repositories/subreddit.repository';
+import { MailService } from '$lib/server/services/mail.service';
+import { mapRecords } from '$lib/stores/subreddit-data.svelte';
+import type { DailyReportProps } from '$lib/emails/daily-report.svelte';
 
 export const cronRouter = router({
+	sendDailyDigestEmail: adminProcedure.mutation(async ({ ctx }) => {
+		const records = await RecordRepository.getAllRecords('sveltejs');
+		const bestTodayTimes = mapRecords(records).bestTodayTimes;
+
+		const props: DailyReportProps = { bestTimes: bestTodayTimes };
+		const htmlReport = await MailService.buildHtml('daily-report', props);
+		return htmlReport;
+	}),
 	getSubreddits: adminProcedure.query(async () => {
 		return SubredditRepository.getAll();
 	}),
