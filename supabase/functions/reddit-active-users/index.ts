@@ -8,6 +8,8 @@
 //  --data '{ "name":"Functions" }'
 
 // Setup type definitions for built-in Supabase Runtime APIs
+
+// This edge function could be entirely replaced by a subabase cron job with a webhook
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
 console.log('[REDDIT CRON] Starting...');
