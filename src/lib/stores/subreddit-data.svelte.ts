@@ -22,6 +22,7 @@ export type ParsedRecords = {
 	bestWeeklyTimes: Record<WeekDay, DailyRecord>;
 	records: Record<WeekDay, DailyRecord[]>;
 	hourlyRecords: Record<WeekDay, DailyRecord[]>;
+	maxHourlyUsers: number;
 };
 
 // Returns 4 times for today, with the best 4 intervals in 4 different hours
@@ -48,9 +49,15 @@ export function calculateBestTodayTimes(
 	return todayBestTimes;
 }
 
+type AggregatedRecords = {
+	records: Record<WeekDay, DailyRecord[]>;
+	maxUsers: number;
+};
+
 export function aggregateToHeatmapRecords(
 	parsedRecords: Record<WeekDay, DailyRecord[]>
-): Record<WeekDay, DailyRecord[]> {
+): AggregatedRecords {
+	let max = 0;
 	let recordsClone = { ...parsedRecords };
 
 	for (const weekday in recordsClone) {
@@ -63,19 +70,18 @@ export function aggregateToHeatmapRecords(
 			let i3 = dailyRecords[i + 2]?.users || 0;
 
 			let avg = Math.ceil((i1 + i2 + i3) / 3);
-			let max = Math.max(i1, i2, i3);
+			max = Math.max(max, avg);
 
 			dailyRecordByHour.push({
 				date: dailyRecords[i]?.date,
 				interval: dailyRecords[i]?.interval,
-				maxUsers: max,
 				users: avg
 			});
 		}
 
 		recordsClone[weekday as WeekDay] = dailyRecordByHour;
 	}
-	return recordsClone;
+	return { records: recordsClone, maxUsers: max };
 }
 
 export function mapRecords(raw_records: RawRecords): ParsedRecords {
@@ -143,6 +149,7 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 		bestTodayTimes,
 		bestWeeklyTimes: mostUsersByDay,
 		records,
-		hourlyRecords: hourlyRecordsByDay
+		hourlyRecords: hourlyRecordsByDay.records,
+		maxHourlyUsers: hourlyRecordsByDay.maxUsers
 	};
 }

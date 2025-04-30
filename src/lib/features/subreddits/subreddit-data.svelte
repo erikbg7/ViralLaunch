@@ -80,7 +80,7 @@
 						<div class="h-full w-full">
 							{#if parsedRecords}
 								<Heatmap
-									maxUsers={parsedRecords?.peakWeeklyUsers}
+									maxUsers={parsedRecords?.maxHourlyUsers}
 									hourlyRecords={parsedRecords?.hourlyRecords}
 								/>
 							{/if}
