@@ -35,17 +35,10 @@
 
 	let { subredditId = $bindable() }: Props = $props();
 
-	let parsedRecords = $state<ParsedRecords>();
-
-	// let subreddit = api.subreddit.get.query({ subredditId });
-
 	let records = api.records.get.query({ subredditId });
-
-	$effect(() => {
-		if ($records.data) {
-			parsedRecords = mapRecords($records.data);
-		}
-	});
+	let parsedRecords = $derived<ParsedRecords | undefined>(
+		$records.data && mapRecords($records.data)
+	);
 </script>
 
 {#if !$records.data}

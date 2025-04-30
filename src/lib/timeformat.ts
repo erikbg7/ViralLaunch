@@ -20,6 +20,21 @@ export function formatHour(hour: number, timeFormat: TimeFormat): string {
 	}
 }
 
+export function formatDateToHHMM(date: Date, timeFormat: TimeFormat): string {
+	const hours = date.getHours();
+	const minutes = date.getMinutes();
+
+	if (timeFormat === TimeFormat.H24) {
+		return `${hours.toString().padStart(2, '0')}:${minutes
+			.toString()
+			.padStart(2, '0')}`;
+	} else {
+		const period = hours < 12 ? 'AM' : 'PM';
+		const displayHour = hours % 12 === 0 ? 12 : hours % 12;
+		return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+	}
+}
+
 export function formatTimeFromString(
 	timeString: string,
 	timeFormat: TimeFormat

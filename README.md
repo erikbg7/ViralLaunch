@@ -1,3 +1,8 @@
+## IMPORTANT
+
+This is a list of subreddit with the bigest communities, should be easy to create a product to promote there and grow.
+https://gummysearch.com/tools/top-subreddits/size-huge/
+
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).

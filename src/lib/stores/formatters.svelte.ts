@@ -1,5 +1,5 @@
 import { serverConfig } from '$lib/stores/settings.svelte';
-import { formatHour } from '$lib/timeformat';
+import { formatDateToHHMM, formatHour } from '$lib/timeformat';
 
 export class Formatter {
 	// static weekDays =
@@ -9,5 +9,9 @@ export class Formatter {
 
 	static formatHour(hour: number) {
 		return formatHour(hour, serverConfig.timeformat);
+	}
+
+	static formatDateToHHMM(date: Date) {
+		return formatDateToHHMM(date, serverConfig.timeformat);
 	}
 }

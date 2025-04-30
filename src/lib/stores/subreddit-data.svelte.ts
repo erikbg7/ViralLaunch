@@ -24,6 +24,30 @@ export type ParsedRecords = {
 	hourlyRecords: Record<WeekDay, DailyRecord[]>;
 };
 
+// Returns 4 times for today, with the best 4 intervals in 4 different hours
+export function calculateBestTodayTimes(
+	parsedRecords: Record<WeekDay, DailyRecord[]>
+): DailyRecord[] {
+	const todayIndex = new Date().getDay();
+	const todayRecords = parsedRecords[weekDays[todayIndex]].sort(
+		(a, b) => b.users - a.users
+	);
+
+	let todayBestTimes: DailyRecord[] = [];
+	for (let i = 0; i < todayRecords.length; i++) {
+		if (todayBestTimes.length >= 4) break;
+		const record = todayRecords[i];
+		const hour = new Date(record.date).getHours();
+		const hasSameHour = todayBestTimes.some(
+			(r) => new Date(r.date).getHours() === hour
+		);
+		if (hasSameHour) continue;
+		todayBestTimes.push(record);
+	}
+
+	return todayBestTimes;
+}
+
 export function aggregateToHeatmapRecords(
 	parsedRecords: Record<WeekDay, DailyRecord[]>
 ): Record<WeekDay, DailyRecord[]> {
@@ -39,10 +63,12 @@ export function aggregateToHeatmapRecords(
 			let i3 = dailyRecords[i + 2]?.users || 0;
 
 			let avg = Math.ceil((i1 + i2 + i3) / 3);
+			let max = Math.max(i1, i2, i3);
 
 			dailyRecordByHour.push({
 				date: dailyRecords[i]?.date,
 				interval: dailyRecords[i]?.interval,
+				maxUsers: max,
 				users: avg
 			});
 		}
@@ -79,6 +105,7 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 	const todayIndex = new Date().getDay();
 	let todayRecords: DailyRecord[] = [];
 
+	console.log({ r: raw_records.find((r) => r.users > 12) });
 	for (const r of raw_records) {
 		peakWeeklyUsers = Math.max(peakWeeklyUsers, r.users);
 
@@ -108,9 +135,7 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 
 	let hourlyRecordsByDay = aggregateToHeatmapRecords(records);
 
-	let bestTodayTimes = hourlyRecordsByDay[weekDays[todayIndex]]
-		.sort((a, b) => b.users - a.users)
-		.slice(0, 4);
+	let bestTodayTimes = calculateBestTodayTimes(records);
 
 	return {
 		peakWeeklyUsers,
