@@ -118,7 +118,10 @@ export class OAuthService {
 					avatar,
 					passwordHash: null
 				});
-				await PreferencesRepository.create({ userId: user.id });
+				await PreferencesRepository.create({
+					userId: user.id,
+					notificationEmail: user.email
+				});
 			}
 		}
 

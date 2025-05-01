@@ -6,6 +6,7 @@ import {
 	type WeekStart
 } from '$lib/constants';
 import { PreferencesRepository } from '$lib/server/repositories/preferences.repository';
+import { AuthService } from '$lib/server/services/auth/auth.service';
 
 export class PreferencesService {
 	static async getUserPreferences(userId: string) {
@@ -26,21 +27,28 @@ export class PreferencesService {
 		ws: WeekStart,
 		day: WeekDay,
 		time: string,
-		freq: NotificationFrequency
+		freq: NotificationFrequency,
+		email: string
 	) {
 		try {
+			const emailValidation = AuthService.validateEmail(email);
+			if (!emailValidation.valid) {
+				throw new Error(emailValidation.error);
+			}
+
 			const preferences = await PreferencesRepository.update(userId, {
 				timezone: tz,
 				timeformat: tf,
 				weekstart: ws,
 				notificationDay: day,
 				notificationTime: time,
-				notificationFrequency: freq
+				notificationFrequency: freq,
+				notificationEmail: email
 			});
 			return preferences;
 		} catch (error) {
 			console.error('Error updating user preferences:', error);
-			throw new Error('Failed to update preferences');
+			throw new Error(error?.message || 'Failed to update preferences');
 		}
 	}
 }

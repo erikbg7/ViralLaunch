@@ -26,6 +26,7 @@ const createServerConfig = () => {
 	let _weekstart = $state<WeekStart>(WeekStart.SUNDAY);
 	let _notificationDay = $state<WeekDay>(WeekDay.MONDAY);
 	let _notificationTime = $state<string>('08:30');
+	let _notificationEmail = $state<string>('');
 	let _notificationFrequency = $state<NotificationFrequency>(
 		NotificationFrequency.NEVER
 	);
@@ -35,6 +36,7 @@ const createServerConfig = () => {
 	let weekstart = $state<WeekStart>(WeekStart.SUNDAY);
 	let notificationDay = $state<WeekDay>(WeekDay.MONDAY);
 	let notificationTime = $state<string>('08:30');
+	let notificationEmail = $state<string>('');
 	let notificationFrequency = $state<NotificationFrequency>(
 		NotificationFrequency.NEVER
 	);
@@ -74,6 +76,18 @@ const createServerConfig = () => {
 
 			_notificationFrequency = data.notificationFrequency;
 			notificationFrequency = data.notificationFrequency;
+
+			_notificationEmail = data.notificationEmail;
+			notificationEmail = data.notificationEmail;
+		},
+		reset() {
+			timezone = _timezone;
+			timeformat = _timeformat;
+			weekstart = _weekstart;
+			notificationDay = _notificationDay;
+			notificationTime = _notificationTime;
+			notificationFrequency = _notificationFrequency;
+			notificationEmail = _notificationEmail;
 		},
 
 		get hasChanges() {
@@ -83,7 +97,8 @@ const createServerConfig = () => {
 				_weekstart !== weekstart ||
 				_notificationDay !== notificationDay ||
 				_notificationTime !== notificationTime ||
-				_notificationFrequency !== notificationFrequency
+				_notificationFrequency !== notificationFrequency ||
+				_notificationEmail !== notificationEmail
 			);
 		},
 		get loading() {
@@ -103,6 +118,12 @@ const createServerConfig = () => {
 		},
 		set notificationTime(value: string) {
 			notificationTime = value;
+		},
+		get notificationEmail() {
+			return notificationEmail;
+		},
+		set notificationEmail(value: string) {
+			notificationEmail = value;
 		},
 		get notificationFrequency() {
 			return notificationFrequency;

@@ -32,6 +32,7 @@ export const preferencesRouter = router({
 					Object.values(WeekDay) as [WeekDay, ...WeekDay[]]
 				),
 				notificationTime: z.string(),
+				notificationEmail: z.string(),
 				notificationFrequency: z.enum(
 					Object.values(NotificationFrequency) as [
 						NotificationFrequency,
@@ -41,19 +42,15 @@ export const preferencesRouter = router({
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
-			try {
-				return await PreferencesService.updateUserPreferences(
-					ctx.user.id,
-					input.timezone as TimeZone,
-					input.timeformat as TimeFormat,
-					input.weekstart as WeekStart,
-					input.notificationDay as WeekDay,
-					input.notificationTime as string,
-					input.notificationFrequency as NotificationFrequency
-				);
-			} catch (error) {
-				console.error('Error updating timezone:', error);
-				throw new Error('Failed to update timezone');
-			}
+			return await PreferencesService.updateUserPreferences(
+				ctx.user.id,
+				input.timezone,
+				input.timeformat,
+				input.weekstart,
+				input.notificationDay,
+				input.notificationTime,
+				input.notificationFrequency,
+				input.notificationEmail
+			);
 		})
 });

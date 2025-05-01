@@ -6,6 +6,7 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
 	import {
@@ -20,14 +21,17 @@
 		WeekDay,
 		weekDays
 	} from '$lib/constants';
+	import { serverConfig } from '$lib/stores/settings.svelte';
 
 	let {
 		notificationFrequency = $bindable(),
+		notificationEmail = $bindable(),
 		notificationDay = $bindable(),
 		notificationTime = $bindable(),
 		loading = $bindable()
 	}: {
 		notificationFrequency: NotificationFrequency;
+		notificationEmail: string;
 		notificationDay: WeekDay;
 		notificationTime: string;
 		loading: boolean;
@@ -41,6 +45,20 @@
 	</CardHeader>
 	<CardContent>
 		<div class="space-y-6">
+			<div>
+				<Label>Notification Email</Label>
+				<div class="relative mt-2">
+					<Input
+						id="notification-email"
+						type="email"
+						bind:value={notificationEmail}
+						placeholder="your.email@example.com"
+					/>
+				</div>
+				<p class="mt-2 text-sm text-muted-foreground">
+					Email address where you'll receive notifications
+				</p>
+			</div>
 			<div>
 				<Label aria-label="notification-frequency">
 					Notification Frequency
@@ -70,7 +88,7 @@
 					<Label aria-label="notification-time">Notification Time</Label>
 					<Select type="single" bind:value={notificationTime}>
 						<SelectTrigger class="mt-2 w-full max-w-[200px]">
-							<span>{notificationTime}</span>
+							<span>{notificationTime} ({serverConfig.timezone})</span>
 						</SelectTrigger>
 						<SelectContent>
 							{#each notificationHours as hour}
@@ -106,9 +124,10 @@
 					{#if notificationFrequency === NotificationFrequency.NEVER}
 						You will not receive any email notifications.
 					{:else if notificationFrequency === NotificationFrequency.DAILY}
-						You will receive daily email notifications at {notificationTime}.
+						You will receive daily email notifications at {notificationTime} to {notificationEmail}.
 					{:else}
-						You will receive weekly email notifications on {notificationDay} at {notificationTime}.
+						You will receive weekly email notifications on {notificationDay} at {notificationTime}
+						to {notificationEmail}.
 					{/if}
 				</p>
 			</div>

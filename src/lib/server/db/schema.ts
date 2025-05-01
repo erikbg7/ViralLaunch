@@ -72,11 +72,12 @@ export const preferences = pgTable('preferences', {
 	id: serial('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
-		.references(() => user.id)
+		.references(() => user.id, { onDelete: 'cascade' })
 		.unique(),
 	weekstart: weekStartEnum('week_start').notNull().default(WeekStart.SUNDAY),
 	timezone: timezoneEnum('time_zone').notNull().default(TimeZone.UTC),
 	timeformat: timeformatEnum('time_format').notNull().default(TimeFormat.AM_PM),
+	notificationEmail: text('notification_email').notNull(),
 	notificationDay: notificationDayEnum('notification_day')
 		.notNull()
 		.default(WeekDay.MONDAY),
