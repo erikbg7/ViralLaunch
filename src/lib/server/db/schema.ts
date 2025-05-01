@@ -1,28 +1,22 @@
 import z from 'zod';
 import {
-	boolean,
-	date,
 	integer,
 	pgTable,
-	real,
 	serial,
 	text,
 	timestamp,
-	varchar,
 	primaryKey,
 	unique,
 	index,
 	pgEnum
 } from 'drizzle-orm/pg-core';
 import {
-	createInsertSchema,
-	createSelectSchema,
-	createUpdateSchema
-} from 'drizzle-zod';
-import {
 	NotificationFrequency,
 	notificationHours,
-	TimeZone
+	TimeFormat,
+	TimeZone,
+	WeekDay,
+	WeekStart
 } from '../../constants';
 
 export const user = pgTable('user', {
@@ -55,17 +49,22 @@ export function enumToPgEnum<T extends Record<string, any>>(
 	return Object.values(myEnum).map((value: any) => `${value}`) as any;
 }
 
-export const tzEnum = pgEnum('tz', enumToPgEnum(TimeZone));
+export const weekStartEnum = pgEnum('week_start', enumToPgEnum(WeekStart));
 
-// const notificationFrequencyEnum = pgEnum(
-// 	'notification_frequency',
-// 	Object.values(NotificationFrequency) as [string, ...string[]]
-// );
+export const timezoneEnum = pgEnum('tz', enumToPgEnum(TimeZone));
 
-// const notificationHourEnum = pgEnum(
-// 	'notification_hour',
-// 	notificationHours as [string, ...string[]]
-// );
+export const timeformatEnum = pgEnum('t_format', enumToPgEnum(TimeFormat));
+
+export const notificationDayEnum = pgEnum('weekdays', enumToPgEnum(WeekDay));
+
+export const notificationFrequencyEnum = pgEnum(
+	'freq',
+	enumToPgEnum(NotificationFrequency)
+);
+export const notificationHoursEnum = pgEnum(
+	'hours',
+	notificationHours as [string, ...string[]]
+);
 
 export const preferences = pgTable('preferences', {
 	id: serial('id').primaryKey(),
@@ -73,14 +72,18 @@ export const preferences = pgTable('preferences', {
 		.notNull()
 		.references(() => user.id)
 		.unique(),
-	timeZone: tzEnum('time_zone').notNull().default(TimeZone.UTC)
-
-	// notificationFrequency: notificationFrequencyEnum(
-	// 	'notification_frequency'
-	// ).default(NotificationFrequency.NEVER),
-	// notificationHour: notificationHourEnum('notification_hour').default(
-	// 	notificationHours[0]
-	// )
+	weekStart: weekStartEnum('week_start').notNull().default(WeekStart.SUNDAY),
+	timezone: timezoneEnum('time_zone').notNull().default(TimeZone.UTC),
+	timeformat: timeformatEnum('time_format').notNull().default(TimeFormat.AM_PM),
+	notificationDay: notificationDayEnum('notification_day')
+		.notNull()
+		.default(WeekDay.MONDAY),
+	notificationFrequency: notificationFrequencyEnum('notificaton_frequency')
+		.notNull()
+		.default(NotificationFrequency.NEVER),
+	notificationHour: notificationHoursEnum('notificaton_hour')
+		.notNull()
+		.default('08:30')
 });
 
 export const userSubreddits = pgTable(
@@ -136,24 +139,6 @@ export const subredditRecord = pgTable(
 		index('timestamp_idx').on(table.timestamp)
 	]
 );
-
-export const userUpdateSchema = createUpdateSchema(user);
-export const userSelectSchema = createSelectSchema(user);
-export const sessionSelectSchema = createSelectSchema(session);
-
-export const userInsertSchema = createInsertSchema(user);
-export const sessionInsertSchema = createInsertSchema(session);
-
-export const platformInsertSchema = z.object({
-	name: z.string(),
-	description: z.string(),
-	url: z.string(),
-	custom: z.boolean()
-});
-
-export const redditRemoveSchema = z.object({
-	id: z.number()
-});
 
 export const subredditNameInsetSchema = z.string();
 export const subredditUrlInsertSchema = z

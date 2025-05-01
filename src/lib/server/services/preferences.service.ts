@@ -5,20 +5,14 @@ import {
 	type WeekDay,
 	type WeekStart
 } from '$lib/constants';
-import { subredditUrlInsertSchema } from '$lib/server/db/schema';
 import { PreferencesRepository } from '$lib/server/repositories/preferences.repository';
-import { SubredditRepository } from '$lib/server/repositories/subreddit.repository';
-import { TRPCError } from '@trpc/server';
-import { time } from 'drizzle-orm/mysql-core';
 
 export class PreferencesService {
 	static async getUserPreferences(userId: string) {
 		try {
 			const preferences = await PreferencesRepository.get(userId);
 
-			return {
-				timezone: preferences.timeZone
-			};
+			return preferences;
 		} catch (error) {
 			console.error('Error getting user preferences:', error);
 			throw new Error('Failed to fetch preferences');
@@ -28,9 +22,9 @@ export class PreferencesService {
 	static async updateTimezone(userId: string, tz: TimeZone) {
 		try {
 			const preferences = await PreferencesRepository.update(userId, {
-				timeZone: tz
+				timezone: tz
 			});
-			return { timezone: preferences.timeZone };
+			return preferences;
 		} catch (error) {
 			console.error('Error updating user preferences:', error);
 			throw new Error('Failed to update preferences');

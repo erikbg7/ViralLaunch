@@ -7,18 +7,21 @@ import {
 } from '$lib/server/db/schema';
 import { getTableColumns, eq } from 'drizzle-orm';
 
+const allColumns = getTableColumns(preferences);
+const { id, userId, ...selectedColumns } = allColumns;
+
 export class PreferencesRepository {
 	static async create(newPreferences: PreferencesInsert) {
 		const [createdPreferences] = await db
 			.insert(preferences)
 			.values(newPreferences)
-			.returning(getTableColumns(preferences))
+			.returning(selectedColumns)
 			.execute();
 		return createdPreferences;
 	}
 	static async get(userId: Preferences['userId']) {
 		const [retrievedPreferences] = await db
-			.select()
+			.select(selectedColumns)
 			.from(preferences)
 			.where(eq(preferences.userId, userId))
 			.limit(1);
@@ -30,7 +33,7 @@ export class PreferencesRepository {
 			.update(preferences)
 			.set(updateWith)
 			.where(eq(preferences.userId, userId))
-			.returning(getTableColumns(preferences));
+			.returning(selectedColumns);
 		return updatePreferences;
 	}
 }
