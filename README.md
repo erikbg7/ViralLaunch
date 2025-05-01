@@ -93,6 +93,20 @@ For example, the webhook would be on /payments/webhook , then callback, then suc
 
 - Allow a user to EXPLORE (use as keyword) subreddits. This is a good way to find new subreddits to follow. A user should be able to explore most followed subreddits, subreddits with more users, etc.
 
+- Maybe we should show a warning when the user timezone detected in the request we receive is different from the one in the user preferences. This way we can avoid sending emails at 3am.
+
+-
+
+-
+
+-
+
+-
+
+-
+
+###
+
 - Repository: only handles DB interaction
 - Service: handles business logic, a service can use other services
 

@@ -15,7 +15,10 @@
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"build:emails": "node scripts/pre-render-emails.mjs"
+		"build:emails": "node scripts/pre-render-emails.mjs",
+		"supabase:types": "npx supabase gen types typescript --project-id rsgmviizrlyjoudnqaws > supabase/supabase.d.ts",
+		"supabase:functions": "supabase functions serve --env-file ./supabase/.env",
+		"supabase:functions:deploy": "supabase functions deploy reddit-active-users --project-ref rsgmviizrlyjoudnqaws --env-file ./supabase/.env"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",

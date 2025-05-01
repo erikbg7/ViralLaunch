@@ -9,14 +9,18 @@ import { mapRecords } from '$lib/stores/subreddit-data.svelte';
 import type { DailyReportProps } from '$lib/emails/daily-report.svelte';
 
 export const cronRouter = router({
-	sendDailyDigestEmail: adminProcedure.mutation(async ({ ctx }) => {
-		const records = await RecordRepository.getAllRecords('sveltejs');
-		const bestTodayTimes = mapRecords(records).bestTodayTimes;
+	sendDailyDigestEmail: adminProcedure
+		.input(z.object({ email: z.string() }))
+		.mutation(async ({ input }) => {
+			const records = await RecordRepository.getAllRecords('sveltejs');
+			const bestTodayTimes = mapRecords(records).bestTodayTimes;
 
-		const props: DailyReportProps = { bestTimes: bestTodayTimes };
-		const htmlReport = await MailService.buildHtml('daily-report', props);
-		return htmlReport;
-	}),
+			const props: DailyReportProps = { bestTimes: bestTodayTimes };
+			const htmlReport = await MailService.buildHtml('daily-report', props);
+
+			await MailService.sendTestEmail(input.email, htmlReport);
+			return 'ok';
+		}),
 	getSubreddits: adminProcedure.query(async () => {
 		return SubredditRepository.getAll();
 	}),

@@ -1,6 +1,10 @@
+// @ts-ignore
 import path from 'path';
+// @ts-ignore
 import fs from 'fs/promises';
+// @ts-ignore
 import { execSync } from 'child_process';
+
 import { Resend } from 'resend';
 import { RESEND_API_KEY } from '$env/static/private';
 
