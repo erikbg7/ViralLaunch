@@ -1,6 +1,5 @@
-<script>
-	import { timezones } from '$lib/constants';
-	import { serverConfig } from '$lib/stores/settings.svelte';
+<script lang="ts">
+	import { TimeZone, timezones } from '$lib/constants';
 	import { Label } from '$lib/components/ui/label';
 	import {
 		Card,
@@ -15,6 +14,8 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select';
+
+	let { timezone = $bindable() }: { timezone: TimeZone } = $props();
 </script>
 
 <Card>
@@ -28,9 +29,9 @@
 		<div class="space-y-4">
 			<div>
 				<Label>Timezone</Label>
-				<Select type="single" bind:value={serverConfig.timezone}>
+				<Select disabled={!timezone} type="single" bind:value={timezone}>
 					<SelectTrigger class="mt-2 w-full">
-						{timezones.find((tz) => tz.value === serverConfig.timezone)?.label}
+						{timezones.find((tz) => tz.value === timezone)?.label}
 					</SelectTrigger>
 					<SelectContent>
 						{#each timezones as timezone}

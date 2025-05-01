@@ -16,6 +16,7 @@ import type { User } from '$lib/server/db/schema';
 import { UserRepository } from '$lib/server/repositories/user.repository';
 import { AuthService } from '$lib/server/services/auth/auth.service';
 import { SessionService } from '$lib/server/services/auth/session.service';
+import { PreferencesRepository } from '$lib/server/repositories/preferences.repository';
 
 const google = new Google(
 	GOOGLE_CLIENT_ID,
@@ -117,6 +118,7 @@ export class OAuthService {
 					avatar,
 					passwordHash: null
 				});
+				await PreferencesRepository.create({ userId: user.id });
 			}
 		}
 

@@ -3,6 +3,7 @@ import { type RequestEvent } from '@sveltejs/kit';
 import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { SessionService } from '$lib/server/services/auth/session.service';
 import { UserRepository } from '$lib/server/repositories/user.repository';
+import { PreferencesRepository } from '$lib/server/repositories/preferences.repository';
 
 interface EmailValidationResult {
 	valid: boolean;
@@ -49,6 +50,7 @@ export class AuthService {
 			googleId: null,
 			avatar: null
 		});
+		await PreferencesRepository.create({ userId: user.id });
 
 		const sessionToken = SessionService.generateSessionToken();
 		const session = await SessionService.createSession(sessionToken, user.id);

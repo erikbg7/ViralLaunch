@@ -23,7 +23,7 @@ import {
 	NotificationFrequency,
 	notificationHours,
 	TimeZone
-} from '$lib/constants';
+} from '../../constants';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -49,10 +49,13 @@ export const session = pgTable('session', {
 	}).notNull()
 });
 
-// const timezonesEnum = pgEnum(
-// 	'timezones',
-// 	Object.values(TimeZone) as [string, ...string[]]
-// );
+export function enumToPgEnum<T extends Record<string, any>>(
+	myEnum: T
+): [T[keyof T], ...T[keyof T][]] {
+	return Object.values(myEnum).map((value: any) => `${value}`) as any;
+}
+
+export const tzEnum = pgEnum('tz', enumToPgEnum(TimeZone));
 
 // const notificationFrequencyEnum = pgEnum(
 // 	'notification_frequency',
@@ -69,8 +72,9 @@ export const preferences = pgTable('preferences', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id)
-		.unique()
-	// timezone: timezonesEnum().default(TimeZone.UTC),
+		.unique(),
+	timeZone: tzEnum('time_zone').notNull().default(TimeZone.UTC)
+
 	// notificationFrequency: notificationFrequencyEnum(
 	// 	'notification_frequency'
 	// ).default(NotificationFrequency.NEVER),
@@ -168,6 +172,10 @@ export type SessionUpdate = Partial<typeof session.$inferInsert>;
 export type User = typeof user.$inferSelect;
 export type UserInsert = typeof user.$inferInsert;
 export type UserUpdate = Partial<typeof user.$inferInsert>;
+
+export type Preferences = typeof preferences.$inferSelect;
+export type PreferencesInsert = typeof preferences.$inferInsert;
+export type PreferencesUpdate = Partial<typeof preferences.$inferInsert>;
 
 export type UserSubreddits = typeof userSubreddits.$inferSelect;
 export type Subreddit = typeof subreddit.$inferSelect;
