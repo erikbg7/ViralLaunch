@@ -19,43 +19,25 @@ export class PreferencesService {
 		}
 	}
 
-	static async updateTimezone(userId: string, tz: TimeZone) {
+	static async updateUserPreferences(
+		userId: string,
+		tz: TimeZone,
+		tf: TimeFormat,
+		ws: WeekStart,
+		day: WeekDay,
+		time: string,
+		freq: NotificationFrequency
+	) {
 		try {
 			const preferences = await PreferencesRepository.update(userId, {
-				timezone: tz
+				timezone: tz,
+				timeformat: tf,
+				weekstart: ws,
+				notificationDay: day,
+				notificationTime: time,
+				notificationFrequency: freq
 			});
 			return preferences;
-		} catch (error) {
-			console.error('Error updating user preferences:', error);
-			throw new Error('Failed to update preferences');
-		}
-	}
-
-	static async updateDisplayPreferences(
-		userId: string,
-		tf: TimeFormat,
-		ws: WeekStart
-	) {
-		try {
-			return PreferencesRepository.update(userId, {});
-		} catch (error) {
-			console.error('Error updating user preferences:', error);
-			throw new Error('Failed to update preferences');
-		}
-	}
-
-	static async updateNotifications(
-		userId: string,
-		frequency: NotificationFrequency,
-		day: WeekDay,
-		hour: string
-	) {
-		try {
-			if (frequency === NotificationFrequency.NEVER) {
-				return PreferencesRepository.update(userId, {});
-			}
-
-			return PreferencesRepository.update(userId, {});
 		} catch (error) {
 			console.error('Error updating user preferences:', error);
 			throw new Error('Failed to update preferences');

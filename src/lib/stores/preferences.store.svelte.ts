@@ -21,12 +21,11 @@ export class PreferencesStore {
 	preferencesData = $derived<PreferencesQuery>(this.preferences?.data || {});
 	timezone = $state<TimeZone>(TimeZone.UTC);
 
-	// records = api.subreddit.list.query();
 	private initialized = false;
 
 	async setPreferences(data: RouterOutput['preferences']['get']) {
 		this.timezone = data.timezone;
-		serverConfig.timezone = data.timezone;
+		serverConfig.init(data);
 	}
 
 	async initialize() {
@@ -35,6 +34,12 @@ export class PreferencesStore {
 		}
 		this.initialized = true;
 		api.preferences.get.query().subscribe((query) => {
+			serverConfig.loading =
+				query.isLoading ||
+				query.isRefetching ||
+				query.isFetching ||
+				!query.data;
+
 			if (query.data) {
 				this.setPreferences(query.data);
 			}

@@ -1,9 +1,15 @@
-import { weekDaysMondayStart, weekDaysSundayStart } from '$lib/constants';
+import {
+	NotificationFrequency,
+	WeekDay,
+	weekDaysMondayStart,
+	weekDaysSundayStart
+} from '$lib/constants';
 // TODO
 // settings store should get all the information from the user preferences when the app is loaded,
 // then we save it onto this store so we can use it along the app
 
 import { TimeFormat, TimeZone, WeekStart } from '$lib/constants';
+import type { RouterOutput } from '$lib/server/trpc/router';
 import { writable } from 'svelte/store';
 
 export type ServerConfig = { timezone: string };
@@ -13,9 +19,25 @@ export const serverConfig2 = writable<ServerConfig>({
 });
 
 const createServerConfig = () => {
+	let loading = $state<boolean>(true);
+
+	let _timezone = $state<TimeZone>(TimeZone.CET);
+	let _timeformat = $state<TimeFormat>(TimeFormat.AM_PM);
+	let _weekstart = $state<WeekStart>(WeekStart.SUNDAY);
+	let _notificationDay = $state<WeekDay>(WeekDay.MONDAY);
+	let _notificationTime = $state<string>('08:30');
+	let _notificationFrequency = $state<NotificationFrequency>(
+		NotificationFrequency.NEVER
+	);
+
 	let timezone = $state<TimeZone>(TimeZone.CET);
 	let timeformat = $state<TimeFormat>(TimeFormat.AM_PM);
 	let weekstart = $state<WeekStart>(WeekStart.SUNDAY);
+	let notificationDay = $state<WeekDay>(WeekDay.MONDAY);
+	let notificationTime = $state<string>('08:30');
+	let notificationFrequency = $state<NotificationFrequency>(
+		NotificationFrequency.NEVER
+	);
 
 	let weekDays = $derived(
 		weekstart === WeekStart.SUNDAY ? weekDaysSundayStart : weekDaysMondayStart
@@ -34,6 +56,60 @@ const createServerConfig = () => {
 	});
 
 	return {
+		init(data: RouterOutput['preferences']['get']) {
+			_timezone = data.timezone;
+			timezone = data.timezone;
+
+			_timeformat = data.timeformat;
+			timeformat = data.timeformat;
+
+			_weekstart = data.weekstart;
+			weekstart = data.weekstart;
+
+			_notificationDay = data.notificationDay;
+			notificationDay = data.notificationDay;
+
+			_notificationTime = data.notificationTime;
+			notificationTime = data.notificationTime;
+
+			_notificationFrequency = data.notificationFrequency;
+			notificationFrequency = data.notificationFrequency;
+		},
+
+		get hasChanges() {
+			return (
+				_timezone !== timezone ||
+				_timeformat !== timeformat ||
+				_weekstart !== weekstart ||
+				_notificationDay !== notificationDay ||
+				_notificationTime !== notificationTime ||
+				_notificationFrequency !== notificationFrequency
+			);
+		},
+		get loading() {
+			return loading;
+		},
+		set loading(value: boolean) {
+			loading = value;
+		},
+		get notificationDay() {
+			return notificationDay;
+		},
+		set notificationDay(value: WeekDay) {
+			notificationDay = value;
+		},
+		get notificationTime() {
+			return notificationTime;
+		},
+		set notificationTime(value: string) {
+			notificationTime = value;
+		},
+		get notificationFrequency() {
+			return notificationFrequency;
+		},
+		set notificationFrequency(value: NotificationFrequency) {
+			notificationFrequency = value;
+		},
 		get timezone() {
 			return timezone;
 		},

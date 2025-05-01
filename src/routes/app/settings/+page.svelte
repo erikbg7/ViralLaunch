@@ -1,21 +1,29 @@
 <script lang="ts">
 	import { api } from '$lib/api';
 	import { Button } from '$lib/components/ui/button';
-	import { TimeZone } from '$lib/constants';
 	import DisplayPreferences from '$lib/features/settings/display-preferences.svelte';
 	import EmailNotifications from '$lib/features/settings/email-notifications.svelte';
 	import TimezoneConfig from '$lib/features/settings/timezone-config.svelte';
 	import { preferencesStore } from '$lib/stores/preferences.store.svelte';
+	import { serverConfig } from '$lib/stores/settings.svelte';
 	import { ArrowLeft, Save } from '@lucide/svelte';
 
-	let saveSettings = api.preferences.updateTimezone.mutation({
+	let saveSettings = api.preferences.update.mutation({
 		onSuccess: (data) => {
 			preferencesStore.setPreferences(data);
 		}
 	});
 
-	let settingsTimezone = $state<TimeZone>(preferencesStore.timezone);
-	let hasChanges = $derived(settingsTimezone !== preferencesStore.timezone);
+	const handleSaveSettings = () => {
+		$saveSettings.mutate({
+			timezone: serverConfig.timezone,
+			timeformat: serverConfig.timeformat,
+			weekstart: serverConfig.weekstart,
+			notificationTime: serverConfig.notificationTime,
+			notificationDay: serverConfig.notificationDay,
+			notificationFrequency: serverConfig.notificationFrequency
+		});
+	};
 </script>
 
 {#if preferencesStore.preferencesData}{/if}
@@ -37,8 +45,8 @@
 		</div>
 		<div class="flex items-center gap-2">
 			<Button
-				onclick={() => $saveSettings.mutate({ timezone: settingsTimezone })}
-				disabled={!hasChanges}
+				onclick={handleSaveSettings}
+				disabled={!serverConfig.hasChanges}
 				class="flex items-center gap-1"
 			>
 				<Save class="h-4 w-4" />
@@ -48,8 +56,20 @@
 	</div>
 
 	<div class="space-y-6">
-		<TimezoneConfig bind:timezone={settingsTimezone} />
-		<DisplayPreferences />
-		<EmailNotifications />
+		<TimezoneConfig
+			bind:timezone={serverConfig.timezone}
+			bind:loading={serverConfig.loading}
+		/>
+		<DisplayPreferences
+			bind:timeformat={serverConfig.timeformat}
+			bind:weekstart={serverConfig.weekstart}
+			bind:loading={serverConfig.loading}
+		/>
+		<EmailNotifications
+			bind:notificationFrequency={serverConfig.notificationFrequency}
+			bind:notificationDay={serverConfig.notificationDay}
+			bind:notificationTime={serverConfig.notificationTime}
+			bind:loading={serverConfig.loading}
+		/>
 	</div>
 </div>

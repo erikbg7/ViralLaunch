@@ -15,7 +15,13 @@
 		SelectTrigger
 	} from '$lib/components/ui/select';
 
-	let { timezone = $bindable() }: { timezone: TimeZone } = $props();
+	let {
+		loading = $bindable(),
+		timezone = $bindable()
+	}: {
+		timezone: TimeZone;
+		loading: boolean;
+	} = $props();
 </script>
 
 <Card>
@@ -29,18 +35,20 @@
 		<div class="space-y-4">
 			<div>
 				<Label>Timezone</Label>
-				<Select disabled={!timezone} type="single" bind:value={timezone}>
-					<SelectTrigger class="mt-2 w-full">
-						{timezones.find((tz) => tz.value === timezone)?.label}
-					</SelectTrigger>
-					<SelectContent>
-						{#each timezones as timezone}
-							<SelectItem value={timezone.value}>
-								{timezone.label}
-							</SelectItem>
-						{/each}
-					</SelectContent>
-				</Select>
+				{#if !loading}
+					<Select disabled={!timezone} type="single" bind:value={timezone}>
+						<SelectTrigger class="mt-2 w-full">
+							{timezones.find((tz) => tz.value === timezone)?.label}
+						</SelectTrigger>
+						<SelectContent>
+							{#each timezones as timezone}
+								<SelectItem value={timezone.value}>
+									{timezone.label}
+								</SelectItem>
+							{/each}
+						</SelectContent>
+					</Select>
+				{/if}
 				<p class="mt-2 text-sm text-muted-foreground">
 					User activity data will be adjusted based on your timezone
 				</p>

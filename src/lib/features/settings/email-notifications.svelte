@@ -21,9 +21,17 @@
 		weekDays
 	} from '$lib/constants';
 
-	let selectedWeekday = $state<WeekDay>(WeekDay.MONDAY);
-	let selectedTime = $state<string>('');
-	let selectedFrequency = $state<string>(NotificationFrequency.NEVER);
+	let {
+		notificationFrequency = $bindable(),
+		notificationDay = $bindable(),
+		notificationTime = $bindable(),
+		loading = $bindable()
+	}: {
+		notificationFrequency: NotificationFrequency;
+		notificationDay: WeekDay;
+		notificationTime: string;
+		loading: boolean;
+	} = $props();
 </script>
 
 <Card>
@@ -39,7 +47,7 @@
 				</Label>
 				<RadioGroup
 					id="notification-frequency"
-					bind:value={selectedFrequency}
+					bind:value={notificationFrequency}
 					class="mt-2 flex flex-col gap-2"
 				>
 					<div class="flex items-center space-x-2">
@@ -57,16 +65,12 @@
 				</RadioGroup>
 			</div>
 
-			{#if selectedFrequency !== NotificationFrequency.NEVER}
+			{#if notificationFrequency !== NotificationFrequency.NEVER}
 				<div>
 					<Label aria-label="notification-time">Notification Time</Label>
-					<Select type="single" bind:value={selectedTime}>
+					<Select type="single" bind:value={notificationTime}>
 						<SelectTrigger class="mt-2 w-full max-w-[200px]">
-							{#if !selectedTime}
-								<span class="text-muted-foreground">Select a time</span>
-							{:else}
-								<span>{selectedTime}</span>
-							{/if}
+							<span>{notificationTime}</span>
 						</SelectTrigger>
 						<SelectContent>
 							{#each notificationHours as hour}
@@ -79,16 +83,12 @@
 				</div>
 			{/if}
 
-			{#if selectedFrequency === NotificationFrequency.WEEKLY}
+			{#if notificationFrequency === NotificationFrequency.WEEKLY}
 				<div>
 					<Label aria-label="notification-day">Day of the Week</Label>
-					<Select type="single" bind:value={selectedWeekday}>
+					<Select type="single" bind:value={notificationDay}>
 						<SelectTrigger class="mt-2 w-full max-w-[200px]">
-							{#if !selectedWeekday}
-								<span class="text-muted-foreground">Select day</span>
-							{:else}
-								<span>{selectedWeekday}</span>
-							{/if}
+							<span>{notificationDay}</span>
 						</SelectTrigger>
 						<SelectContent>
 							{#each weekDays as day}
@@ -103,12 +103,12 @@
 
 			<div class="border-t pt-2">
 				<p class="mb-4 text-sm text-muted-foreground">
-					{#if selectedFrequency === NotificationFrequency.NEVER}
+					{#if notificationFrequency === NotificationFrequency.NEVER}
 						You will not receive any email notifications.
-					{:else if selectedFrequency === NotificationFrequency.DAILY}
-						You will receive daily email notifications at {selectedTime}.
+					{:else if notificationFrequency === NotificationFrequency.DAILY}
+						You will receive daily email notifications at {notificationTime}.
 					{:else}
-						You will receive weekly email notifications on {selectedWeekday} at {selectedTime}.
+						You will receive weekly email notifications on {notificationDay} at {notificationTime}.
 					{/if}
 				</p>
 			</div>
