@@ -61,13 +61,7 @@ export const notificationFrequencyEnum = pgEnum(
 	'freq',
 	enumToPgEnum(NotificationFrequency)
 );
-export const notificationTimeEnum = pgEnum(
-	'hours',
-	notificationHours as [string, ...string[]]
-);
 
-// TODO: The user should be able to choose the notification mail as well,
-// by default it should be the same as the email
 export const preferences = pgTable('preferences', {
 	id: serial('id').primaryKey(),
 	userId: text('user_id')
@@ -81,12 +75,10 @@ export const preferences = pgTable('preferences', {
 	notificationDay: notificationDayEnum('notification_day')
 		.notNull()
 		.default(WeekDay.MONDAY),
-	notificationFrequency: notificationFrequencyEnum('notificaton_frequency')
+	notificationFrequency: notificationFrequencyEnum('notification_frequency')
 		.notNull()
 		.default(NotificationFrequency.NEVER),
-	notificationTime: notificationTimeEnum('notification_time')
-		.notNull()
-		.default('08:30')
+	notificationTime: text('notification_time').notNull().default('08:30')
 });
 
 export const userSubreddits = pgTable(

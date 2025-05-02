@@ -1,5 +1,6 @@
 import {
 	NotificationFrequency,
+	notificationHours,
 	type TimeFormat,
 	type TimeZone,
 	type WeekDay,
@@ -34,6 +35,10 @@ export class PreferencesService {
 			const emailValidation = AuthService.validateEmail(email);
 			if (!emailValidation.valid) {
 				throw new Error(emailValidation.error);
+			}
+
+			if (!notificationHours.find((nh) => nh === time)) {
+				throw new Error('Invalid notification time');
 			}
 
 			const preferences = await PreferencesRepository.update(userId, {
