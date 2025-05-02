@@ -9,6 +9,9 @@ import { mapRecords } from '$lib/stores/subreddit-data.svelte';
 import type { DailyReportProps } from '$lib/emails/daily-report.svelte';
 
 export const cronRouter = router({
+	isAuthorized: adminProcedure.query(() => {
+		return true;
+	}),
 	sendDailyDigestEmail: adminProcedure
 		.input(z.object({ email: z.string() }))
 		.mutation(async ({ input }) => {
