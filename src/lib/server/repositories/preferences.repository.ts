@@ -65,7 +65,17 @@ export class PreferencesRepository {
 	}
 	static async getNotificationCompliantUsers() {
 		const result = await db.execute<Preferences>(sql`
-			SELECT * FROM preferences p
+			SELECT 
+				p.id                            AS "id",
+    			p.user_id                       AS "userId",
+    			p.week_start                    AS "weekstart",
+    			p.time_zone                     AS "timezone",
+    			p.time_format                   AS "timeformat",
+    			p.notification_email            AS "notificationEmail",
+    			p.notification_day              AS "notificationDay",
+    			p.notification_frequency        AS "notificationFrequency",
+    			p.notification_time             AS "notificationTime"
+			FROM preferences p
 			WHERE p.notification_frequency = 'daily'
   			AND TO_CHAR(
    				date_trunc('hour', timezone(p.time_zone::text, now() at time zone time_zone::text))

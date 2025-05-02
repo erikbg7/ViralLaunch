@@ -12,7 +12,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import {
 	NotificationFrequency,
-	notificationHours,
 	TimeFormat,
 	TimeZone,
 	WeekDay,
