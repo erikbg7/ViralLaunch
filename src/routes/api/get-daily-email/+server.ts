@@ -5,7 +5,7 @@ export async function POST(event) {
 	const api = await createTrpcCaller(event);
 
 	try {
-		const htmlReport = await api.cron.sendDailyDigestEmail();
+		const htmlReport = await api.cron.sendDailyDigestEmail({ email: '' });
 
 		return new Response(htmlReport, {
 			headers: {

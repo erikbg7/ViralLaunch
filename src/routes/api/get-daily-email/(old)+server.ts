@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { compile, preprocess } from 'svelte/compiler';
+import type { RequestEvent } from '@sveltejs/kit';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { render } from 'svelte/server';
 
 // tailwind({
 //     content: ['./src/lib/templates/**/*.{html,js,svelte}'],
@@ -11,7 +11,7 @@ import { render } from 'svelte/server';
 //     plugins: []
 // })
 
-export const POST = async (event) => {
+export const POST = async (event: RequestEvent) => {
 	// const Component = (await import('../../../../output222222.js')).default;
 
 	// const svelteCompiledComponent = render(Component);
@@ -50,6 +50,7 @@ export const POST = async (event) => {
 		html: ''
 	};
 
+	// @ts-ignore
 	const Component = (await import('../../../../tmp/daily-report.compiled.mjs'))
 		.default;
 
@@ -64,7 +65,7 @@ export const POST = async (event) => {
 	// Extract HTML and CSS
 	console.log({ payload });
 	const renderedHtml = payload.out;
-	const styles = [...payload.css].map((s) => s.code).join('\n');
+	const styles = [...payload.css].map((s: any) => s.code).join('\n');
 
 	fs.writeFileSync('output2.html', renderedHtml);
 

@@ -51,7 +51,7 @@ export class PreferencesService {
 				notificationEmail: email
 			});
 			return preferences;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Error updating user preferences:', error);
 			throw new Error(error?.message || 'Failed to update preferences');
 		}
