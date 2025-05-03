@@ -42,8 +42,6 @@
 	};
 </script>
 
-{#if preferencesStore.preferencesData}{/if}
-
 <div class="container max-w-3xl pb-10">
 	<div
 		class="sticky top-0 z-10 mb-8 flex items-center justify-between border-b bg-background px-6 py-4"

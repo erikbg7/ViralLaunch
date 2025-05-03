@@ -2,23 +2,10 @@ import { api } from '$lib/api';
 import { TimeZone } from '$lib/constants';
 import type { RouterOutput } from '$lib/server/trpc/router';
 import { serverConfig } from '$lib/stores/settings.svelte';
-import { get, readable, writable } from 'svelte/store';
-
-type Preferences = {};
-
-export const preferencesData = writable<RouterOutput['subreddit']['list']>();
-
-let a = preferencesData.subscribe((data) => {
-	console.log('data', data);
-});
-
-// export const preferences = readable<Preferences>({} as Preferences, (set) => {
 
 type PreferencesQuery = ReturnType<typeof api.preferences.get.query>;
 
 export class PreferencesStore {
-	preferences = $state<PreferencesQuery>();
-	preferencesData = $derived<PreferencesQuery>(this.preferences?.data || {});
 	timezone = $state<TimeZone>(TimeZone.UTC);
 
 	private initialized = false;
@@ -43,7 +30,6 @@ export class PreferencesStore {
 			if (query.data) {
 				this.setPreferences(query.data);
 			}
-			this.preferences = query;
 		});
 	}
 }
