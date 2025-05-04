@@ -24,7 +24,6 @@
 
 	let subreddits = api.subreddit.following.query();
 
-	$inspect('subredditId', subredditId, page.params);
 	// const subredditId = page.params.subreddit;
 	let searchQuery = $state<string | null | undefined>();
 
