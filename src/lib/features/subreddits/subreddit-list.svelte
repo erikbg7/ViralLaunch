@@ -44,7 +44,7 @@
 					href="/app/r/{subreddit.id}"
 				>
 					<div class="min-w-0 flex-1">
-						<h3 class="truncate font-medium">{subreddit.id}</h3>
+						<h3 class="truncate font-medium">r/{subreddit.id}</h3>
 						<p class="truncate text-sm text-muted-foreground">
 							{subreddit.url}
 						</p>
