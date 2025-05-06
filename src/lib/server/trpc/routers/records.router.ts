@@ -8,7 +8,8 @@ export const recordsRouter = router({
 		.input(z.object({ subredditId: z.string() }))
 		.query(async ({ input }) => {
 			try {
-				return await RecordRepository.getAllRecords(input.subredditId);
+				// return await RecordRepository.getAllRecords(input.subredditId);
+				return await RecordRepository.getLastWeekRecords(input.subredditId);
 			} catch (error) {
 				console.error('Error fetching subreddits:', error);
 				throw new Error('Failed to fetch subreddits');
