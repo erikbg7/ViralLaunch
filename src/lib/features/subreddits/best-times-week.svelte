@@ -7,7 +7,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { weekDays } from '$lib/constants';
-	import type { ParsedRecords } from '$lib/stores/subreddit-data.svelte';
+	import type { ParsedRecords } from '$lib/records/records.map';
 	import CalendarDays from '@lucide/svelte/icons/calendar-days';
 
 	let {

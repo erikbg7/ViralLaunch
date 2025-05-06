@@ -8,10 +8,7 @@
 	import { type WeekDay } from '$lib/constants';
 	import { Formatter } from '$lib/stores/formatters.svelte';
 	import { serverConfig } from '$lib/stores/settings.svelte';
-	import { type ParsedRecords } from '$lib/stores/subreddit-data.svelte';
-
-	// TODO: move heatmap out of chart/heatmap tabs, the card will show the title below:
-	//Average hourly users online by day of the week
+	import { type ParsedRecords } from '$lib/records/records.map';
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
 

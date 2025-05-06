@@ -1,16 +1,24 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
-	import { weekDays } from '$lib/constants';
-	import type { DailyRecord, ParsedRecords } from '$lib/records/records.map';
+	import { TimeFormat, weekDays } from '$lib/constants';
+	import type { ParsedRecords } from '$lib/records/records.map';
 
 	Chart.register(...registerables);
 
 	type Props = {
+		timeformat: TimeFormat;
 		chartData: ParsedRecords['records'] | undefined;
 	};
 
-	let { chartData }: Props = $props();
+	let { chartData, timeformat }: Props = $props();
+
+	// TODO: this might be wrong, need to check if the chartData is in UTC or local time
+	let todayChartData = chartData?.[weekDays[new Date().getDay()]];
+
+	if (!todayChartData) {
+		todayChartData = [];
+	}
 
 	let currentDate = new Date();
 	let currentHour = currentDate.getUTCHours();
@@ -22,34 +30,22 @@
 	function renderWeeklyChart() {
 		if (chartInstance) chartInstance.destroy();
 
-		const chartX = Array.from({ length: 504 }, (_, i) => i);
+		const chartX = Array.from({ length: 72 }, (_, i) => i);
 
 		function getRecordForX(x: number) {
 			let day = Math.floor(x / 72);
 			let hour = Math.floor((x % 72) / 3);
 			let minute = [0, 20, 40][(x % 72) % 3];
 
-			return chartData?.[weekDays[day]]?.find((d) => {
+			return todayChartData?.find((d) => {
 				return d.date?.getHours() === hour && d.date?.getMinutes() === minute;
 			});
-		}
-
-		function formatRecordDate(record: DailyRecord | undefined) {
-			if (!record) return '';
-			let dayDisplay = weekDays[record.date.getDay()];
-			let hourDisplay = record.date?.getHours();
-			let minuteDisplay = record.date?.getMinutes();
-			let ampm = hourDisplay >= 12 ? 'PM' : 'AM';
-
-			return `${dayDisplay} ${String(hourDisplay).padStart(2, '0')}:${String(
-				minuteDisplay
-			).padStart(2, '0')} ${ampm}`;
 		}
 
 		chartInstance = new Chart(chartCanvas, {
 			type: 'line',
 			data: {
-				labels: chartX.map((x) => formatRecordDate(getRecordForX(x))),
+				labels: chartX.map((x) => getRecordForX(x)?.hhmm || ''),
 				datasets: [
 					{
 						label: 'Online Users',
@@ -112,10 +108,18 @@
 					x: {
 						ticks: {
 							callback: function (value, index) {
+								console.log(value, index);
 								let v = typeof value === 'string' ? parseInt(value) : value;
 
-								if (v % 72 === 0) {
-									return weekDays[Math.floor(v / 72)];
+								if (v % 3 === 0) {
+									const hour = Math.floor(v / 3);
+									if (timeformat === TimeFormat.H24) {
+										return `${hour.toString().padStart(2, '0')}h`;
+									} else {
+										const period = hour < 12 ? 'AM' : 'PM';
+										const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+										return `${displayHour}${period}`;
+									}
 								}
 								// Only show ticks on the hour
 							},

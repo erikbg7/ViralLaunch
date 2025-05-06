@@ -8,7 +8,7 @@
 	} from '$lib/components/ui/card';
 	import Users from '@lucide/svelte/icons/users';
 	import Clock from '@lucide/svelte/icons/clock';
-	import type { ParsedRecords } from '$lib/stores/subreddit-data.svelte';
+	import type { ParsedRecords } from '$lib/records/records.map';
 
 	let { bestTimes }: { bestTimes: ParsedRecords['bestTodayTimes'] } = $props();
 </script>

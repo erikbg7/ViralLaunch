@@ -27,6 +27,26 @@ export type ParsedRecords = {
 	avgUsersByDay: Record<WeekDay, number>;
 };
 
+let mostUsersByDay: Record<WeekDay, DailyRecord> = {
+	[WeekDay.MONDAY]: { users: 0 } as DailyRecord,
+	[WeekDay.TUESDAY]: { users: 0 } as DailyRecord,
+	[WeekDay.WEDNESDAY]: { users: 0 } as DailyRecord,
+	[WeekDay.THURSDAY]: { users: 0 } as DailyRecord,
+	[WeekDay.FRIDAY]: { users: 0 } as DailyRecord,
+	[WeekDay.SATURDAY]: { users: 0 } as DailyRecord,
+	[WeekDay.SUNDAY]: { users: 0 } as DailyRecord
+};
+
+let avgUsersByDay: Record<WeekDay, number> = {
+	[WeekDay.MONDAY]: 0,
+	[WeekDay.TUESDAY]: 0,
+	[WeekDay.WEDNESDAY]: 0,
+	[WeekDay.THURSDAY]: 0,
+	[WeekDay.FRIDAY]: 0,
+	[WeekDay.SATURDAY]: 0,
+	[WeekDay.SUNDAY]: 0
+};
+
 // Returns 4 times for today, with the best 4 intervals in 4 different hours
 export function calculateBestTodayTimes(
 	parsedRecords: Record<WeekDay, DailyRecord[]>
@@ -56,7 +76,12 @@ type AggregatedRecords = {
 	maxUsers: number;
 };
 
-export function aggregateToHeatmapRecords(
+type AvgUserRecords = {
+	records: Record<WeekDay, number>;
+	maxUsers: number;
+};
+
+export function calculateHourlyRecordsByDay(
 	parsedRecords: Record<WeekDay, DailyRecord[]>
 ): AggregatedRecords {
 	let max = 0;
@@ -87,6 +112,22 @@ export function aggregateToHeatmapRecords(
 	return { records: recordsClone, maxUsers: max };
 }
 
+export function calculateAvgUsersByDay(
+	parsedRecords: Record<WeekDay, DailyRecord[]>
+): AvgUserRecords {
+	let maxAvgUsers = 0;
+	let recordsClone = { ...parsedRecords };
+
+	for (const weekday in parsedRecords) {
+		const dailyRecords = parsedRecords[weekday as WeekDay];
+		const totalUsers = dailyRecords.reduce((acc, rec) => acc + rec.users, 0);
+		const avgUsers = Math.ceil(totalUsers / dailyRecords.length);
+		maxAvgUsers = Math.max(maxAvgUsers, avgUsers);
+		avgUsersByDay[weekday as WeekDay] = avgUsers;
+	}
+	return { records: avgUsersByDay, maxUsers: maxAvgUsers };
+}
+
 export function mapRecords(
 	raw_records: RawRecords,
 	timezone: TimeZone,
@@ -105,18 +146,7 @@ export function mapRecords(
 		[WeekDay.SUNDAY]: []
 	};
 
-	let mostUsersByDay: Record<WeekDay, DailyRecord> = {
-		[WeekDay.MONDAY]: { users: 0 } as DailyRecord,
-		[WeekDay.TUESDAY]: { users: 0 } as DailyRecord,
-		[WeekDay.WEDNESDAY]: { users: 0 } as DailyRecord,
-		[WeekDay.THURSDAY]: { users: 0 } as DailyRecord,
-		[WeekDay.FRIDAY]: { users: 0 } as DailyRecord,
-		[WeekDay.SATURDAY]: { users: 0 } as DailyRecord,
-		[WeekDay.SUNDAY]: { users: 0 } as DailyRecord
-	};
-
 	const todayIndex = new Date().getDay();
-	let todayRecords: DailyRecord[] = [];
 
 	const formatter = new Intl.DateTimeFormat('en-US', {
 		timeZone: timezone as string,
@@ -136,6 +166,10 @@ export function mapRecords(
 		hour12: timeformat === TimeFormat.AM_PM
 	});
 
+	const addHourPrefix = (hhmm: string) => {
+		return timeformat === TimeFormat.AM_PM ? hhmm : hhmm.concat('h');
+	};
+
 	for (const r of raw_records) {
 		peakWeeklyUsers = Math.max(peakWeeklyUsers, r?.users);
 
@@ -148,12 +182,11 @@ export function mapRecords(
 			date: localDate,
 			interval: r.interval,
 			users: r?.users,
-			hhmm: hhmmFormatter.format(Date.parse(r.timestamp))
+			hhmm: addHourPrefix(hhmmFormatter.format(Date.parse(r.timestamp)))
 		};
 
 		if (todayIndex === day) {
 			peakTodayUsers = Math.max(peakTodayUsers, record?.users);
-			todayRecords.push(record);
 		}
 		if (record.users > mostUsersByDay[weekday]?.users) {
 			mostUsersByDay[weekday] = record;
@@ -162,31 +195,9 @@ export function mapRecords(
 		records[weekday]?.push(record);
 	}
 
-	let hourlyRecordsByDay = aggregateToHeatmapRecords(records);
-
+	let hourlyRecordsByDay = calculateHourlyRecordsByDay(records);
 	let bestTodayTimes = calculateBestTodayTimes(records);
-	let avgUsersByDay: Record<WeekDay, number> = {
-		[WeekDay.MONDAY]: 0,
-		[WeekDay.TUESDAY]: 0,
-		[WeekDay.WEDNESDAY]: 0,
-		[WeekDay.THURSDAY]: 0,
-		[WeekDay.FRIDAY]: 0,
-		[WeekDay.SATURDAY]: 0,
-		[WeekDay.SUNDAY]: 0
-	};
-	let maxAvgUsers = 0;
-
-	for (const weekday in records) {
-		const dailyRecords = records[weekday as WeekDay];
-		const totalUsers = dailyRecords.reduce(
-			(acc, record) => acc + record.users,
-			0
-		);
-		const avgUsers = Math.ceil(totalUsers / dailyRecords.length);
-		maxAvgUsers = Math.max(maxAvgUsers, avgUsers);
-		avgUsersByDay[weekday as WeekDay] = avgUsers;
-	}
-	// console.log('avgUsersByDay', avgUsersByDay);
+	let avgUsersByDay = calculateAvgUsersByDay(records);
 
 	return {
 		peakWeeklyUsers,
@@ -196,7 +207,7 @@ export function mapRecords(
 		records,
 		hourlyRecords: hourlyRecordsByDay.records,
 		maxHourlyUsers: hourlyRecordsByDay.maxUsers,
-		maxAvgUsers,
-		avgUsersByDay
+		maxAvgUsers: avgUsersByDay.maxUsers,
+		avgUsersByDay: avgUsersByDay.records
 	};
 }

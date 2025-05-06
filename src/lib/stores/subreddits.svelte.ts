@@ -2,7 +2,7 @@ import { ChartType } from '$lib/constants';
 import type { Subreddit } from '$lib/server/db/schema';
 
 function createSubredditStore() {
-	let selectedChart = $state<ChartType>(ChartType.HEATMAP);
+	let selectedChart = $state<ChartType>(ChartType.DAILY);
 	let selectedSubreddit = $state<Subreddit | null>(null);
 	let selectedSubredditName = $state<string | null>(null);
 

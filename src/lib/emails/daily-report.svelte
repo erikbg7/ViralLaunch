@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import BestTimesToday from '$lib/features/subreddits/best-times-today.svelte';
-	import type { ParsedRecords } from '$lib/stores/subreddit-data.svelte';
+	import type { ParsedRecords } from '$lib/records/records.map';
 
 	export type DailyReportProps = {
 		bestTimes: ParsedRecords['bestTodayTimes'];

@@ -43,8 +43,8 @@ export const weekDaysMondayStart = [
 ];
 
 export enum ChartType {
-	LINEAR = 'linear',
-	HEATMAP = 'heatmap'
+	WEEKLY = 'weekly',
+	DAILY = 'daily'
 }
 
 export enum NotificationFrequency {
