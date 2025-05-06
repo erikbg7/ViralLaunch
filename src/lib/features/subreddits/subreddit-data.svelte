@@ -20,10 +20,6 @@
 	import WeeklyChart from '$lib/features/subreddits/weekly-chart.svelte';
 	import DailyChart from '$lib/features/subreddits/daily-chart.svelte';
 	import Heatmap from '$lib/features/subreddits/heatmap.svelte';
-	import {
-		deleteAllRecords,
-		generateFakeRecords
-	} from '$lib/features/subreddits/utils';
 	import { serverConfig } from '$lib/stores/settings.svelte';
 	import { mapRecords, type ParsedRecords } from '$lib/records/records.map';
 	import { subredditStore } from '$lib/stores/subreddits.svelte';
@@ -89,22 +85,6 @@
 						<TabsTrigger value={ChartType.WEEKLY}>Weekly Chart</TabsTrigger>
 					</TabsList>
 
-					<Button
-						variant="default"
-						aria-label="Fake data"
-						onclick={() => generateFakeRecords(subredditId)}
-					>
-						Generate Fake Records
-					</Button>
-
-					<Button
-						variant="default"
-						aria-label="Fake data"
-						onclick={() => deleteAllRecords(subredditId)}
-					>
-						Delete All Records
-					</Button>
-
 					<TabsContent value={ChartType.DAILY} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
@@ -119,7 +99,6 @@
 					<TabsContent value={ChartType.WEEKLY} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
-							<!-- <HourlyChart chartData={$records?.data?.[0] || []} /> -->
 							<WeeklyChart chartData={parsedRecords?.records} />
 						</div>
 					</TabsContent>

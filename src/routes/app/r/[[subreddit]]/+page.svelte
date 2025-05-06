@@ -20,6 +20,11 @@
 	import type { Subreddit } from '$lib/server/db/schema';
 	import { serverConfig } from '$lib/stores/settings.svelte';
 
+	import {
+		deleteAllRecords,
+		generateFakeRecords
+	} from '$lib/features/subreddits/utils';
+
 	let subredditId = $derived(page.params.subreddit);
 
 	let subreddits = api.subreddit.following.query();
@@ -65,6 +70,23 @@
 	>
 		<h1 class="text-xl font-bold">Dashboard</h1>
 		<div class="flex items-center gap-4">
+			<!-- REMOVABLE -->
+			<Button
+				variant="default"
+				aria-label="Fake data"
+				onclick={() => generateFakeRecords(subredditId)}
+			>
+				Generate Fake Records
+			</Button>
+
+			<Button
+				variant="default"
+				aria-label="Fake data"
+				onclick={() => deleteAllRecords(subredditId)}
+			>
+				Delete All Records
+			</Button>
+			<!-- REMOVABLE -->
 			{#if subredditStore.selectedSubreddit}
 				<div class="hidden items-center md:flex">
 					<a
