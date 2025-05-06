@@ -13,14 +13,12 @@
 		subreddits: Subreddit[];
 		selectedSubredditId: Subreddit['id'] | null;
 		onRemoveSubreddit: (id: Subreddit) => void;
-		onMoveSubreddit: (dragIndex: number, hoverIndex: number) => void;
 	};
 
 	let {
 		subreddits,
 		selectedSubredditId = $bindable(),
-		onRemoveSubreddit,
-		onMoveSubreddit
+		onRemoveSubreddit
 	}: UrlListProps = $props();
 </script>
 
