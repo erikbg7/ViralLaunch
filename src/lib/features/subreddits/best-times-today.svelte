@@ -9,7 +9,6 @@
 	import Users from '@lucide/svelte/icons/users';
 	import Clock from '@lucide/svelte/icons/clock';
 	import type { ParsedRecords } from '$lib/stores/subreddit-data.svelte';
-	import { Formatter } from '$lib/stores/formatters.svelte';
 
 	let { bestTimes }: { bestTimes: ParsedRecords['bestTodayTimes'] } = $props();
 </script>
@@ -35,7 +34,7 @@
 						style={`background-color: hsl(${24 + index * 3}, ${95 - index * 5}%, ${95 - index * 3}%); border: 1px solid hsl(${24 + index * 3}, ${95 - index * 5}%, ${85 - index * 3}%)`}
 					>
 						<div class="mb-1 text-2xl font-bold">
-							{Formatter.formatDateToHHMM(bestTime.date) ?? 'No data'}
+							{bestTime.hhmm ?? 'No data'}
 						</div>
 						<div class="flex items-center gap-1 text-sm font-medium">
 							<Users class="h-3.5 w-3.5" />

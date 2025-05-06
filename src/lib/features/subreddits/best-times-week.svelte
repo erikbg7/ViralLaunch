@@ -12,14 +12,16 @@
 
 	let {
 		maxUsers,
-		bestTimes
+		bestTimes,
+		bestWeeklyTimes
 	}: {
 		maxUsers: number;
-		bestTimes: ParsedRecords['bestWeeklyTimes'];
+		bestTimes: ParsedRecords['avgUsersByDay'];
+		bestWeeklyTimes: ParsedRecords['bestWeeklyTimes'];
 	} = $props();
 
 	let topDays = Object.entries(bestTimes)
-		.sort(([, a], [, b]) => b.users - a.users)
+		.sort(([, a], [, b]) => b - a)
 		.map(([day]) => day)
 		.slice(0, 3);
 </script>
@@ -27,10 +29,10 @@
 <Card>
 	<CardHeader>
 		<CardTitle class="flex items-center gap-2">
-			User Peaks This Week
+			Average Users This Week
 			<CalendarDays class="h-4 w-4 text-muted-foreground" />
 		</CardTitle>
-		<CardDescription>Daily peak users (top 3 days highlighted)</CardDescription>
+		<CardDescription>Top 3 days with highest averge users</CardDescription>
 	</CardHeader>
 	<CardContent>
 		{#if !bestTimes}
@@ -40,7 +42,8 @@
 		{:else}
 			<div class="space-y-3">
 				{#each weekDays as day}
-					{@const record = bestTimes[day]}
+					{@const avgUsers = bestTimes[day]}
+					{@const record = bestWeeklyTimes[day]}
 					{@const rank = topDays.indexOf(day) + 1}
 
 					<div class="flex items-center gap-3">
@@ -49,7 +52,7 @@
 							<div
 								class="flex h-full items-center rounded-md px-3 font-medium text-white"
 								style={`
-                                width: ${(record.users / maxUsers) * 100}%;
+                                width: ${(avgUsers / maxUsers) * 100}%;
                                 background-color: ${
 																	!!rank
 																		? rank === 1
@@ -61,7 +64,7 @@
 																};
                                 `}
 							>
-								{record.users} at {record.date?.getHours()}:{record.date?.getMinutes()}
+								{avgUsers} ({record.users} at {record.hhmm})
 							</div>
 						</div>
 						{#if rank}

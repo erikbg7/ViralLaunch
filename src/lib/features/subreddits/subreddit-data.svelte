@@ -23,6 +23,7 @@
 		generateFakeRecords
 	} from '$lib/features/subreddits/utils';
 	import WeeklyChart from '$lib/features/subreddits/weekly-chart.svelte';
+	import { serverConfig } from '$lib/stores/settings.svelte';
 	import {
 		mapRecords,
 		type ParsedRecords
@@ -37,7 +38,8 @@
 
 	let records = api.records.get.query({ subredditId });
 	let parsedRecords = $derived<ParsedRecords | undefined>(
-		$records.data && mapRecords($records.data)
+		$records.data &&
+			mapRecords($records.data, serverConfig.timezone, serverConfig.timeformat)
 	);
 </script>
 
@@ -101,8 +103,9 @@
 			{#if parsedRecords}
 				<BestTimesToday bestTimes={parsedRecords.bestTodayTimes} />
 				<BestTimesWeek
-					maxUsers={parsedRecords.peakWeeklyUsers}
-					bestTimes={parsedRecords.bestWeeklyTimes}
+					maxUsers={parsedRecords.maxAvgUsers}
+					bestTimes={parsedRecords.avgUsersByDay}
+					bestWeeklyTimes={parsedRecords.bestWeeklyTimes}
 				/>
 			{/if}
 		</div>

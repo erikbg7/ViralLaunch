@@ -1,6 +1,5 @@
-import { weekDays, WeekDay } from '$lib/constants';
+import { weekDays, WeekDay, TimeZone, TimeFormat } from '$lib/constants';
 import type { RouterOutput } from '$lib/server/trpc/router';
-import { serverConfig } from '$lib/stores/settings.svelte';
 
 type RawRecords = RouterOutput['records']['get'];
 
@@ -13,6 +12,7 @@ export type DailyRecord = {
 	date: Date;
 	interval: number;
 	users: number;
+	hhmm: string;
 };
 
 export type ParsedRecords = {
@@ -23,6 +23,8 @@ export type ParsedRecords = {
 	records: Record<WeekDay, DailyRecord[]>;
 	hourlyRecords: Record<WeekDay, DailyRecord[]>;
 	maxHourlyUsers: number;
+	maxAvgUsers: number;
+	avgUsersByDay: Record<WeekDay, number>;
 };
 
 // Returns 4 times for today, with the best 4 intervals in 4 different hours
@@ -75,7 +77,8 @@ export function aggregateToHeatmapRecords(
 			dailyRecordByHour.push({
 				date: dailyRecords[i]?.date,
 				interval: dailyRecords[i]?.interval,
-				users: avg
+				users: avg,
+				hhmm: ''
 			});
 		}
 
@@ -84,7 +87,11 @@ export function aggregateToHeatmapRecords(
 	return { records: recordsClone, maxUsers: max };
 }
 
-export function mapRecords(raw_records: RawRecords): ParsedRecords {
+export function mapRecords(
+	raw_records: RawRecords,
+	timezone: TimeZone,
+	timeformat: TimeFormat
+): ParsedRecords {
 	let peakWeeklyUsers = 0;
 	let peakTodayUsers = 0;
 
@@ -111,13 +118,28 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 	const todayIndex = new Date().getDay();
 	let todayRecords: DailyRecord[] = [];
 
-	console.log({ r: raw_records.find((r) => r.users > 12) });
-	for (const r of raw_records) {
-		peakWeeklyUsers = Math.max(peakWeeklyUsers, r.users);
+	const formatter = new Intl.DateTimeFormat('en-US', {
+		timeZone: timezone as string,
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: timeformat === TimeFormat.AM_PM
+	});
 
-		const localDate = new Date(
-			serverConfig.dateFormatter.format(Date.parse(r.timestamp))
-		);
+	const hhmmFormatter = new Intl.DateTimeFormat('en-US', {
+		timeZone: timezone as string,
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: timeformat === TimeFormat.AM_PM
+	});
+
+	for (const r of raw_records) {
+		peakWeeklyUsers = Math.max(peakWeeklyUsers, r?.users);
+
+		const localDate = new Date(formatter.format(Date.parse(r.timestamp)));
 
 		const day = localDate.getDay();
 		const weekday = weekDays[day];
@@ -125,23 +147,46 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 		let record: DailyRecord = {
 			date: localDate,
 			interval: r.interval,
-			users: r.users
+			users: r?.users,
+			hhmm: hhmmFormatter.format(Date.parse(r.timestamp))
 		};
 
 		if (todayIndex === day) {
-			peakTodayUsers = Math.max(peakTodayUsers, record.users);
+			peakTodayUsers = Math.max(peakTodayUsers, record?.users);
 			todayRecords.push(record);
 		}
-		if (record.users > mostUsersByDay[weekday].users) {
+		if (record.users > mostUsersByDay[weekday]?.users) {
 			mostUsersByDay[weekday] = record;
 		}
 
-		records[weekday].push(record);
+		records[weekday]?.push(record);
 	}
 
 	let hourlyRecordsByDay = aggregateToHeatmapRecords(records);
 
 	let bestTodayTimes = calculateBestTodayTimes(records);
+	let avgUsersByDay: Record<WeekDay, number> = {
+		[WeekDay.MONDAY]: 0,
+		[WeekDay.TUESDAY]: 0,
+		[WeekDay.WEDNESDAY]: 0,
+		[WeekDay.THURSDAY]: 0,
+		[WeekDay.FRIDAY]: 0,
+		[WeekDay.SATURDAY]: 0,
+		[WeekDay.SUNDAY]: 0
+	};
+	let maxAvgUsers = 0;
+
+	for (const weekday in records) {
+		const dailyRecords = records[weekday as WeekDay];
+		const totalUsers = dailyRecords.reduce(
+			(acc, record) => acc + record.users,
+			0
+		);
+		const avgUsers = Math.ceil(totalUsers / dailyRecords.length);
+		maxAvgUsers = Math.max(maxAvgUsers, avgUsers);
+		avgUsersByDay[weekday as WeekDay] = avgUsers;
+	}
+	// console.log('avgUsersByDay', avgUsersByDay);
 
 	return {
 		peakWeeklyUsers,
@@ -150,6 +195,8 @@ export function mapRecords(raw_records: RawRecords): ParsedRecords {
 		bestWeeklyTimes: mostUsersByDay,
 		records,
 		hourlyRecords: hourlyRecordsByDay.records,
-		maxHourlyUsers: hourlyRecordsByDay.maxUsers
+		maxHourlyUsers: hourlyRecordsByDay.maxUsers,
+		maxAvgUsers,
+		avgUsersByDay
 	};
 }
