@@ -1,23 +1,23 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
-	import { weekDays } from '$lib/constants';
+	import { TimeFormat, TimeZone, weekDays } from '$lib/constants';
 	import type { DailyRecord, ParsedRecords } from '$lib/records/records.map';
+	import { formatDateToHHMM, getDateInTimezone } from '$lib/timezone';
 
 	Chart.register(...registerables);
 
 	type Props = {
+		timeformat: TimeFormat;
+		timezone: TimeZone;
 		chartData: ParsedRecords['records'] | undefined;
 	};
 
-	let { chartData }: Props = $props();
-
-	let currentDate = new Date();
-	let currentHour = currentDate.getUTCHours();
-	let currentMinute = currentDate.getUTCMinutes();
+	let { chartData, timeformat, timezone }: Props = $props();
 
 	let chartCanvas: HTMLCanvasElement;
 	let chartInstance: Chart | null = null;
+	let intervalId: NodeJS.Timeout | null = null;
 
 	function renderWeeklyChart() {
 		if (chartInstance) chartInstance.destroy();
@@ -37,13 +37,20 @@
 		function formatRecordDate(record: DailyRecord | undefined) {
 			if (!record) return '';
 			let dayDisplay = weekDays[record.date.getDay()];
-			let hourDisplay = record.date?.getHours();
-			let minuteDisplay = record.date?.getMinutes();
-			let ampm = hourDisplay >= 12 ? 'PM' : 'AM';
 
-			return `${dayDisplay} ${String(hourDisplay).padStart(2, '0')}:${String(
-				minuteDisplay
-			).padStart(2, '0')} ${ampm}`;
+			if (timeformat === TimeFormat.H24) {
+				return `${dayDisplay} ${String(record.date?.getHours()).padStart(2, '0')}:${String(
+					record.date?.getMinutes()
+				).padStart(2, '0')}h`;
+			} else {
+				let hourDisplay = record.date?.getHours();
+				let minuteDisplay = record.date?.getMinutes();
+				let ampm = hourDisplay >= 12 ? 'PM' : 'AM';
+
+				return `${dayDisplay} ${String(hourDisplay).padStart(2, '0')}:${String(
+					minuteDisplay
+				).padStart(2, '0')} ${ampm}`;
+			}
 		}
 
 		chartInstance = new Chart(chartCanvas, {
@@ -68,14 +75,19 @@
 					id: 'current-time-indicator',
 					afterDraw(chart) {
 						const ctx = chart.ctx;
-						const currentHourValue = currentHour + currentMinute / 60;
+						let currentDate = getDateInTimezone(timezone);
+						let currentHour = currentDate.getHours();
+						let currentMinute = currentDate.getMinutes();
+						let currentDay = currentDate.getDay();
+						const currentHourValue =
+							currentDay * 24 * 3 + currentHour * 3 + currentMinute / 60;
 						const x = chart.scales.x.getPixelForValue(currentHourValue);
 						ctx.save();
 						// add bold font
 						ctx.font = '12px Arial';
 						ctx.fillStyle = 'red';
 
-						let text = `${currentHour}:${String(currentMinute).padStart(2, '0')}`;
+						let text = formatDateToHHMM(currentDate, timezone, timeformat);
 						ctx.beginPath();
 						ctx.roundRect(x - 18, 22, ctx.measureText(text).width + 6, 18, 5);
 						ctx.fill();
@@ -85,10 +97,15 @@
 						ctx.fillText(text, x - 15, 32);
 						ctx.restore();
 					},
-
 					beforeDraw(chart) {
 						const ctx = chart.ctx;
-						const currentHourValue = currentHour + currentMinute / 60;
+						let currentDate = getDateInTimezone(timezone);
+						let currentHour = currentDate.getHours();
+						let currentMinute = currentDate.getMinutes();
+						let currentDay = currentDate.getDay();
+						const currentHourValue =
+							currentDay * 24 * 3 + currentHour * 3 + currentMinute / 60;
+
 						const x = chart.scales.x.getPixelForValue(currentHourValue);
 						ctx.save();
 						ctx.beginPath();
@@ -138,15 +155,25 @@
 				}
 			}
 		});
+
+		intervalId = setInterval(() => {
+			chartInstance?.update('none'); // 'none' to prevent animation
+		}, 10000); // Update every 10 seconds
 	}
 
 	$effect(() => {
 		if (!chartData) return;
+		if (intervalId) clearInterval(intervalId);
 		renderWeeklyChart();
+
+		return () => {
+			if (intervalId) clearInterval(intervalId);
+		};
 	});
 
 	onDestroy(() => {
 		if (chartInstance) chartInstance.destroy();
+		if (intervalId) clearInterval(intervalId);
 	});
 </script>
 
