@@ -14,16 +14,5 @@ export const recordsRouter = router({
 				console.error('Error fetching subreddits:', error);
 				throw new Error('Failed to fetch subreddits');
 			}
-		}),
-	getExact: protectedProcedure
-		.input(z.object({ subredditId: z.string() }))
-		.query(async ({ input }) => {
-			try {
-				const exact = await RecordRepository.getExactRecords(input.subredditId);
-				return exact;
-			} catch (error) {
-				console.error('Error fetching subreddits:', error);
-				throw new Error('Failed to fetch subreddits');
-			}
 		})
 });
