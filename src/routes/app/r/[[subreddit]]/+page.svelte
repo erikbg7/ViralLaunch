@@ -109,7 +109,6 @@
 						>
 							<Clock class="h-4 w-4" />
 							<span>{serverConfig.timezone}</span>
-							<!-- <span>{getTimezoneLabel(settings.timezone)}</span> -->
 						</div>
 					</TooltipTrigger>
 					<TooltipContent>

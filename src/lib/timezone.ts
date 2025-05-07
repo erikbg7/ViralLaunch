@@ -1,4 +1,4 @@
-import { TimeZone, timezones } from '$lib/constants';
+import { TimeFormat, TimeZone } from '$lib/constants';
 
 // Get the user's local timezone
 export function getUserTimezone(): string {
@@ -7,12 +7,6 @@ export function getUserTimezone(): string {
 	} catch (e) {
 		return 'UTC';
 	}
-}
-
-// Get timezone label from value
-export function getTimezoneLabel(timezoneValue: string): string {
-	const timezone = timezones.find((tz) => tz.value === timezoneValue);
-	return timezone ? timezone.label : timezoneValue;
 }
 
 export function floorTo20Minutes(date: Date) {
@@ -28,6 +22,23 @@ export function getIntervalFromDate(date: Date) {
 	const minutes = flooredDate.getUTCMinutes();
 	const interval = Math.floor((hours * 60 + minutes) / 20);
 	return interval;
+}
+
+export function formatDateToHHMM(
+	date: Date,
+	timezone: TimeZone,
+	timeformat: TimeFormat
+) {
+	const formatter = new Intl.DateTimeFormat('en-US', {
+		timeZone: timezone,
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: timeformat !== TimeFormat.H24
+	});
+
+	const hhmm = formatter.format(date);
+
+	return timeformat === TimeFormat.H24 ? hhmm.concat('h') : hhmm;
 }
 
 export function getDateInTimezone(timeZone: TimeZone): Date {
