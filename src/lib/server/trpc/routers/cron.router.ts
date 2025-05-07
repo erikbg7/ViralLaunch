@@ -5,7 +5,7 @@ import { RedditService } from '$lib/server/services/reddit.service';
 import { RecordRepository } from '$lib/server/repositories/record.repository';
 import { SubredditRepository } from '$lib/server/repositories/subreddit.repository';
 import { MailService } from '$lib/server/services/mail.service';
-import { mapRecords } from '$lib/stores/subreddit-data.svelte';
+import { mapRecords } from '$lib/records/records.map';
 import type { DailyReportProps } from '$lib/emails/daily-report.svelte';
 
 export const cronRouter = router({
@@ -15,13 +15,13 @@ export const cronRouter = router({
 	sendDailyDigestEmail: adminProcedure
 		.input(z.object({ email: z.string() }))
 		.mutation(async ({ input }) => {
-			const records = await RecordRepository.getAllRecords('sveltejs');
-			const bestTodayTimes = mapRecords(records).bestTodayTimes;
+			// const records = await RecordRepository.getAllRecords('sveltejs');
+			// const bestTodayTimes = mapRecords(records).bestTodayTimes;
 
-			const props: DailyReportProps = { bestTimes: bestTodayTimes };
-			const htmlReport = await MailService.buildHtml('daily-report', props);
+			// const props: DailyReportProps = { bestTimes: bestTodayTimes };
+			// const htmlReport = await MailService.buildHtml('daily-report', props);
 
-			await MailService.sendTestEmail(input.email, htmlReport);
+			// await MailService.sendTestEmail(input.email, htmlReport);
 			return 'ok';
 		}),
 	getSubreddits: adminProcedure.query(async () => {

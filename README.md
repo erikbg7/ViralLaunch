@@ -87,8 +87,6 @@ For example, the webhook would be on /payments/webhook , then callback, then suc
 
 # TODO
 
-- Heatmap, Best Daily, Besr Weekly, etc. should not be attached to any stateful component or store. We should receive all formatting options trhough props. This way we can use the same component for emails.
-
 - When the user first signs up we should show an onboarding. Prompt some subreddits that he can follow for free and usually allow self promotion or are good places to show off your product. For example, r/saas, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness, r/entrepreneur, r/startups, r/indiedev, r/indiehackers, r/sideproject, r/smallbusiness.
 
 - Allow a user to EXPLORE (use as keyword) subreddits. This is a good way to find new subreddits to follow. A user should be able to explore most followed subreddits, subreddits with more users, etc.
