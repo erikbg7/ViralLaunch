@@ -13,6 +13,7 @@
 		TabsList,
 		TabsTrigger
 	} from '$lib/components/ui/tabs';
+
 	import { ChartType } from '$lib/constants';
 	import BestTimesToday from '$lib/features/subreddits/best-times-today.svelte';
 	import BestTimesWeek from '$lib/features/subreddits/best-times-week.svelte';
@@ -51,8 +52,11 @@
 				<div class="h-full w-full">
 					{#if parsedRecords}
 						<Heatmap
-							maxUsers={parsedRecords?.maxHourlyUsers}
-							hourlyRecords={parsedRecords?.hourlyRecords}
+							avgUsers={parsedRecords.avgWeeklyUsers}
+							timeformat={serverConfig.timeformat}
+							weekdays={serverConfig.weekdays}
+							maxUsers={parsedRecords.maxHourlyUsers}
+							hourlyRecords={parsedRecords.hourlyRecords}
 						/>
 					{/if}
 				</div>
@@ -63,6 +67,7 @@
 			{#if parsedRecords}
 				<BestTimesToday bestTimes={parsedRecords.bestTodayTimes} />
 				<BestTimesWeek
+					weekdays={serverConfig.weekdays}
 					maxUsers={parsedRecords.maxAvgUsers}
 					bestTimes={parsedRecords.avgUsersByDay}
 					bestWeeklyTimes={parsedRecords.bestWeeklyTimes}
@@ -96,14 +101,18 @@
 							{/if}
 						</div>
 					</TabsContent>
+
 					<TabsContent value={ChartType.WEEKLY} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
-							<WeeklyChart
-								timezone={serverConfig.timezone}
-								timeformat={serverConfig.timeformat}
-								chartData={parsedRecords?.records}
-							/>
+							{#if parsedRecords}
+								<WeeklyChart
+									weekdays={serverConfig.weekdays}
+									timezone={serverConfig.timezone}
+									timeformat={serverConfig.timeformat}
+									chartData={parsedRecords.records}
+								/>
+							{/if}
 						</div>
 					</TabsContent>
 				</Tabs>

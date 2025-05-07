@@ -6,16 +6,18 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { weekDays } from '$lib/constants';
+	import { WeekDay } from '$lib/constants';
 	import type { ParsedRecords } from '$lib/records/records.map';
 	import CalendarDays from '@lucide/svelte/icons/calendar-days';
 
 	let {
 		maxUsers,
 		bestTimes,
-		bestWeeklyTimes
+		bestWeeklyTimes,
+		weekdays
 	}: {
 		maxUsers: number;
+		weekdays: WeekDay[];
 		bestTimes: ParsedRecords['avgUsersByDay'];
 		bestWeeklyTimes: ParsedRecords['bestWeeklyTimes'];
 	} = $props();
@@ -41,13 +43,26 @@
 			</div>
 		{:else}
 			<div class="space-y-3">
-				{#each weekDays as day}
+				{#each weekdays as day}
 					{@const avgUsers = bestTimes[day]}
 					{@const record = bestWeeklyTimes[day]}
 					{@const rank = topDays.indexOf(day) + 1}
 
 					<div class="flex items-center gap-3">
-						<div class="w-24 text-sm font-medium">{day || ''}</div>
+						<div
+							class="flex w-32 items-center justify-between gap-2 text-sm font-medium"
+						>
+							{day}
+							<span class="w-10">
+								{#if rank}
+									<div
+										class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 font-bold text-orange-600"
+									>
+										#{rank}
+									</div>
+								{/if}
+							</span>
+						</div>
 						<div class="h-8 flex-1 overflow-hidden rounded-md bg-muted">
 							<div
 								class="flex h-full items-center rounded-md px-3 font-medium text-white"
@@ -67,13 +82,6 @@
 								{avgUsers} ({record.users} at {record.hhmm})
 							</div>
 						</div>
-						{#if rank}
-							<div
-								class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 font-bold text-orange-600"
-							>
-								#{rank}
-							</div>
-						{/if}
 					</div>
 				{/each}
 			</div>

@@ -5,40 +5,45 @@
 		TooltipProvider,
 		TooltipTrigger
 	} from '$lib/components/ui/tooltip';
-	import { type WeekDay } from '$lib/constants';
-	import { Formatter } from '$lib/stores/formatters.svelte';
-	import { serverConfig } from '$lib/stores/settings.svelte';
+	import { TimeFormat, type WeekDay } from '$lib/constants';
 	import { type ParsedRecords } from '$lib/records/records.map';
 
 	let hours = Array.from({ length: 24 }, (_, i) => i);
 
 	let {
-		maxUsers = 0,
-		hourlyRecords
+		weekdays,
+		timeformat,
+		hourlyRecords,
+		avgUsers
 	}: {
-		maxUsers?: number;
-		hourlyRecords: ParsedRecords['hourlyRecords'] | undefined;
+		maxUsers: number;
+		weekdays: WeekDay[];
+		timeformat: TimeFormat;
+		hourlyRecords: ParsedRecords['hourlyRecords'];
+		avgUsers: number;
 	} = $props();
 
-	const getCellColor = (users: number | undefined) => {
-		if (!users) {
-			return 'transparent';
-		}
-
-		const intensity = users / maxUsers;
-		return `hsla(24, 95%, 53%, ${intensity * 0.9})`;
+	const getCellColor = (users: number) => {
+		const intensity = users / avgUsers;
+		return `hsla(24, 95%, 53%, ${Math.min(intensity * 0.5, 1)})`;
 	};
 
 	const getRecordUsers = (day: WeekDay, hour: number) => {
-		const dayRecords = hourlyRecords?.[day];
-		if (!dayRecords) {
-			return 0;
-		}
-
+		const dayRecords = hourlyRecords[day];
 		const records = dayRecords.filter((r) => r.date.getHours() === hour);
 		const record = records[records.length - 1];
 
 		return record ? record.users : 0;
+	};
+
+	const getHourLabel = (hour: number): string => {
+		if (timeformat === TimeFormat.H24) {
+			return `${hour.toString().padStart(2, '0')}h`;
+		} else {
+			const period = hour < 12 ? 'AM' : 'PM';
+			const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+			return `${displayHour}${period}`;
+		}
 	};
 </script>
 
@@ -53,13 +58,13 @@
 			<!-- Hour labels  -->
 			{#each hours as hour}
 				<div class="w-[4%] text-center text-xs text-muted-foreground">
-					{Formatter.formatHour(hour)}
+					{getHourLabel(hour)}
 				</div>
 			{/each}
 		</div>
 
 		<TooltipProvider>
-			{#each serverConfig.weekdays as day}
+			{#each weekdays as day}
 				<div class="flex h-10 w-full items-center">
 					<!-- Day label -->
 					<div class="w-12 pr-2 text-right text-sm font-medium">
@@ -79,7 +84,7 @@
 							<TooltipContent>
 								<div class="text-center">
 									<div class="font-medium">
-										{day.slice(0, 3)} at {Formatter.formatHour(hour)}
+										{day.slice(0, 3)} at {getHourLabel(hour)}
 									</div>
 									<div>{users} users</div>
 								</div>

@@ -25,6 +25,7 @@ export type ParsedRecords = {
 	maxHourlyUsers: number;
 	maxAvgUsers: number;
 	avgUsersByDay: Record<WeekDay, number>;
+	avgWeeklyUsers: number;
 };
 
 let mostUsersByDay: Record<WeekDay, DailyRecord> = {
@@ -170,7 +171,10 @@ export function mapRecords(
 		return timeformat === TimeFormat.AM_PM ? hhmm : hhmm.concat('h');
 	};
 
+	let usersAmount = 0;
+
 	for (const r of raw_records) {
+		usersAmount += r.users || 0;
 		peakWeeklyUsers = Math.max(peakWeeklyUsers, r?.users);
 
 		const localDate = new Date(formatter.format(Date.parse(r.timestamp)));
@@ -208,6 +212,7 @@ export function mapRecords(
 		hourlyRecords: hourlyRecordsByDay.records,
 		maxHourlyUsers: hourlyRecordsByDay.maxUsers,
 		maxAvgUsers: avgUsersByDay.maxUsers,
-		avgUsersByDay: avgUsersByDay.records
+		avgUsersByDay: avgUsersByDay.records,
+		avgWeeklyUsers: Math.ceil(usersAmount / raw_records.length)
 	};
 }

@@ -1,19 +1,25 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
-	import { TimeFormat, TimeZone, weekDays } from '$lib/constants';
+	import { TimeFormat, TimeZone, WeekDay, weekDays } from '$lib/constants';
 	import type { DailyRecord, ParsedRecords } from '$lib/records/records.map';
 	import { formatDateToHHMM, getDateInTimezone } from '$lib/timezone';
 
 	Chart.register(...registerables);
 
 	type Props = {
+		weekdays: WeekDay[];
 		timeformat: TimeFormat;
 		timezone: TimeZone;
 		chartData: ParsedRecords['records'] | undefined;
 	};
 
-	let { chartData, timeformat, timezone }: Props = $props();
+	let {
+		chartData,
+		weekdays,
+		timeformat = $bindable(),
+		timezone = $bindable()
+	}: Props = $props();
 
 	let chartCanvas: HTMLCanvasElement;
 	let chartInstance: Chart | null = null;
@@ -29,14 +35,14 @@
 			let hour = Math.floor((x % 72) / 3);
 			let minute = [0, 20, 40][(x % 72) % 3];
 
-			return chartData?.[weekDays[day]]?.find((d) => {
+			return chartData?.[weekdays[day]]?.find((d) => {
 				return d.date?.getHours() === hour && d.date?.getMinutes() === minute;
 			});
 		}
 
 		function formatRecordDate(record: DailyRecord | undefined) {
 			if (!record) return '';
-			let dayDisplay = weekDays[record.date.getDay()];
+			let dayDisplay = weekdays[record.date.getDay()];
 
 			if (timeformat === TimeFormat.H24) {
 				return `${dayDisplay} ${String(record.date?.getHours()).padStart(2, '0')}:${String(
@@ -78,7 +84,8 @@
 						let currentDate = getDateInTimezone(timezone);
 						let currentHour = currentDate.getHours();
 						let currentMinute = currentDate.getMinutes();
-						let currentDay = currentDate.getDay();
+						const dayName = weekDays[currentDate.getDay()];
+						const currentDay = weekdays.indexOf(dayName);
 						const currentHourValue =
 							currentDay * 24 * 3 + currentHour * 3 + currentMinute / 60;
 						const x = chart.scales.x.getPixelForValue(currentHourValue);
@@ -102,7 +109,8 @@
 						let currentDate = getDateInTimezone(timezone);
 						let currentHour = currentDate.getHours();
 						let currentMinute = currentDate.getMinutes();
-						let currentDay = currentDate.getDay();
+						const dayName = weekDays[currentDate.getDay()];
+						const currentDay = weekdays.indexOf(dayName);
 						const currentHourValue =
 							currentDay * 24 * 3 + currentHour * 3 + currentMinute / 60;
 
@@ -132,7 +140,7 @@
 								let v = typeof value === 'string' ? parseInt(value) : value;
 
 								if (v % 72 === 0) {
-									return weekDays[Math.floor(v / 72)];
+									return weekdays[Math.floor(v / 72)];
 								}
 								// Only show ticks on the hour
 							},
