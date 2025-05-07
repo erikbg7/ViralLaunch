@@ -1,31 +1,30 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
-	import { TimeFormat, weekDays } from '$lib/constants';
+	import { TimeFormat, TimeZone, weekDays } from '$lib/constants';
 	import type { ParsedRecords } from '$lib/records/records.map';
+	import { getDateInTimezone } from '$lib/timezone';
 
 	Chart.register(...registerables);
 
 	type Props = {
 		timeformat: TimeFormat;
+		timezone: TimeZone;
 		chartData: ParsedRecords['records'] | undefined;
 	};
 
-	let { chartData, timeformat }: Props = $props();
+	let { chartData, timeformat, timezone }: Props = $props();
 
-	// TODO: this might be wrong, need to check if the chartData is in UTC or local time
-	let todayChartData = chartData?.[weekDays[new Date().getDay()]];
+	let date = getDateInTimezone(timezone);
+	let todayChartData = chartData?.[weekDays[date.getDay()]];
 
 	if (!todayChartData) {
 		todayChartData = [];
 	}
 
-	let currentDate = new Date();
-	let currentHour = currentDate.getUTCHours();
-	let currentMinute = currentDate.getUTCMinutes();
-
 	let chartCanvas: HTMLCanvasElement;
 	let chartInstance: Chart | null = null;
+	let intervalId: NodeJS.Timeout | null = null;
 
 	function renderWeeklyChart() {
 		if (chartInstance) chartInstance.destroy();
@@ -64,7 +63,10 @@
 					id: 'current-time-indicator',
 					afterDraw(chart) {
 						const ctx = chart.ctx;
-						const currentHourValue = currentHour + currentMinute / 60;
+						let currentDate = getDateInTimezone(timezone);
+						let currentHour = currentDate.getHours();
+						let currentMinute = currentDate.getMinutes();
+						const currentHourValue = currentHour * 3 + currentMinute / 60;
 						const x = chart.scales.x.getPixelForValue(currentHourValue);
 						ctx.save();
 						// add bold font
@@ -84,7 +86,10 @@
 
 					beforeDraw(chart) {
 						const ctx = chart.ctx;
-						const currentHourValue = currentHour + currentMinute / 60;
+						let currentDate = getDateInTimezone(timezone);
+						let currentHour = currentDate.getHours();
+						let currentMinute = currentDate.getMinutes();
+						const currentHourValue = currentHour * 3 + currentMinute / 60;
 						const x = chart.scales.x.getPixelForValue(currentHourValue);
 						ctx.save();
 						ctx.beginPath();
@@ -108,7 +113,6 @@
 					x: {
 						ticks: {
 							callback: function (value, index) {
-								console.log(value, index);
 								let v = typeof value === 'string' ? parseInt(value) : value;
 
 								if (v % 3 === 0) {
@@ -142,15 +146,25 @@
 				}
 			}
 		});
+
+		intervalId = setInterval(() => {
+			chartInstance?.update('none'); // 'none' to prevent animation
+		}, 10000); // Update every 10 seconds
 	}
 
 	$effect(() => {
 		if (!chartData) return;
+		if (intervalId) clearInterval(intervalId);
 		renderWeeklyChart();
+
+		return () => {
+			if (intervalId) clearInterval(intervalId);
+		};
 	});
 
 	onDestroy(() => {
 		if (chartInstance) chartInstance.destroy();
+		if (intervalId) clearInterval(intervalId);
 	});
 </script>
 
