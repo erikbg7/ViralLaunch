@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { api } from '$lib/api';
-	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -90,6 +89,7 @@
 						<div class="h-full w-full">
 							{#if parsedRecords}
 								<DailyChart
+									timezone={serverConfig.timezone}
 									timeformat={serverConfig.timeformat}
 									chartData={parsedRecords.records}
 								/>
@@ -99,7 +99,11 @@
 					<TabsContent value={ChartType.WEEKLY} class="h-[400px]">
 						<!-- responsive container -->
 						<div class="h-full w-full">
-							<WeeklyChart chartData={parsedRecords?.records} />
+							<WeeklyChart
+								timezone={serverConfig.timezone}
+								timeformat={serverConfig.timeformat}
+								chartData={parsedRecords?.records}
+							/>
 						</div>
 					</TabsContent>
 				</Tabs>

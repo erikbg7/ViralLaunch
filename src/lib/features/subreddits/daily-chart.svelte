@@ -3,7 +3,7 @@
 	import { Chart, registerables } from 'chart.js';
 	import { TimeFormat, TimeZone, weekDays } from '$lib/constants';
 	import type { ParsedRecords } from '$lib/records/records.map';
-	import { getDateInTimezone } from '$lib/timezone';
+	import { formatDateToHHMM, getDateInTimezone } from '$lib/timezone';
 
 	Chart.register(...registerables);
 
@@ -26,13 +26,12 @@
 	let chartInstance: Chart | null = null;
 	let intervalId: NodeJS.Timeout | null = null;
 
-	function renderWeeklyChart() {
+	function renderDailyChart() {
 		if (chartInstance) chartInstance.destroy();
 
 		const chartX = Array.from({ length: 72 }, (_, i) => i);
 
 		function getRecordForX(x: number) {
-			let day = Math.floor(x / 72);
 			let hour = Math.floor((x % 72) / 3);
 			let minute = [0, 20, 40][(x % 72) % 3];
 
@@ -73,7 +72,7 @@
 						ctx.font = '12px Arial';
 						ctx.fillStyle = 'red';
 
-						let text = `${currentHour}:${String(currentMinute).padStart(2, '0')}`;
+						let text = formatDateToHHMM(currentDate, timezone, timeformat);
 						ctx.beginPath();
 						ctx.roundRect(x - 18, 22, ctx.measureText(text).width + 6, 18, 5);
 						ctx.fill();
@@ -125,7 +124,7 @@
 										return `${displayHour}${period}`;
 									}
 								}
-								// Only show ticks on the hour
+								// Only show ticks on the hours
 							},
 							autoSkip: false, // Ensures all labels are checked for skipping
 							maxRotation: 0,
@@ -155,7 +154,7 @@
 	$effect(() => {
 		if (!chartData) return;
 		if (intervalId) clearInterval(intervalId);
-		renderWeeklyChart();
+		renderDailyChart();
 
 		return () => {
 			if (intervalId) clearInterval(intervalId);
